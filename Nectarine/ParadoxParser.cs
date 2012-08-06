@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using System.Globalization;
 
 namespace Nectarine
 {
@@ -211,6 +212,14 @@ namespace Nectarine
                 }
             }
             return result;
+        }
+
+        public DateTime ReadDateTime()
+        {
+            DateTime result;
+            if (DateTime.TryParseExact(ReadString(), "yyyy.M.d", DateTimeFormatInfo.InvariantInfo, DateTimeStyles.None, out result))
+                return result;
+            throw new Exception();
         }
     }
 }

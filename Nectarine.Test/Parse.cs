@@ -74,5 +74,22 @@ namespace Nectarine.Test
 
             Assert.AreEqual(130, actual);
         }
+
+        [Test]
+        public void SimpleDate()
+        {
+            string toParse = "date=\"1770.12.5\"";
+            var data = toParse.ToCharArray().Select(x => (byte)x).ToArray();
+
+            DateTime actual = DateTime.MinValue;
+            Dictionary<string, Action<ParadoxParser>> dictionary = new Dictionary<string, Action<ParadoxParser>>
+            {
+                { "date", x => actual = x.ReadDateTime() }
+            };
+            ParadoxParser p = new ParadoxParser(data, dictionary);
+
+            DateTime expected = new DateTime(1770, 12, 5);
+            Assert.AreEqual(expected, actual);
+        }
     }
 }
