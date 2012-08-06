@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nectarine", "Nectarine\Nectarine.csproj", "{7E6B9A32-3D38-49EE-B95F-F7FB4961CF0F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nectarine.Test", "Nectarine.Test\Nectarine.Test.csproj", "{3F8EB42C-4931-4192-9537-90BDED47B496}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7E6B9A32-3D38-49EE-B95F-F7FB4961CF0F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E6B9A32-3D38-49EE-B95F-F7FB4961CF0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E6B9A32-3D38-49EE-B95F-F7FB4961CF0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E6B9A32-3D38-49EE-B95F-F7FB4961CF0F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F8EB42C-4931-4192-9537-90BDED47B496}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F8EB42C-4931-4192-9537-90BDED47B496}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F8EB42C-4931-4192-9537-90BDED47B496}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F8EB42C-4931-4192-9537-90BDED47B496}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
