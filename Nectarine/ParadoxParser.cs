@@ -244,6 +244,14 @@ namespace Nectarine
             return result;
         }
 
+        public double ReadDouble()
+        {
+            double result;
+            if (double.TryParse(ReadString(), NumberStyles.Float, CultureInfo.InvariantCulture, out result))
+                return result;
+            throw new Exception();
+        }
+
         public DateTime ReadDateTime()
         {
             DateTime result;
