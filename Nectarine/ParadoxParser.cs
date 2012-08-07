@@ -72,6 +72,7 @@ namespace Nectarine
             }
         }
 
+        private int currentIndent;
         private LexerToken currentToken;
         private byte currentByte;
         private int currentPosition;
@@ -127,13 +128,13 @@ namespace Nectarine
             }
         }
 
-        public void Parse(IParadoxFile file)
+        public IParadoxFile Parse(IParadoxFile file)
         {
-            ReadString(); //advance through the {
-            parse(stream, file.ParseValues);
+            parse(stream, file.ParseValues, currentIndent);
+            return file;
         }
 
-        private void parse(Stream stream, IDictionary<string, Action<ParadoxParser>> strategy)
+        private void parse(Stream stream, IDictionary<string, Action<ParadoxParser>> strategy, int stopIndent = 0)
         {
             Action<ParadoxParser> action;
             do
@@ -144,8 +145,9 @@ namespace Nectarine
                     if (strategy.TryGetValue(currentLine, out action))
                         action(this);
                 }
-            } while (!eof);
+            } while (!eof && currentIndent > stopIndent);
         }
+
 
         private string GetToken(Stream fs)
         {
@@ -170,6 +172,18 @@ namespace Nectarine
                 CurrentToken = stringBuffer.ToString();
                 stringBuffer.Clear();
                 return CurrentToken;
+            }
+            else if (currentToken == LexerToken.LeftParanthesis)
+            {
+                currentIndent++;
+            }
+            else if (currentToken == LexerToken.RightParanthesis)
+            {
+                currentIndent--;
+            }
+            else if (currentToken != LexerToken.Untyped)
+            {
+                return GetToken(stream);
             }
 
             do
