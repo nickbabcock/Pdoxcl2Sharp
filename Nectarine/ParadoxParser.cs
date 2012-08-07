@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 
 namespace Nectarine
 {
@@ -71,9 +72,8 @@ namespace Nectarine
             }
         }
 
-
+        private LexerToken currentToken;
         private byte currentByte;
-        private byte lastByte;
         private int currentPosition;
         private int bufferSize;
         private int desiredBufferSize;
@@ -83,7 +83,6 @@ namespace Nectarine
 
         private bool eof = false;
 
-        private IDictionary<string, Action<ParadoxParser>> strategy;
         public string CurrentToken { get; private set; }
 
         public ParadoxParser(byte[] data, IDictionary<string, Action<ParadoxParser>> parseStrategy, int bufferSize = Globals.BUFFER_SIZE)
@@ -97,14 +96,13 @@ namespace Nectarine
             if (bufferSize < 1)
                 throw new ArgumentOutOfRangeException("bufferSize", bufferSize, "Buffer size must be greater than 0");
 
-            this.strategy = parseStrategy;
             this.desiredBufferSize = bufferSize;
             this.buffer = new byte[desiredBufferSize];
             this.stringBuffer = new StringBuilder();
 
             using (stream = new MemoryStream(data))
             {
-                parse(stream);
+                parse(stream, parseStrategy);
             }
         }
 
@@ -119,18 +117,23 @@ namespace Nectarine
             if (bufferSize < 1)
                 throw new ArgumentOutOfRangeException("bufferSize", bufferSize, "Buffer size must be greater than 0");
 
-            this.strategy = parseStrategy;
             this.desiredBufferSize = bufferSize;
             this.buffer = new byte[desiredBufferSize];
             this.stringBuffer = new StringBuilder();
 
             using (stream = new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite))
             {
-                parse(stream);
+                parse(stream, parseStrategy);
             }
         }
 
-        private void parse(Stream stream)
+        public void Parse(IParadoxFile file)
+        {
+            ReadString(); //advance through the {
+            parse(stream, file.ParseValues);
+        }
+
+        private void parse(Stream stream, IDictionary<string, Action<ParadoxParser>> strategy)
         {
             Action<ParadoxParser> action;
             do
@@ -152,7 +155,7 @@ namespace Nectarine
             while (IsSpace(currentByte = Get(fs)) && !eof)
                 ;
 
-
+            currentToken = IsSingleCharTok(currentByte);
             if (currentByte == COMMENT)
             {
                 while ((currentByte = Get(fs)) != NEWLINE && !eof)
@@ -204,7 +207,7 @@ namespace Nectarine
         public int ReadInt32()
         {
             int result = 0;
-            while (IsSingleCharTok(currentByte = Get(stream)) == LexerToken.Untyped && !eof)
+            while (!IsSpace(currentByte = Get(stream)) && IsSingleCharTok(currentByte) == LexerToken.Untyped && !eof)
             {
                 if (currentByte >= 0x30 && currentByte <= 0x39)
                 {
