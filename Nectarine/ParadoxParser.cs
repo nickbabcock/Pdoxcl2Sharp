@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Globalization;
-using System.Runtime.CompilerServices;
 
 namespace Nectarine
 {
@@ -41,6 +40,8 @@ namespace Nectarine
         private const byte RIGHTPARANTHESIS = 0x29;
         private const byte EXCLAMATION = 0x21;
         private const byte COMMA = 0x2C;
+
+        private const NumberStyles SignedFloatingStyle = NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign;
 
         public static bool IsSpace(byte c)
         {
@@ -84,7 +85,7 @@ namespace Nectarine
 
         private bool eof = false;
 
-        public string CurrentToken { get; private set; }
+        public string CurrentString { get; private set; }
 
         public ParadoxParser(byte[] data, IDictionary<string, Action<ParadoxParser>> parseStrategy, int bufferSize = Globals.BUFFER_SIZE)
         {
@@ -103,7 +104,7 @@ namespace Nectarine
 
             using (stream = new MemoryStream(data))
             {
-                parse(stream, parseStrategy);
+                parse(parseStrategy);
             }
         }
 
@@ -124,22 +125,22 @@ namespace Nectarine
 
             using (stream = new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite))
             {
-                parse(stream, parseStrategy);
+                parse(parseStrategy);
             }
         }
 
         public IParadoxFile Parse(IParadoxFile file)
         {
-            parse(stream, file.ParseValues, currentIndent);
+            parse(file.ParseValues, currentIndent);
             return file;
         }
 
-        private void parse(Stream stream, IDictionary<string, Action<ParadoxParser>> strategy)
+        private void parse(IDictionary<string, Action<ParadoxParser>> strategy)
         {
             Action<ParadoxParser> action;
             do
             {
-                string currentLine = GetToken(stream);
+                string currentLine = ReadString();
                 if (!String.IsNullOrEmpty(currentLine))
                 {
                     if (strategy.TryGetValue(currentLine, out action))
@@ -148,12 +149,12 @@ namespace Nectarine
             } while (!eof);
         }
 
-        private void parse(Stream stream, IDictionary<string, Action<ParadoxParser>> strategy, int stopIndent)
+        private void parse(IDictionary<string, Action<ParadoxParser>> strategy, int stopIndent)
         {
             Action<ParadoxParser> action;
             do
             {
-                string currentLine = GetToken(stream);
+                string currentLine = ReadString();
                 if (!String.IsNullOrEmpty(currentLine))
                 {
                     if (strategy.TryGetValue(currentLine, out action))
@@ -162,58 +163,44 @@ namespace Nectarine
             } while (!eof && currentIndent < stopIndent);
         }
 
-        private string GetToken(Stream fs)
+        private LexerToken GetNextToken()
         {
-            if (eof)
-                return null;
-
-            while (IsSpace(currentByte = Get(fs)) && !eof)
+            while (IsSpace(currentByte = ReadByte()) && !eof)
                 ;
 
             currentToken = IsSingleCharTok(currentByte);
-            if (currentByte == COMMENT)
-            {
-                while ((currentByte = Get(fs)) != NEWLINE && !eof)
-                    ;
-                return GetToken(fs);
-            }
-            else if (currentByte == QUOTE)
-            {
-                while ((currentByte = Get(fs)) != QUOTE && !eof)
-                    stringBuffer.Append((char)currentByte);
 
-                CurrentToken = stringBuffer.ToString();
-                stringBuffer.Clear();
-                return CurrentToken;
-            }
-            else if (currentToken == LexerToken.LeftParanthesis)
+            switch (currentToken)
             {
-                currentIndent++;
+                case LexerToken.Comment:
+                    while ((currentByte = ReadByte()) != NEWLINE && !eof)
+                        ;
+                    return GetNextToken();
+                case LexerToken.LeftCurly:
+                    currentIndent++;
+                    return LexerToken.LeftCurly;
+                case LexerToken.RightCurly:
+                    currentIndent--;
+                    return LexerToken.RightCurly;
+                default:
+                    return currentToken;
             }
-            else if (currentToken == LexerToken.RightParanthesis)
-            {
-                currentIndent--;
-            }
-            else if (currentToken != LexerToken.Untyped)
-            {
-                return GetToken(stream);
-            }
-
-            do
-            {
-                stringBuffer.Append((char)currentByte);
-            } while (!IsSpace(currentByte = Get(fs)) && IsSingleCharTok(currentByte) == LexerToken.Untyped && !eof);
-
-            CurrentToken = stringBuffer.ToString();
-            stringBuffer.Clear();
-            return CurrentToken;
         }
 
-        private byte Get(Stream stream)
+        private string SaveBufferThenClear()
         {
-            if (currentPosition == bufferSize && !eof)
+            CurrentString = stringBuffer.ToString();
+            stringBuffer.Clear();
+            return CurrentString;
+        }
+
+        public byte ReadByte()
+        {
+            if (currentPosition == bufferSize)
             {
-                bufferSize = stream.Read(buffer, 0, desiredBufferSize);
+                if (!eof)
+                    bufferSize = stream.Read(buffer, 0, desiredBufferSize);
+
                 currentPosition = 0;
 
                 if (bufferSize == 0)
@@ -226,16 +213,39 @@ namespace Nectarine
             return buffer[currentPosition++];
         }
 
+
+
         public string ReadString()
         {
-            return GetToken(stream);
+            if (eof)
+                return null;
+
+            switch (GetNextToken())
+            {
+                case LexerToken.Quote:
+                    while ((currentByte = ReadByte()) != QUOTE && !eof)
+                        stringBuffer.Append((char)currentByte);
+
+                    return SaveBufferThenClear();
+                case LexerToken.Untyped:
+                    do
+                    {
+                        stringBuffer.Append((char)currentByte);
+                    } while (!IsSpace(currentByte = ReadByte()) && IsSingleCharTok(currentByte) == LexerToken.Untyped && !eof);
+
+                    return SaveBufferThenClear();
+                default:
+                    return CurrentString = ReadString();
+            }
+            //return GetToken(stream);
         }
 
         public int ReadInt32()
         {
             int result = 0;
             bool negative = false;
-            while (!IsSpace(currentByte = Get(stream)) && IsSingleCharTok(currentByte) == LexerToken.Untyped && !eof)
+
+            while (!IsSpace(currentByte = ReadByte()) && IsSingleCharTok(currentByte) == LexerToken.Untyped && !eof)
             {
                 if (currentByte >= 0x30 && currentByte <= 0x39)
                 {
@@ -255,7 +265,7 @@ namespace Nectarine
         public double ReadDouble()
         {
             double result;
-            if (double.TryParse(ReadString(), NumberStyles.Float, CultureInfo.InvariantCulture, out result))
+            if (double.TryParse(ReadString(), SignedFloatingStyle, CultureInfo.InvariantCulture, out result))
                 return result;
             throw new Exception();
         }
@@ -266,6 +276,19 @@ namespace Nectarine
             if (DateTime.TryParseExact(ReadString(), "yyyy.M.d", DateTimeFormatInfo.InvariantInfo, DateTimeStyles.None, out result))
                 return result;
             throw new Exception();
+        }
+
+        public void ReadInsideBrackets(Action<ParadoxParser> action)
+        {
+            int startingIndent = currentIndent;
+
+            //Advance through the '{'
+            GetNextToken();
+            action(this);
+            
+            //Advance until the closing curly brace
+            while (GetNextToken() != LexerToken.RightCurly && startingIndent == currentIndent && !eof)
+                ;
         }
     }
 }
