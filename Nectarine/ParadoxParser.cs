@@ -134,7 +134,7 @@ namespace Nectarine
             return file;
         }
 
-        private void parse(Stream stream, IDictionary<string, Action<ParadoxParser>> strategy, int stopIndent = 0)
+        private void parse(Stream stream, IDictionary<string, Action<ParadoxParser>> strategy)
         {
             Action<ParadoxParser> action;
             do
@@ -145,9 +145,22 @@ namespace Nectarine
                     if (strategy.TryGetValue(currentLine, out action))
                         action(this);
                 }
-            } while (!eof && currentIndent > stopIndent);
+            } while (!eof);
         }
 
+        private void parse(Stream stream, IDictionary<string, Action<ParadoxParser>> strategy, int stopIndent)
+        {
+            Action<ParadoxParser> action;
+            do
+            {
+                string currentLine = GetToken(stream);
+                if (!String.IsNullOrEmpty(currentLine))
+                {
+                    if (strategy.TryGetValue(currentLine, out action))
+                        action(this);
+                }
+            } while (!eof && currentIndent < stopIndent);
+        }
 
         private string GetToken(Stream fs)
         {
