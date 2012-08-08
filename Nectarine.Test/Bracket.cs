@@ -8,7 +8,6 @@ namespace Nectarine.Test
     [TestFixture]
     class Bracket
     {
-
         [Test]
         public void SingleBracket()
         {
@@ -21,7 +20,7 @@ namespace Nectarine.Test
                 {"date", x => x.Parse(actual)}
             };
 
-            ParadoxParser p = new ParadoxParser(data, dictionary);
+            ParadoxParser p = new ParadoxParser(data, dictionary.ParserAdapter());
             Assert.AreEqual(new DateTime(1770, 12, 5), actual.Date);            
         }
 
@@ -40,7 +39,7 @@ namespace Nectarine.Test
                 }}
             };
 
-            ParadoxParser p = new ParadoxParser(data, dictionary);
+            ParadoxParser p = new ParadoxParser(data, dictionary.ParserAdapter());
 
             List<DateTime> expected = new List<DateTime>
             {
@@ -70,7 +69,7 @@ namespace Nectarine.Test
                 {"land_tech", x => x.ReadInsideBrackets(parser => ReadInto(parser, ref tech, ref progress))}
             };
 
-            ParadoxParser p = new ParadoxParser(data, dictionary);
+            ParadoxParser p = new ParadoxParser(data, dictionary.ParserAdapter());
             Assert.That(tech.HasValue);
             Assert.That(progress.HasValue);
             Assert.AreEqual(45, tech);
@@ -81,18 +80,23 @@ namespace Nectarine.Test
 
     class Dater : Nectarine.IParadoxFile
     {
-        public IDictionary<string, Action<ParadoxParser>> ParseValues
+        private IDictionary<string, Action<ParadoxParser>> parseValues;
+        public Dater()
         {
-            get
+            parseValues = new Dictionary<string, Action<ParadoxParser>>
             {
-                return new Dictionary<string, Action<ParadoxParser>>
-                {
-                    {"date2", x => Date = x.ReadDateTime()}
-                };
-            }
+                { "date2", x => Date = x.ReadDateTime()}
+            };
         }
 
         public DateTime Date { get; set; }
+
+        public void TokenCallback(ParadoxParser parser, string token)
+        {
+            Action<ParadoxParser> temp;
+            if (parseValues.TryGetValue(token, out temp))
+                temp(parser);
+        }
     }
 
 }

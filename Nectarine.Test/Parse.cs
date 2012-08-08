@@ -9,7 +9,6 @@ namespace Nectarine.Test
     [TestFixture]
     public class Parse
     {
-
         [Test]
         public void Simple()
         {
@@ -22,7 +21,7 @@ namespace Nectarine.Test
             {
                 { "culture", x => actual = x.ReadString() }
             };
-            ParadoxParser p = new ParadoxParser(data, dictionary);
+            ParadoxParser p = new ParadoxParser(data, dictionary.ParserAdapter());
 
             Assert.AreEqual("michigan", actual);
         }
@@ -38,7 +37,7 @@ namespace Nectarine.Test
             {
                 { "name", x => actual = x.ReadString() }
             };
-            ParadoxParser p = new ParadoxParser(data, dictionary);
+            ParadoxParser p = new ParadoxParser(data, dictionary.ParserAdapter());
 
             Assert.AreEqual("Nick", actual);
         }
@@ -55,7 +54,7 @@ namespace Nectarine.Test
                 { "culture", x => actual = x.ReadString() }
             };
 
-            ParadoxParser p = new ParadoxParser(data, dictionary);
+            ParadoxParser p = new ParadoxParser(data, dictionary.ParserAdapter());
             Assert.AreEqual(String.Empty, actual);
         }
 
@@ -70,7 +69,7 @@ namespace Nectarine.Test
             {
                 { "ID", x => actual = x.ReadInt32() }
             };
-            ParadoxParser p = new ParadoxParser(data, dictionary);
+            ParadoxParser p = new ParadoxParser(data, dictionary.ParserAdapter());
 
             Assert.AreEqual(130, actual);
         }
@@ -84,7 +83,7 @@ namespace Nectarine.Test
                 { "ID", x => actual = x.ReadInt32() }
             };
 
-            ParadoxParser p = new ParadoxParser(data, dictionary);
+            ParadoxParser p = new ParadoxParser(data, dictionary.ParserAdapter());
 
             Assert.AreEqual(-130, actual);
         }
@@ -102,7 +101,7 @@ namespace Nectarine.Test
                 { "type", x => type = x.ReadString() }
             };
 
-            ParadoxParser p = new ParadoxParser(data, dictionary);
+            ParadoxParser p = new ParadoxParser(data, dictionary.ParserAdapter());
 
             Assert.AreEqual("tagger", tag);
             Assert.AreEqual("typer", type);
@@ -119,8 +118,8 @@ namespace Nectarine.Test
             {
                 {"name", x => name = x.ReadString()},
                 {"color", x => color = x.ReadString()}
-            }; 
-            ParadoxParser p = new ParadoxParser(data, dictionary);
+            };
+            ParadoxParser p = new ParadoxParser(data, dictionary.ParserAdapter());
 
             Assert.AreEqual("namer1", name);
             Assert.AreEqual("Gray", color);
@@ -136,7 +135,7 @@ namespace Nectarine.Test
             {
                 {"ID", x => id = x.ReadInt32()}
             };
-            ParadoxParser p = new ParadoxParser(data, dictionary);
+            ParadoxParser p = new ParadoxParser(data, dictionary.ParserAdapter());
             Assert.AreEqual(100, id);
 
         }
@@ -152,7 +151,7 @@ namespace Nectarine.Test
             {
                 { "date", x => actual = x.ReadDateTime() }
             };
-            ParadoxParser p = new ParadoxParser(data, dictionary);
+            ParadoxParser p = new ParadoxParser(data, dictionary.ParserAdapter());
 
             DateTime expected = new DateTime(1770, 12, 5);
             Assert.AreEqual(expected, actual);
@@ -177,7 +176,7 @@ namespace Nectarine.Test
                 { "monarch", x => actualMonarch = x.ReadInt32() }
             };
 
-            ParadoxParser p = new ParadoxParser(data, dictionary);
+            ParadoxParser p = new ParadoxParser(data, dictionary.ParserAdapter());
 
             Assert.That(actualDate.HasValue);
             Assert.That(!String.IsNullOrEmpty(actualPlayer));

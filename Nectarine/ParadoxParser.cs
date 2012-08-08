@@ -87,7 +87,7 @@ namespace Nectarine
 
         public string CurrentString { get; private set; }
 
-        public ParadoxParser(byte[] data, IDictionary<string, Action<ParadoxParser>> parseStrategy, int bufferSize = Globals.BUFFER_SIZE)
+        public ParadoxParser(byte[] data, Action<ParadoxParser, string> parseStrategy, int bufferSize = Globals.BUFFER_SIZE)
         {
             if (data == null)
                 throw new ArgumentNullException("data");
@@ -108,7 +108,7 @@ namespace Nectarine
             }
         }
 
-        public ParadoxParser(string filePath, IDictionary<string, Action<ParadoxParser>> parseStrategy, int bufferSize = Globals.BUFFER_SIZE)
+        public ParadoxParser(string filePath, Action<ParadoxParser, string> parseStrategy, int bufferSize = Globals.BUFFER_SIZE)
         {
             if (parseStrategy == null)
                 throw new ArgumentNullException("parseStrategy");
@@ -131,35 +131,29 @@ namespace Nectarine
 
         public IParadoxFile Parse(IParadoxFile file)
         {
-            parse(file.ParseValues, currentIndent);
+            parse(file.TokenCallback, currentIndent);
             return file;
         }
 
-        private void parse(IDictionary<string, Action<ParadoxParser>> strategy)
+        private void parse(Action<ParadoxParser, string> tokenCallback)
         {
-            Action<ParadoxParser> action;
             do
             {
                 string currentLine = ReadString();
-                if (!String.IsNullOrEmpty(currentLine))
-                {
-                    if (strategy.TryGetValue(currentLine, out action))
-                        action(this);
-                }
+
+                if (currentLine != null)
+                    tokenCallback(this, currentLine);
             } while (!eof);
         }
 
-        private void parse(IDictionary<string, Action<ParadoxParser>> strategy, int stopIndent)
+        private void parse(Action<ParadoxParser, string> tokenCallback, int stopIndent)
         {
-            Action<ParadoxParser> action;
             do
             {
                 string currentLine = ReadString();
-                if (!String.IsNullOrEmpty(currentLine))
-                {
-                    if (strategy.TryGetValue(currentLine, out action))
-                        action(this);
-                }
+
+                if (currentLine != null)
+                    tokenCallback(this, currentLine);
             } while (!eof && currentIndent < stopIndent);
         }
 

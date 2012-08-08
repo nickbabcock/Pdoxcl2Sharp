@@ -7,6 +7,6 @@ namespace Nectarine
 {
     public interface IParadoxFile
     {
-        IDictionary<string, Action<ParadoxParser>> ParseValues { get; }
+        void TokenCallback(ParadoxParser parser, string token);
     }
 }

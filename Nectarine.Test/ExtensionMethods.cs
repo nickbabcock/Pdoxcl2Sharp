@@ -14,5 +14,15 @@ namespace Nectarine.Test
             //System.Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
             //return bytes;
         }
+
+        public static Action<ParadoxParser, string> ParserAdapter(this IDictionary<string, Action<ParadoxParser>> dictionary)
+        {
+            return (ParadoxParser x, string t) =>
+            {
+                Action<ParadoxParser> temp;
+                if (dictionary.TryGetValue(t, out temp))
+                    temp(x);
+            };
+        }
     }
 }
