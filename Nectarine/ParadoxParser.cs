@@ -273,7 +273,7 @@ namespace Nectarine
         public DateTime ReadDateTime()
         {
             DateTime result;
-            if (DateTime.TryParseExact(ReadString(), "yyyy.M.d", DateTimeFormatInfo.InvariantInfo, DateTimeStyles.None, out result))
+            if (TryParseDate(ReadString(), out result))
                 return result;
             throw new Exception();
         }
@@ -289,6 +289,11 @@ namespace Nectarine
             //Advance until the closing curly brace
             while (GetNextToken() != LexerToken.RightCurly && startingIndent == currentIndent && !eof)
                 ;
+        }
+
+        public static bool TryParseDate(string dateTime, out DateTime result)
+        {
+            return DateTime.TryParseExact(dateTime, "yyyy.M.d", DateTimeFormatInfo.InvariantInfo, DateTimeStyles.None, out result);
         }
     }
 }
