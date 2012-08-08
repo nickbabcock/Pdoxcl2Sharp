@@ -27,6 +27,21 @@ namespace Nectarine.Test
         }
 
         [Test]
+        public void SimpleWithSpace()
+        {
+            var data = "culture = michigan".ToByteArray();
+
+            string actual = String.Empty;
+            Dictionary<string, Action<ParadoxParser>> dictionary = new Dictionary<string, Action<ParadoxParser>>
+            {
+                { "culture", x => actual = x.ReadString() }
+            };
+            ParadoxParser p = new ParadoxParser(data, dictionary.ParserAdapter());
+
+            Assert.AreEqual("michigan", actual);
+        }
+
+        [Test]
         public void SimpleName()
         {
             string toParse = "name=\"Nick\"";
@@ -78,6 +93,22 @@ namespace Nectarine.Test
         {
             var data = "ID=-130".ToByteArray();
             int actual = 0;
+            Dictionary<string, Action<ParadoxParser>> dictionary = new Dictionary<string, Action<ParadoxParser>>
+            {
+                { "ID", x => actual = x.ReadInt32() }
+            };
+
+            ParadoxParser p = new ParadoxParser(data, dictionary.ParserAdapter());
+
+            Assert.AreEqual(-130, actual);
+        }
+
+        [Test]
+        public void Int32WithSpace()
+        {
+            var data = "ID = -130".ToByteArray();
+            int actual = 0;
+
             Dictionary<string, Action<ParadoxParser>> dictionary = new Dictionary<string, Action<ParadoxParser>>
             {
                 { "ID", x => actual = x.ReadInt32() }

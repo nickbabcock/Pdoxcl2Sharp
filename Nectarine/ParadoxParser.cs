@@ -236,24 +236,10 @@ namespace Nectarine
 
         public int ReadInt32()
         {
-            int result = 0;
-            bool negative = false;
-
-            while (!IsSpace(currentByte = ReadByte()) && IsSingleCharTok(currentByte) == LexerToken.Untyped && !eof)
-            {
-                if (currentByte >= 0x30 && currentByte <= 0x39)
-                {
-                    result = 10 * result + (currentByte - 0x30);
-                }
-                else if (currentByte == 0x2D)
-                {
-                    //TODO: Only valid if there haven't been any numbers parsed
-                    negative = true;
-                }
-                //TODO: If another character has been encountered throw an error
-            }
-
-            return (negative) ? -result : result;
+            int result;
+            if (int.TryParse(ReadString(), NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out result))
+                return result;
+            throw new Exception();
         }
 
         public double ReadDouble()
