@@ -108,6 +108,27 @@ namespace Nectarine
             }
         }
 
+        public ParadoxParser(IParadoxFile file, string filePath, int bufferSize = Globals.BUFFER_SIZE)
+        {
+            if (file == null)
+                throw new ArgumentNullException("file");
+
+            if (String.IsNullOrEmpty(filePath))
+                throw new ArgumentNullException("filePath");
+
+            if (bufferSize < 1)
+                throw new ArgumentOutOfRangeException("bufferSize", bufferSize, "Buffer size must be greater than 0");
+
+            this.desiredBufferSize = bufferSize;
+            this.buffer = new byte[desiredBufferSize];
+            this.stringBuffer = new StringBuilder();
+
+            using (stream = new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite))
+            {
+                parse(file.TokenCallback);
+            }
+        }
+
         public ParadoxParser(string filePath, Action<ParadoxParser, string> parseStrategy, int bufferSize = Globals.BUFFER_SIZE)
         {
             if (parseStrategy == null)
