@@ -41,6 +41,8 @@ namespace Nectarine
         private const byte EXCLAMATION = 0x21;
         private const byte COMMA = 0x2C;
 
+        private const int MAX_TOKEN_SIZE = 256;
+
         private const NumberStyles SignedFloatingStyle = NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign;
 
         public static bool IsSpace(byte c)
@@ -100,7 +102,7 @@ namespace Nectarine
 
             this.desiredBufferSize = bufferSize;
             this.buffer = new byte[desiredBufferSize];
-            this.stringBuffer = new StringBuilder();
+            this.stringBuffer = new StringBuilder(MAX_TOKEN_SIZE);
 
             using (stream = new MemoryStream(data))
             {
@@ -121,7 +123,7 @@ namespace Nectarine
 
             this.desiredBufferSize = bufferSize;
             this.buffer = new byte[desiredBufferSize];
-            this.stringBuffer = new StringBuilder();
+            this.stringBuffer = new StringBuilder(MAX_TOKEN_SIZE);
 
             using (stream = new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite))
             {
@@ -142,7 +144,7 @@ namespace Nectarine
 
             this.desiredBufferSize = bufferSize;
             this.buffer = new byte[desiredBufferSize];
-            this.stringBuffer = new StringBuilder();
+            this.stringBuffer = new StringBuilder(MAX_TOKEN_SIZE);
 
             using (stream = new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite))
             {
@@ -264,7 +266,7 @@ namespace Nectarine
                 ;
 
             if (eof)
-                throw new Exception();
+                return 0;
 
             do
             {
