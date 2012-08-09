@@ -302,8 +302,17 @@ namespace Pdoxcl2Sharp
                 ;
         }
 
+        /// <summary>
+        /// Returns the equivalent System.DateTime as the input string.  Simple wrapper around
+        /// DateTime.TryParseExact with specified format and invariant info.  This function is
+        /// designed to work with tokens or strings created by <see cref="ReadString"/> and as
+        /// such, doesn't allow whitespace.
+        /// </summary>
+        /// <param name="dateTime">A string containing the date to parse.</param>
+        /// <param name="result">Contains the equivalent System.DateTime as the input parameter</param>
+        /// <returns>True if the conversion was successful</returns>
         public static bool TryParseDate(string dateTime, out DateTime result)
-        {
+        { 
             return DateTime.TryParseExact(dateTime, "yyyy.M.d", DateTimeFormatInfo.InvariantInfo, DateTimeStyles.None, out result);
         }
     }
