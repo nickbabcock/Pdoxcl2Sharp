@@ -284,12 +284,23 @@ namespace Pdoxcl2Sharp
             int startingIndent = currentIndent;
 
             //Advance through the '{'
-            getNextToken();
+            if (getNextToken() != LexerToken.LeftCurly)
+                throw new InvalidOperationException("When reading inside brackets the first token must be a left curly");
+
             action(this);
 
-            //Advance until the closing curly brace
-            while (getNextToken() != LexerToken.RightCurly && startingIndent == currentIndent && !eof)
-                ;
+            switch (currentIndent.CompareTo(startingIndent))
+            {
+                case -1:
+                    throw new InvalidOperationException("Invoked action parsed further than the closing bracket");
+                case 0:
+                    return;
+                case 1:
+                    //Advance until the closing curly brace
+                    while (getNextToken() != LexerToken.RightCurly && startingIndent == currentIndent && !eof)
+                        ;
+                    break;
+            }
         }
 
         public static bool TryParseDate(string dateTime, out DateTime result)
