@@ -152,7 +152,7 @@ namespace Pdoxcl2Sharp
             }
         }
 
-        public IParadoxFile Parse(IParadoxFile file)
+        public T Parse<T>(T file) where T : class, IParadoxFile
         {
             parse(file.TokenCallback, currentIndent);
             return file;
