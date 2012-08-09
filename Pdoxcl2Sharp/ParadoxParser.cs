@@ -50,7 +50,7 @@ namespace Pdoxcl2Sharp
             return c == SPACE || (c >= HORIZONTAL_TAB && c <= CARRIAGE_RETURN);
         }
 
-        private static LexerToken IsSingleCharTok(byte c)
+        private static LexerToken getToken(byte c)
         {
             switch (c)
             {
@@ -159,19 +159,19 @@ namespace Pdoxcl2Sharp
             } while (!eof && currentIndent < stopIndent);
         }
 
-        private LexerToken GetNextToken()
+        private LexerToken getNextToken()
         {
-            while (IsSpace(currentByte = ReadByte()) && !eof)
+            while (IsSpace(currentByte = readByte()) && !eof)
                 ;
 
-            currentToken = IsSingleCharTok(currentByte);
+            currentToken = getToken(currentByte);
 
             switch (currentToken)
             {
                 case LexerToken.Comment:
-                    while ((currentByte = ReadByte()) != NEWLINE && !eof)
+                    while ((currentByte = readByte()) != NEWLINE && !eof)
                         ;
-                    return GetNextToken();
+                    return getNextToken();
                 case LexerToken.LeftCurly:
                     currentIndent++;
                     return LexerToken.LeftCurly;
@@ -183,14 +183,14 @@ namespace Pdoxcl2Sharp
             }
         }
 
-        private string SaveBufferThenClear()
+        private string saveBufferThenClear()
         {
             CurrentString = stringBuffer.ToString();
             stringBuffer.Clear();
             return CurrentString;
         }
 
-        public byte ReadByte()
+        private byte readByte()
         {
             if (currentPosition == bufferSize)
             {
@@ -216,24 +216,23 @@ namespace Pdoxcl2Sharp
             if (eof)
                 return null;
 
-            switch (GetNextToken())
+            switch (getNextToken())
             {
                 case LexerToken.Quote:
-                    while ((currentByte = ReadByte()) != QUOTE && !eof)
+                    while ((currentByte = readByte()) != QUOTE && !eof)
                         stringBuffer.Append((char)currentByte);
 
-                    return SaveBufferThenClear();
+                    return saveBufferThenClear();
                 case LexerToken.Untyped:
                     do
                     {
                         stringBuffer.Append((char)currentByte);
-                    } while (!IsSpace(currentByte = ReadByte()) && IsSingleCharTok(currentByte) == LexerToken.Untyped && !eof);
+                    } while (!IsSpace(currentByte = readByte()) && getToken(currentByte) == LexerToken.Untyped && !eof);
 
-                    return SaveBufferThenClear();
+                    return saveBufferThenClear();
                 default:
                     return CurrentString = ReadString();
             }
-            //return GetToken(stream);
         }
 
         public int ReadInt32()
@@ -241,7 +240,7 @@ namespace Pdoxcl2Sharp
             int result = 0;
             bool negative = false;
 
-            while ((IsSpace(currentByte = ReadByte()) || IsSingleCharTok(currentByte) != LexerToken.Untyped) && !eof)
+            while ((IsSpace(currentByte = readByte()) || getToken(currentByte) != LexerToken.Untyped) && !eof)
                 ;
 
             if (eof)
@@ -259,7 +258,7 @@ namespace Pdoxcl2Sharp
                     negative = true;
                 }
                 //TODO: If another character has been encountered throw an error
-            } while (!IsSpace(currentByte = ReadByte()) && IsSingleCharTok(currentByte) == LexerToken.Untyped && !eof);
+            } while (!IsSpace(currentByte = readByte()) && getToken(currentByte) == LexerToken.Untyped && !eof);
 
             return (negative) ? -result : result;
         }
@@ -285,11 +284,11 @@ namespace Pdoxcl2Sharp
             int startingIndent = currentIndent;
 
             //Advance through the '{'
-            GetNextToken();
+            getNextToken();
             action(this);
 
             //Advance until the closing curly brace
-            while (GetNextToken() != LexerToken.RightCurly && startingIndent == currentIndent && !eof)
+            while (getNextToken() != LexerToken.RightCurly && startingIndent == currentIndent && !eof)
                 ;
         }
 
