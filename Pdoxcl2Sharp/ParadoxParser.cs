@@ -204,6 +204,11 @@ namespace Pdoxcl2Sharp
             }
         }
 
+        /// <summary>
+        /// Transfers the string buffer to the current string.
+        /// Clears the buffer for the next round of reading
+        /// </summary>
+        /// <returns>The string contained inside the buffer</returns>
         private string SaveBufferThenClear()
         {
             CurrentString = stringBuffer.ToString();
@@ -211,6 +216,12 @@ namespace Pdoxcl2Sharp
             return CurrentString;
         }
 
+        /// <summary>
+        /// Retrieves the next byte in the buffer, reading from the
+        /// stream if necessary.  Since this is a raw byte, if a number
+        /// is expected, better to use <see cref="ReadInt32"/>
+        /// </summary>
+        /// <returns>The next raw byte in the buffer</returns>
         public byte ReadByte()
         {
             if (currentPosition == bufferSize)
@@ -229,7 +240,6 @@ namespace Pdoxcl2Sharp
 
             return buffer[currentPosition++];
         }
-
 
 
         public string ReadString()
