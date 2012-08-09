@@ -54,7 +54,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Nectarine\Pdoxcl2Sharp.csproj">
+    <ProjectReference Include="..\Pdoxcl2Sharp\Pdoxcl2Sharp.csproj">
       <Project>{7E6B9A32-3D38-49EE-B95F-F7FB4961CF0F}</Project>
       <Name>Pdoxcl2Sharp</Name>
     </ProjectReference>
