@@ -42,6 +42,7 @@ namespace Pdoxcl2Sharp
         private const byte COMMA = 0x2C;
 
         private const int MAX_TOKEN_SIZE = 256;
+        private const int BUFFER_SIZE = 0x8000;
 
         private const NumberStyles SignedFloatingStyle = NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign;
 
@@ -80,7 +81,7 @@ namespace Pdoxcl2Sharp
         private byte currentByte;
         private int currentPosition;
         private int bufferSize;
-        private byte[] buffer = new byte[Globals.BUFFER_SIZE];
+        private byte[] buffer = new byte[BUFFER_SIZE];
         private StringBuilder stringBuffer = new StringBuilder(MAX_TOKEN_SIZE);
         private Stream stream;
 
@@ -195,7 +196,7 @@ namespace Pdoxcl2Sharp
             if (currentPosition == bufferSize)
             {
                 if (!eof)
-                    bufferSize = stream.Read(buffer, 0, Globals.BUFFER_SIZE);
+                    bufferSize = stream.Read(buffer, 0, BUFFER_SIZE);
 
                 currentPosition = 0;
 
