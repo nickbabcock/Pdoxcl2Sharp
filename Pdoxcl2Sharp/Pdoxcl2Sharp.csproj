@@ -8,8 +8,8 @@
     <ProjectGuid>{7E6B9A32-3D38-49EE-B95F-F7FB4961CF0F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Nectarine</RootNamespace>
-    <AssemblyName>Nectarine</AssemblyName>
+    <RootNamespace>Pdoxcl2Sharp</RootNamespace>
+    <AssemblyName>Pdoxcl2Sharp</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

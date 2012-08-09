@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Nectarine;
+using Pdoxcl2Sharp;
 using NUnit.Framework;
-namespace Nectarine.Test
+namespace Pdoxcl2Sharp.Test
 {
     [TestFixture]
     class Building : IParadoxFile

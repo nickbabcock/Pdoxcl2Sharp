@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using NUnit.Framework;
-namespace Nectarine.Test
+namespace Pdoxcl2Sharp.Test
 {
     [TestFixture]
     class Bracket
@@ -78,7 +78,7 @@ namespace Nectarine.Test
     }
 
 
-    class Dater : Nectarine.IParadoxFile
+    class Dater : Pdoxcl2Sharp.IParadoxFile
     {
         private IDictionary<string, Action<ParadoxParser>> parseValues;
         public Dater()

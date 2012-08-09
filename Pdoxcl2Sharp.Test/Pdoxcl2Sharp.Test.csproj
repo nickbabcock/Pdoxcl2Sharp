@@ -8,7 +8,7 @@
     <ProjectGuid>{3F8EB42C-4931-4192-9537-90BDED47B496}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Nectarine.Test</RootNamespace>
+    <RootNamespace>Pdoxcl2Sharp.Test</RootNamespace>
     <AssemblyName>Nectarine.Test</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -54,9 +54,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Nectarine\Nectarine.csproj">
+    <ProjectReference Include="..\Nectarine\Pdoxcl2Sharp.csproj">
       <Project>{7E6B9A32-3D38-49EE-B95F-F7FB4961CF0F}</Project>
-      <Name>Nectarine</Name>
+      <Name>Pdoxcl2Sharp</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Nectarine
+namespace Pdoxcl2Sharp
 {
     public interface IParadoxFile
     {

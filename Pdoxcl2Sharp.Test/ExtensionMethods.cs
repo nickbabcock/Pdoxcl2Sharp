@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Nectarine.Test
+namespace Pdoxcl2Sharp.Test
 {
     public static class ExtensionMethods
     {

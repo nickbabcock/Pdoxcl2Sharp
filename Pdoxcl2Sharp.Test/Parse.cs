@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using NUnit.Framework;
-using Nectarine;
-namespace Nectarine.Test
+using Pdoxcl2Sharp;
+namespace Pdoxcl2Sharp.Test
 {
     [TestFixture]
     public class Parse

@@ -5,7 +5,7 @@ using System.Text;
 using System.IO;
 using System.Globalization;
 
-namespace Nectarine
+namespace Pdoxcl2Sharp
 {
     enum LexerToken
     {
@@ -29,7 +29,7 @@ namespace Nectarine
         private const byte FEED = 0x0C;
         private const byte CARRIAGE_RETURN = 0x0D;
 
-        //Single character tokens
+        //Single character contants
         private const byte EQUALS = 0x3D;
         private const byte QUOTE = 0x22;
         private const byte RIGHT_CURLY = 0x7D;
