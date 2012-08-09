@@ -281,6 +281,10 @@ namespace Pdoxcl2Sharp
             throw new Exception();
         }
 
+        /// <summary>
+        /// Advances the parser and interprets whatever was encountered as a DateTime
+        /// </summary>
+        /// <returns>System.DateTime associated with next series of bytes in the parser</returns>
         public DateTime ReadDateTime()
         {
             DateTime result;
