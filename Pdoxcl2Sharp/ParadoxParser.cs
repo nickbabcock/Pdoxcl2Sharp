@@ -51,28 +51,29 @@ namespace Pdoxcl2Sharp
             return c == SPACE || (c >= HORIZONTAL_TAB && c <= CARRIAGE_RETURN);
         }
 
-        private static LexerToken getToken(byte c)
+        private LexerToken setCurrentToken(byte c)
         {
             switch (c)
             {
                 case EQUALS:
-                    return LexerToken.Equals;
+                    return currentToken = LexerToken.Equals;
                 case QUOTE:
-                    return LexerToken.Quote;
+                    return currentToken = LexerToken.Quote;
                 case LEFT_CURLY:
-                    return LexerToken.LeftCurly;
+                    return currentToken = LexerToken.LeftCurly;
                 case RIGHT_CURLY:
-                    return LexerToken.RightCurly;
+                    return currentToken = LexerToken.RightCurly;
                 case LEFTPARANTHESIS:
-                    return LexerToken.LeftParanthesis;
+                    return currentToken = LexerToken.LeftParanthesis;
                 case RIGHTPARANTHESIS:
-                    return LexerToken.RightParanthesis;
+                    return currentToken = LexerToken.RightParanthesis;
                 case COMMENT:
                 case EXCLAMATION:
+                    return currentToken = LexerToken.Comment;
                 case COMMA:
-                    return LexerToken.Comment;
+                    return currentToken = LexerToken.Comma;
                 default:
-                    return LexerToken.Untyped;
+                    return currentToken = LexerToken.Untyped;
             }
         }
 
@@ -165,9 +166,7 @@ namespace Pdoxcl2Sharp
             while (IsSpace(currentByte = readByte()) && !eof)
                 ;
 
-            currentToken = getToken(currentByte);
-
-            switch (currentToken)
+            switch (setCurrentToken(currentByte))
             {
                 case LexerToken.Comment:
                     while ((currentByte = readByte()) != NEWLINE && !eof)
@@ -228,7 +227,7 @@ namespace Pdoxcl2Sharp
                     do
                     {
                         stringBuffer.Append((char)currentByte);
-                    } while (!IsSpace(currentByte = readByte()) && getToken(currentByte) == LexerToken.Untyped && !eof);
+                    } while (!IsSpace(currentByte = readByte()) && setCurrentToken(currentByte) == LexerToken.Untyped && !eof);
 
                     return saveBufferThenClear();
                 default:
@@ -241,7 +240,7 @@ namespace Pdoxcl2Sharp
             int result = 0;
             bool negative = false;
 
-            while ((IsSpace(currentByte = readByte()) || getToken(currentByte) != LexerToken.Untyped) && !eof)
+            while ((IsSpace(currentByte = readByte()) || setCurrentToken(currentByte) != LexerToken.Untyped) && !eof)
                 ;
 
             if (eof)
@@ -259,7 +258,7 @@ namespace Pdoxcl2Sharp
                     negative = true;
                 }
                 //TODO: If another character has been encountered throw an error
-            } while (!IsSpace(currentByte = readByte()) && getToken(currentByte) == LexerToken.Untyped && !eof);
+            } while (!IsSpace(currentByte = readByte()) && setCurrentToken(currentByte) == LexerToken.Untyped && !eof);
 
             return (negative) ? -result : result;
         }
