@@ -80,13 +80,14 @@ namespace Pdoxcl2Sharp
         private byte currentByte;
         private int currentPosition;
         private int bufferSize;
-        private byte[] buffer;
-        private StringBuilder stringBuffer;
+        private byte[] buffer = new byte[Globals.BUFFER_SIZE];
+        private StringBuilder stringBuffer = new StringBuilder(MAX_TOKEN_SIZE);
         private Stream stream;
 
         private bool eof = false;
 
         public string CurrentString { get; private set; }
+
 
         public ParadoxParser(byte[] data, Action<ParadoxParser, string> parseStrategy)
         {
@@ -95,12 +96,6 @@ namespace Pdoxcl2Sharp
 
             if (parseStrategy == null)
                 throw new ArgumentNullException("parseStrategy");
-
-            if (bufferSize < 1)
-                throw new ArgumentOutOfRangeException("bufferSize", bufferSize, "Buffer size must be greater than 0");
-
-            this.buffer = new byte[Globals.BUFFER_SIZE];
-            this.stringBuffer = new StringBuilder(MAX_TOKEN_SIZE);
 
             using (stream = new MemoryStream(data))
             {
@@ -116,9 +111,6 @@ namespace Pdoxcl2Sharp
             if (String.IsNullOrEmpty(filePath))
                 throw new ArgumentNullException("filePath");
 
-            this.buffer = new byte[Globals.BUFFER_SIZE];
-            this.stringBuffer = new StringBuilder(MAX_TOKEN_SIZE);
-
             using (stream = new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite))
             {
                 parse(file.TokenCallback);
@@ -132,9 +124,6 @@ namespace Pdoxcl2Sharp
 
             if (String.IsNullOrEmpty(filePath))
                 throw new ArgumentNullException("filePath");
-
-            this.buffer = new byte[Globals.BUFFER_SIZE];
-            this.stringBuffer = new StringBuilder(MAX_TOKEN_SIZE);
 
             using (stream = new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite))
             {
