@@ -289,6 +289,11 @@ namespace Pdoxcl2Sharp
             throw new Exception();
         }
 
+        /// <summary>
+        /// Advances the parser through the left bracket ('{') and then invokes the action.
+        /// It is assumed that the action will consume only what is contained in the brackets.
+        /// </summary>
+        /// <param name="action">Action that will be invoked after the parser has advanced through the leading bracket</param>
         public void ReadInsideBrackets(Action<ParadoxParser> action)
         {
             int startingIndent = currentIndent;
