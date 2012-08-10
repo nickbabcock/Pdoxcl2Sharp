@@ -46,11 +46,24 @@ namespace Pdoxcl2Sharp
 
         private const NumberStyles SignedFloatingStyle = NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign;
 
+
+        /// <summary>
+        /// Checks to see whether a given byte is considered a whitespace: space, horizontal tab,
+        /// newline, vertical tab, feed, or carriage return
+        /// </summary>
+        /// <param name="c">The byte that will be tested if it is whitespace</param>
+        /// <returns>True if the byte is whitespace</returns>
         public static bool IsSpace(byte c)
         {
             return c == SPACE || (c >= HORIZONTAL_TAB && c <= CARRIAGE_RETURN);
         }
 
+        /// <summary>
+        /// Sets the current token according to the given parameter and then returns the 
+        /// current token.
+        /// </summary>
+        /// <param name="c">Byte that will be evaluated for equivalent token</param>
+        /// <returns>Current token</returns>
         private LexerToken setCurrentToken(byte c)
         {
             switch (c)
@@ -133,10 +146,17 @@ namespace Pdoxcl2Sharp
             }
         }
 
-        public IParadoxFile Parse(IParadoxFile file)
+        /// <summary>
+        /// Used to parse a set of tokens that are contained within curly brackets.
+        /// For example, if a file contains a set of countries and each country was an <see cref="IParadoxFile"/>,
+        /// the file would invoke this method whenever it found a new country.
+        /// </summary>
+        /// <param name="innerStructure">Defines how to parse the inner set of tokens.</param>
+        /// <returns>The passed in parameter newly parsed</returns>
+        public IParadoxFile Parse(IParadoxFile innerStructure)
         {
-            parse(file.TokenCallback, currentIndent);
-            return file;
+            parse(innerStructure.TokenCallback, currentIndent);
+            return innerStructure;
         }
 
         private void parse(Action<ParadoxParser, string> tokenCallback)
