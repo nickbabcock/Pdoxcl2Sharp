@@ -160,6 +160,13 @@ namespace Pdoxcl2Sharp
             } while (!eof && currentIndent < stopIndent);
         }
 
+
+        /// <summary>
+        /// Advances the parser to the next significant token, skipping whitespace and
+        /// comments.  If a left or right curly is encountered, the current indent is
+        /// adjusted accordingly.
+        /// </summary>
+        /// <returns>The significant token encountered</returns>
         private LexerToken getNextToken()
         {
             while (IsSpace(currentByte = readByte()) && !eof)
@@ -221,7 +228,12 @@ namespace Pdoxcl2Sharp
             return buffer[currentPosition++];
         }
 
-
+        /// <summary>
+        /// Returns, in string form, the bytes between two tokens, unless the a quote is 
+        /// encountered, which then all the bytes between two enclosing quotes will be returned
+        /// without the quotes in the return value
+        /// </summary>
+        /// <returns>Returns null if the end of file encountered</returns>
         public string ReadString()
         {
             if (eof)
@@ -246,6 +258,10 @@ namespace Pdoxcl2Sharp
             }
         }
 
+        /// <summary>
+        /// Advances the parser and inteprets whatever was encountered as an int32
+        /// </summary>
+        /// <returns>int32 associated with the next series of bytes in the parser</returns>
         public int ReadInt32()
         {
             int result = 0;
@@ -274,6 +290,10 @@ namespace Pdoxcl2Sharp
             return (negative) ? -result : result;
         }
 
+        /// <summary>
+        /// Advances the parser and interprets whatever was encountered as a double
+        /// </summary>
+        /// <returns>double associated with the next series of bytes in the parser</returns>
         public double ReadDouble()
         {
             double result;
