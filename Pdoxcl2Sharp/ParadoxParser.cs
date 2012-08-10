@@ -336,17 +336,17 @@ namespace Pdoxcl2Sharp
             return DateTime.TryParseExact(dateTime, "yyyy.M.d", DateTimeFormatInfo.InvariantInfo, DateTimeStyles.None, out result);
         }
 
-        public static void Parse(byte[] data, Action<ParadoxParser, string> parseStrategy, int bufferSize = Globals.BUFFER_SIZE)
+        public static void Parse(byte[] data, Action<ParadoxParser, string> parseStrategy)
         {
             ParadoxParser p = new ParadoxParser(data, parseStrategy);
         }
 
-        public static void Parse(IParadoxFile file, string filePath, int bufferSize = Globals.BUFFER_SIZE)
+        public static void Parse(IParadoxFile file, string filePath)
         {
             ParadoxParser p = new ParadoxParser(file, filePath);
         }
 
-        public static void Parse(string filePath, Action<ParadoxParser, string> parseStrategy, int bufferSize = Globals.BUFFER_SIZE)
+        public static void Parse(string filePath, Action<ParadoxParser, string> parseStrategy)
         {
             ParadoxParser p = new ParadoxParser(filePath, parseStrategy);
         }
