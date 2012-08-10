@@ -267,7 +267,7 @@ namespace Pdoxcl2Sharp
         {
             uint result = 0;
 
-            while ((IsSpace(currentByte = readByte()) || getToken(currentByte) != LexerToken.Untyped) && !eof)
+            while ((IsSpace(currentByte = readByte()) || setCurrentToken(currentByte) != LexerToken.Untyped) && !eof)
                 ;
 
             if (eof)
@@ -276,7 +276,7 @@ namespace Pdoxcl2Sharp
             do
             {
                 result = (uint)(10 * result + (currentByte - 0x30));
-            } while (!IsSpace(currentByte = readByte()) && getToken(currentByte) == LexerToken.Untyped && !eof);
+            } while (!IsSpace(currentByte = readByte()) && setCurrentToken(currentByte) == LexerToken.Untyped && !eof);
             return result;
         }
         public ushort ReadUInt16() { return (ushort)ReadUInt32(); }
