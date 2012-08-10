@@ -307,6 +307,16 @@ namespace Pdoxcl2Sharp
             throw new Exception();
         }
 
+        public IList<int> ReadIntList()
+        {
+            List<int> result = new List<int>();
+            do
+            {
+                result.Add(ReadInt32());
+            } while (currentToken != LexerToken.RightCurly && !eof);
+            return result;
+        }
+
         public void ReadInsideBrackets(Action<ParadoxParser> action)
         {
             int startingIndent = currentIndent;
@@ -350,5 +360,7 @@ namespace Pdoxcl2Sharp
         {
             ParadoxParser p = new ParadoxParser(filePath, parseStrategy);
         }
+
+
     }
 }

@@ -47,6 +47,7 @@
     <Compile Include="Bracket.cs" />
     <Compile Include="Building.cs" />
     <Compile Include="ExtensionMethods.cs" />
+    <Compile Include="ListRead.cs" />
     <Compile Include="Parse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
