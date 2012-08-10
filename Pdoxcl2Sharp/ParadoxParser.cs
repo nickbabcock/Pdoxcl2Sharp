@@ -249,9 +249,7 @@ namespace Pdoxcl2Sharp
             do
             {
                 if (currentByte >= 0x30 && currentByte <= 0x39)
-                {
                     result = 10 * result + (currentByte - 0x30);
-                }
                 else if (currentByte == 0x2D)
                 {
                     //TODO: Only valid if there haven't been any numbers parsed
@@ -263,10 +261,40 @@ namespace Pdoxcl2Sharp
             return (negative) ? -result : result;
         }
 
+        public short ReadInt16() { return (short)ReadInt32(); }
+        public sbyte ReadSByte() { return (sbyte)ReadInt32(); }
+
+        public uint ReadUInt32()
+        {
+            uint result = 0;
+
+            while ((IsSpace(currentByte = readByte()) || getToken(currentByte) != LexerToken.Untyped) && !eof)
+                ;
+
+            if (eof)
+                return 0;
+
+            do
+            {
+                result = (uint)(10 * result + (currentByte - 0x30));
+            } while (!IsSpace(currentByte = readByte()) && getToken(currentByte) == LexerToken.Untyped && !eof);
+            return result;
+        }
+        public ushort ReadUInt16() { return (ushort)ReadUInt32(); }
+        public byte ReadByte() { return (byte)ReadUInt32(); }
+
         public double ReadDouble()
         {
             double result;
             if (double.TryParse(ReadString(), SignedFloatingStyle, CultureInfo.InvariantCulture, out result))
+                return result;
+            throw new Exception();
+        }
+
+        public float ReadFloat()
+        {
+            float result;
+            if (float.TryParse(ReadString(), SignedFloatingStyle, CultureInfo.InvariantCulture, out result))
                 return result;
             throw new Exception();
         }
