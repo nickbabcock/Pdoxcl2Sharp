@@ -155,8 +155,15 @@ namespace Pdoxcl2Sharp
         /// <returns>The passed in parameter newly parsed</returns>
         public IParadoxFile Parse(IParadoxFile innerStructure)
         {
-            parse(innerStructure.TokenCallback, currentIndent);
-            return innerStructure;
+            int stopIndent = currentIndent;
+            do
+            {
+                string currentLine = ReadString();
+
+                if (currentLine != null)
+                    file.TokenCallback(this, currentLine);
+            } while (!eof && currentIndent < stopIndent);
+            return file;
         }
 
         private void parse(Action<ParadoxParser, string> tokenCallback)
@@ -168,17 +175,6 @@ namespace Pdoxcl2Sharp
                 if (currentLine != null)
                     tokenCallback(this, currentLine);
             } while (!eof);
-        }
-
-        private void parse(Action<ParadoxParser, string> tokenCallback, int stopIndent)
-        {
-            do
-            {
-                string currentLine = ReadString();
-
-                if (currentLine != null)
-                    tokenCallback(this, currentLine);
-            } while (!eof && currentIndent < stopIndent);
         }
 
 
