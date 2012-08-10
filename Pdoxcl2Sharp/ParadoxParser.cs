@@ -135,7 +135,14 @@ namespace Pdoxcl2Sharp
 
         public IParadoxFile Parse(IParadoxFile file)
         {
-            parse(file.TokenCallback, currentIndent);
+            int stopIndent = currentIndent;
+            do
+            {
+                string currentLine = ReadString();
+
+                if (currentLine != null)
+                    file.TokenCallback(this, currentLine);
+            } while (!eof && currentIndent < stopIndent);
             return file;
         }
 
@@ -148,17 +155,6 @@ namespace Pdoxcl2Sharp
                 if (currentLine != null)
                     tokenCallback(this, currentLine);
             } while (!eof);
-        }
-
-        private void parse(Action<ParadoxParser, string> tokenCallback, int stopIndent)
-        {
-            do
-            {
-                string currentLine = ReadString();
-
-                if (currentLine != null)
-                    tokenCallback(this, currentLine);
-            } while (!eof && currentIndent < stopIndent);
         }
 
         private LexerToken getNextToken()
