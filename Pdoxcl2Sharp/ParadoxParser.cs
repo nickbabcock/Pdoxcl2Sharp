@@ -310,17 +310,17 @@ namespace Pdoxcl2Sharp
 
         public static void Parse(byte[] data, Action<ParadoxParser, string> parseStrategy, int bufferSize = Globals.BUFFER_SIZE)
         {
-            ParadoxParser p = new ParadoxParser(data, parseStrategy, bufferSize);
+            ParadoxParser p = new ParadoxParser(data, parseStrategy);
         }
 
         public static void Parse(IParadoxFile file, string filePath, int bufferSize = Globals.BUFFER_SIZE)
         {
-            ParadoxParser p = new ParadoxParser(file, filePath, bufferSize);
+            ParadoxParser p = new ParadoxParser(file, filePath);
         }
 
         public static void Parse(string filePath, Action<ParadoxParser, string> parseStrategy, int bufferSize = Globals.BUFFER_SIZE)
         {
-            ParadoxParser p = new ParadoxParser(filePath, parseStrategy, bufferSize);
+            ParadoxParser p = new ParadoxParser(filePath, parseStrategy);
         }
     }
 }
