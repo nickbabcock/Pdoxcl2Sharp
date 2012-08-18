@@ -50,33 +50,39 @@ namespace Pdoxcl2Sharp
             return c == SPACE || (c >= HORIZONTAL_TAB && c <= CARRIAGE_RETURN);
         }
 
+        private LexerToken setCurrentToken(byte c)
+        {
+            return currentToken = getToken(c);
+        }
         private static LexerToken getToken(byte c)
         {
             switch (c)
             {
                 case EQUALS:
-                    return LexerToken.Equals;
+                    return  LexerToken.Equals;
                 case QUOTE:
-                    return LexerToken.Quote;
+                    return  LexerToken.Quote;
                 case LEFT_CURLY:
-                    return LexerToken.LeftCurly;
+                    return  LexerToken.LeftCurly;
                 case RIGHT_CURLY:
-                    return LexerToken.RightCurly;
+                    return  LexerToken.RightCurly;
                 case LEFTPARANTHESIS:
-                    return LexerToken.LeftParanthesis;
+                    return  LexerToken.LeftParanthesis;
                 case RIGHTPARANTHESIS:
-                    return LexerToken.RightParanthesis;
+                    return  LexerToken.RightParanthesis;
                 case COMMENT:
                 case EXCLAMATION:
+                    return  LexerToken.Comment;
                 case COMMA:
-                    return LexerToken.Comment;
+                    return  LexerToken.Comma;
                 default:
-                    return LexerToken.Untyped;
+                    return  LexerToken.Untyped;
             }
         }
 
         private int currentIndent;
         private LexerToken currentToken;
+        private LexerToken? nextToken;
         private byte currentByte;
         private int currentPosition;
         private int bufferSize;
@@ -86,7 +92,7 @@ namespace Pdoxcl2Sharp
 
         private bool eof = false;
 
-        public string CurrentString { get; private set; }
+        private string currentString;
 
 
         public ParadoxParser(byte[] data, Action<ParadoxParser, string> parseStrategy)
@@ -131,7 +137,7 @@ namespace Pdoxcl2Sharp
             }
         }
 
-        public IParadoxFile Parse(IParadoxFile file)
+        public T Parse<T>(T file) where T : class, IParadoxFile
         {
             parse(file.TokenCallback, currentIndent);
             return file;
@@ -161,12 +167,17 @@ namespace Pdoxcl2Sharp
 
         private LexerToken getNextToken()
         {
+            if (nextToken != null)
+            {
+                LexerToken temp = nextToken.Value;
+                nextToken = null;
+                return temp;
+            }
+
             while (IsSpace(currentByte = readByte()) && !eof)
                 ;
 
-            currentToken = getToken(currentByte);
-
-            switch (currentToken)
+            switch (setCurrentToken(currentByte))
             {
                 case LexerToken.Comment:
                     while ((currentByte = readByte()) != NEWLINE && !eof)
@@ -183,6 +194,12 @@ namespace Pdoxcl2Sharp
             }
         }
 
+        private LexerToken peekToken()
+        {
+            nextToken = getNextToken();
+            return nextToken.Value;
+        }
+
         /// <summary>
         /// Transfers the string buffer to the current string.
         /// Clears the buffer for the next round of reading
@@ -190,9 +207,9 @@ namespace Pdoxcl2Sharp
         /// <returns>The string contained inside the buffer</returns>
         private string saveBufferThenClear()
         {
-            CurrentString = stringBuffer.ToString();
+            currentString = stringBuffer.ToString();
             stringBuffer.Clear();
-            return CurrentString;
+            return currentString;
         }
 
         /// <summary>
@@ -226,7 +243,12 @@ namespace Pdoxcl2Sharp
             if (eof)
                 return null;
 
-            switch (getNextToken())
+            getNextToken();
+
+            if (eof)
+                return null;
+
+            switch (currentToken)
             {
                 case LexerToken.Quote:
                     while ((currentByte = readByte()) != QUOTE && !eof)
@@ -237,11 +259,11 @@ namespace Pdoxcl2Sharp
                     do
                     {
                         stringBuffer.Append((char)currentByte);
-                    } while (!IsSpace(currentByte = readByte()) && getToken(currentByte) == LexerToken.Untyped && !eof);
+                    } while (!IsSpace(currentByte = readByte()) && setCurrentToken(currentByte) == LexerToken.Untyped && !eof);
 
                     return saveBufferThenClear();
                 default:
-                    return CurrentString = ReadString();
+                    return currentString = ReadString();
             }
         }
 
@@ -250,7 +272,7 @@ namespace Pdoxcl2Sharp
             int result = 0;
             bool negative = false;
 
-            while ((IsSpace(currentByte = readByte()) || getToken(currentByte) != LexerToken.Untyped) && !eof)
+            while (getNextToken() != LexerToken.Untyped && !eof)
                 ;
 
             if (eof)
@@ -259,19 +281,40 @@ namespace Pdoxcl2Sharp
             do
             {
                 if (currentByte >= 0x30 && currentByte <= 0x39)
-                {
                     result = 10 * result + (currentByte - 0x30);
-                }
                 else if (currentByte == 0x2D)
                 {
                     //TODO: Only valid if there haven't been any numbers parsed
                     negative = true;
                 }
                 //TODO: If another character has been encountered throw an error
-            } while (!IsSpace(currentByte = readByte()) && getToken(currentByte) == LexerToken.Untyped && !eof);
+            } while (!IsSpace(currentByte = readByte()) && setCurrentToken(currentByte) == LexerToken.Untyped && !eof);
 
             return (negative) ? -result : result;
         }
+
+        public short ReadInt16() { return (short)ReadInt32(); }
+        public sbyte ReadSByte() { return (sbyte)ReadInt32(); }
+
+        public uint ReadUInt32()
+        {
+            uint result = 0;
+
+            while (getNextToken() != LexerToken.Untyped && !eof)
+                ;
+
+            if (eof)
+                return 0;
+
+            do
+            {
+                result = (uint)(10 * result + (currentByte - 0x30));
+            } while (!IsSpace(currentByte = readByte()) && setCurrentToken(currentByte) == LexerToken.Untyped && !eof);
+            return result;
+        }
+
+        public ushort ReadUInt16() { return (ushort)ReadUInt32(); }
+        public byte ReadByte() { return (byte)ReadUInt32(); }
 
         public double ReadDouble()
         {
@@ -285,6 +328,14 @@ namespace Pdoxcl2Sharp
         /// Advances the parser and interprets whatever was encountered as a DateTime
         /// </summary>
         /// <returns>System.DateTime associated with next series of bytes in the parser</returns>
+        public float ReadFloat()
+        {
+            float result;
+            if (float.TryParse(ReadString(), SignedFloatingStyle, CultureInfo.InvariantCulture, out result))
+                return result;
+            throw new Exception();
+        }
+
         public DateTime ReadDateTime()
         {
             DateTime result;
@@ -298,17 +349,96 @@ namespace Pdoxcl2Sharp
         /// It is assumed that the action will consume only what is contained in the brackets.
         /// </summary>
         /// <param name="action">Action that will be invoked after the parser has advanced through the leading bracket</param>
+        public IList<int> ReadIntList()
+        {
+            List<int> result = new List<int>();
+
+            do
+            {
+                int current = 0;
+                bool negative = false;
+                while ((IsSpace(currentByte = readByte()) || setCurrentToken(currentByte) != LexerToken.Untyped) && !eof)
+                    ;
+
+                if (eof)
+                    return result;
+
+                do
+                {
+                    if (currentByte >= 0x30 && currentByte <= 0x39)
+                        current = 10 * current + (currentByte - 0x30);
+                    else if (currentByte == 0x2D)
+                    {
+                        //TODO: Only valid if there haven't been any numbers parsed
+                        negative = true;
+                    }
+                    //TODO: If another character has been encountered throw an error
+                } while (!IsSpace(currentByte = readByte()) && setCurrentToken(currentByte) == LexerToken.Untyped && !eof);
+
+                result.Add((negative) ? -current : current);
+            } while (currentToken != LexerToken.RightCurly && !eof);
+            return result;
+        }
+
+
+        public IList<double> ReadFloatList()
+        {
+            List<double> result = new List<double>();
+            do
+            {
+                if (!String.IsNullOrEmpty(ReadString()) && !eof)
+                    result.Add(double.Parse(currentString, SignedFloatingStyle, CultureInfo.InvariantCulture));
+                //result.Add(ReadDouble());
+            } while (peekToken() != LexerToken.RightCurly && !eof);
+            return result;
+        }
+
+        public IDictionary<T, V> ReadDictionary<T, V>(Func<ParadoxParser, T> keyFunc, Func<ParadoxParser, V> valueFunc)
+        {
+            int startingIndent = currentIndent;
+            IDictionary<T, V> result = new Dictionary<T, V>();
+
+            //Advance through the '{'
+            if (getNextToken() == LexerToken.Equals)
+            {
+                if (getNextToken() != LexerToken.LeftCurly)
+                    throw new InvalidOperationException("When reading inside brackets the first token must be a left curly");
+            }
+
+            while (peekToken() != LexerToken.RightCurly && !eof)
+            {
+                result.Add(keyFunc(this), valueFunc(this));
+            }
+
+            //do
+            //{
+            //    result.Add(keyFunc(this), valueFunc(this));
+            //} while (peekToken() != LexerToken.RightCurly && !eof);
+            return result;
+        }
+
         public void ReadInsideBrackets(Action<ParadoxParser> action)
         {
             int startingIndent = currentIndent;
 
             //Advance through the '{'
-            getNextToken();
+            if (getNextToken() != LexerToken.LeftCurly)
+                throw new InvalidOperationException("When reading inside brackets the first token must be a left curly");
+
             action(this);
 
-            //Advance until the closing curly brace
-            while (getNextToken() != LexerToken.RightCurly && startingIndent == currentIndent && !eof)
-                ;
+            switch (currentIndent.CompareTo(startingIndent))
+            {
+                case -1:
+                    throw new InvalidOperationException("Invoked action parsed further than the closing bracket");
+                case 0:
+                    return;
+                case 1:
+                    //Advance until the closing curly brace
+                    while (getNextToken() != LexerToken.RightCurly && startingIndent != currentIndent && !eof)
+                        ;
+                    break;
+            }
         }
 
         /// <summary>
@@ -324,5 +454,22 @@ namespace Pdoxcl2Sharp
         { 
             return DateTime.TryParseExact(dateTime, "yyyy.M.d", DateTimeFormatInfo.InvariantInfo, DateTimeStyles.None, out result);
         }
+
+        public static void Parse(byte[] data, Action<ParadoxParser, string> parseStrategy)
+        {
+            ParadoxParser p = new ParadoxParser(data, parseStrategy);
+        }
+
+        public static void Parse(IParadoxFile file, string filePath)
+        {
+            ParadoxParser p = new ParadoxParser(file, filePath);
+        }
+
+        public static void Parse(string filePath, Action<ParadoxParser, string> parseStrategy)
+        {
+            ParadoxParser p = new ParadoxParser(filePath, parseStrategy);
+        }
+
+
     }
 }
