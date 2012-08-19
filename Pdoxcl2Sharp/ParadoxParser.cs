@@ -198,6 +198,7 @@ namespace Pdoxcl2Sharp
 
         private LexerToken peekToken()
         {
+            nextToken = null;
             nextToken = getNextToken();
             return nextToken.Value;
         }
@@ -334,31 +335,17 @@ namespace Pdoxcl2Sharp
         public IList<int> ReadIntList()
         {
             List<int> result = new List<int>();
-
             do
             {
-                int current = 0;
-                bool negative = false;
-                while ((IsSpace(currentByte = readByte()) || setCurrentToken(currentByte) != LexerToken.Untyped) && !eof)
+                while (peekToken() != LexerToken.Untyped && !eof)
                     ;
 
                 if (eof)
                     return result;
 
-                do
-                {
-                    if (currentByte >= 0x30 && currentByte <= 0x39)
-                        current = 10 * current + (currentByte - 0x30);
-                    else if (currentByte == 0x2D)
-                    {
-                        //TODO: Only valid if there haven't been any numbers parsed
-                        negative = true;
-                    }
-                    //TODO: If another character has been encountered throw an error
-                } while (!IsSpace(currentByte = readByte()) && setCurrentToken(currentByte) == LexerToken.Untyped && !eof);
-
-                result.Add((negative) ? -current : current);
+                result.Add(ReadInt32());
             } while (currentToken != LexerToken.RightCurly && !eof);
+
             return result;
         }
 
