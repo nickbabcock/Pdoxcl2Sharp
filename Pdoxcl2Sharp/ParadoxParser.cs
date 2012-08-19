@@ -362,6 +362,17 @@ namespace Pdoxcl2Sharp
             return result;
         }
 
+        public IList<string> ReadStringList()
+        {
+            List<string> result = new List<string>();
+            while (peekToken() != LexerToken.RightCurly && !eof)
+            {
+                if (!String.IsNullOrEmpty(ReadString()))
+                    result.Add(currentString);
+            }
+            return result;
+        }
+
         public IDictionary<T, V> ReadDictionary<T, V>(Func<ParadoxParser, T> keyFunc, Func<ParadoxParser, V> valueFunc)
         {
             int startingIndent = currentIndent;
@@ -378,11 +389,6 @@ namespace Pdoxcl2Sharp
             {
                 result.Add(keyFunc(this), valueFunc(this));
             }
-
-            //do
-            //{
-            //    result.Add(keyFunc(this), valueFunc(this));
-            //} while (peekToken() != LexerToken.RightCurly && !eof);
             return result;
         }
         public void ReadInsideBrackets(Action<ParadoxParser> action)
@@ -428,7 +434,6 @@ namespace Pdoxcl2Sharp
         {
             ParadoxParser p = new ParadoxParser(filePath, parseStrategy);
         }
-
 
     }
 }
