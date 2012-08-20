@@ -42,7 +42,7 @@ namespace Pdoxcl2Sharp
         private const byte COMMA = 0x2C;
 
         private const int MAX_TOKEN_SIZE = 256;
-        private const int BUFFER_SIZE = 0x8000;
+        private const int BUFFER_SIZE = 0x8000; //32KB buffer
 
         private const NumberStyles SignedFloatingStyle = NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign;
 
@@ -226,6 +226,7 @@ namespace Pdoxcl2Sharp
 
         private LexerToken peekToken()
         {
+            nextToken = null;
             nextToken = getNextToken();
             return nextToken.Value;
         }
@@ -392,31 +393,17 @@ namespace Pdoxcl2Sharp
         public IList<int> ReadIntList()
         {
             List<int> result = new List<int>();
-
             do
             {
-                int current = 0;
-                bool negative = false;
-                while ((IsSpace(currentByte = readByte()) || setCurrentToken(currentByte) != LexerToken.Untyped) && !eof)
+                while (peekToken() != LexerToken.Untyped && !eof)
                     ;
 
                 if (eof)
                     return result;
 
-                do
-                {
-                    if (currentByte >= 0x30 && currentByte <= 0x39)
-                        current = 10 * current + (currentByte - 0x30);
-                    else if (currentByte == 0x2D)
-                    {
-                        //TODO: Only valid if there haven't been any numbers parsed
-                        negative = true;
-                    }
-                    //TODO: If another character has been encountered throw an error
-                } while (!IsSpace(currentByte = readByte()) && setCurrentToken(currentByte) == LexerToken.Untyped && !eof);
-
-                result.Add((negative) ? -current : current);
+                result.Add(ReadInt32());
             } while (currentToken != LexerToken.RightCurly && !eof);
+
             return result;
         }
 
@@ -430,6 +417,17 @@ namespace Pdoxcl2Sharp
                     result.Add(double.Parse(currentString, SignedFloatingStyle, CultureInfo.InvariantCulture));
                 //result.Add(ReadDouble());
             } while (peekToken() != LexerToken.RightCurly && !eof);
+            return result;
+        }
+
+        public IList<string> ReadStringList()
+        {
+            List<string> result = new List<string>();
+            while (peekToken() != LexerToken.RightCurly && !eof)
+            {
+                if (!String.IsNullOrEmpty(ReadString()))
+                    result.Add(currentString);
+            }
             return result;
         }
 
@@ -449,11 +447,6 @@ namespace Pdoxcl2Sharp
             {
                 result.Add(keyFunc(this), valueFunc(this));
             }
-
-            //do
-            //{
-            //    result.Add(keyFunc(this), valueFunc(this));
-            //} while (peekToken() != LexerToken.RightCurly && !eof);
             return result;
         }
 
@@ -509,7 +502,6 @@ namespace Pdoxcl2Sharp
         {
             ParadoxParser p = new ParadoxParser(filePath, parseStrategy);
         }
-
 
     }
 }
