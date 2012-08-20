@@ -25,11 +25,11 @@ namespace Pdoxcl2Sharp.Test
             parseStrategy = new Dictionary<string, Action<ParadoxParser>>
             {
                 {"on_completion", x => onCompletion = x.ReadString()},
-                {"completion_size", x => completionSize = (float)x.ReadDouble()},
-                {"cost", x => cost = (byte)x.ReadInt32()},
-                {"time", x => time = (ushort)x.ReadInt32()},
+                {"completion_size", x => completionSize = x.ReadFloat()},
+                {"cost", x => cost = x.ReadByte()},
+                {"time", x => time = x.ReadUInt16()},
                 {"onmap", x => onMap = x.ReadString() == "yes"},
-                {"max_level", x => maxLevel = (byte)x.ReadInt32()}
+                {"max_level", x => maxLevel = x.ReadByte()}
             };
             otherFields = new Dictionary<string, string>();
             var data = @"on_completion = construction_practical
