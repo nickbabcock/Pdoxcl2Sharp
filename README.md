@@ -14,8 +14,9 @@ Say you want to parse this file:
 		mobile_theory
 	}
 	
-	
+
 Here's how:
+
 	public class TheoreticalFile : IParadoxFile
 	{
 		IList<string> theories;
