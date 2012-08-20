@@ -75,6 +75,108 @@ namespace Pdoxcl2Sharp.Test
             Assert.AreEqual(45, tech);
             Assert.AreEqual(1020.600, progress);
         }
+
+        [Test]
+        public void MapData()
+        {
+            var data = @"low_pressure_zones = {
+	13214	= 31 #icelandinc
+	13657	= 31 #aleutian
+	11566	= 31 #central pacific
+	10237	= 31 #brazil
+}".ToByteArray();
+
+            IDictionary<int, byte> maps = new Dictionary<int, byte>();
+
+            Action<ParadoxParser, string> action = (parser, s) =>
+            {
+                if (s == "low_pressure_zones")
+                {
+                    maps = parser.ReadDictionary(x => x.ReadInt32(), x => x.ReadByte());
+                }
+            };
+
+            ParadoxParser.Parse(data, action);
+
+            Dictionary<int, byte> expected = new Dictionary<int, byte>()
+            {
+                {13214, 31},
+                {13657, 31},
+                {11566, 31},
+                {10237, 31}
+            };
+
+            CollectionAssert.AreEquivalent(expected, maps);
+        }
+
+        [Test]
+        public void MapDataNoSpace()
+        {
+            var data = @"low_pressure_zones={
+	1321=31
+	13657=31
+	11566=31
+	10237=31}".ToByteArray();
+
+            IDictionary<int, byte> maps = new Dictionary<int, byte>();
+
+            Action<ParadoxParser, string> action = (parser, s) =>
+            {
+                if (s == "low_pressure_zones")
+                {
+                    maps = parser.ReadDictionary(x => x.ReadInt32(), x => x.ReadByte());
+                }
+            };
+
+            ParadoxParser.Parse(data, action);
+
+            Dictionary<int, byte> expected = new Dictionary<int, byte>()
+            {
+                {1321, 31},
+                {13657, 31},
+                {11566, 31},
+                {10237, 31}
+            };
+
+            CollectionAssert.AreEquivalent(expected, maps);
+        }
+
+        [Test]
+        public void EmptyMap()
+        {
+            var data = "low_pressure_zones={}".ToByteArray();
+            IDictionary<int, byte> maps = new Dictionary<int, byte>();
+
+            Action<ParadoxParser, string> action = (parser, s) =>
+            {
+                if (s == "low_pressure_zones")
+                {
+                    maps = parser.ReadDictionary(x => x.ReadInt32(), x => x.ReadByte());
+                }
+            };
+
+            ParadoxParser.Parse(data, action);
+            CollectionAssert.AreEquivalent(Enumerable.Empty<KeyValuePair<int, byte>>(), maps);
+        }
+
+        [Test]
+        public void EmptySpacedMap()
+        {
+            var data = "low_pressure_zones  =   {    }     ".ToByteArray();
+            IDictionary<int, byte> maps = new Dictionary<int, byte>();
+
+            Action<ParadoxParser, string> action = (parser, s) =>
+            {
+                if (s == "low_pressure_zones")
+                {
+                    maps = parser.ReadDictionary(x => x.ReadInt32(), x => x.ReadByte());
+                }
+            };
+
+            ParadoxParser.Parse(data, action);
+            CollectionAssert.AreEquivalent(Enumerable.Empty<KeyValuePair<int, byte>>(), maps);
+        }
+
     }
 
 
