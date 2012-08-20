@@ -86,18 +86,6 @@ namespace Pdoxcl2Sharp.Test
 	10237	= 31 #brazil
 }".ToByteArray();
 
-            IDictionary<int, byte> maps = new Dictionary<int, byte>();
-
-            Action<ParadoxParser, string> action = (parser, s) =>
-            {
-                if (s == "low_pressure_zones")
-                {
-                    maps = parser.ReadDictionary(x => x.ReadInt32(), x => x.ReadByte());
-                }
-            };
-
-            ParadoxParser.Parse(data, action);
-
             Dictionary<int, byte> expected = new Dictionary<int, byte>()
             {
                 {13214, 31},
@@ -106,7 +94,7 @@ namespace Pdoxcl2Sharp.Test
                 {10237, 31}
             };
 
-            CollectionAssert.AreEquivalent(expected, maps);
+            TestDictionary(data, x => x.ReadDictionary(p => p.ReadInt32(), p => p.ReadByte()), expected, "low_pressure_zones");
         }
 
         [Test]
@@ -118,18 +106,6 @@ namespace Pdoxcl2Sharp.Test
 	11566=31
 	10237=31}".ToByteArray();
 
-            IDictionary<int, byte> maps = new Dictionary<int, byte>();
-
-            Action<ParadoxParser, string> action = (parser, s) =>
-            {
-                if (s == "low_pressure_zones")
-                {
-                    maps = parser.ReadDictionary(x => x.ReadInt32(), x => x.ReadByte());
-                }
-            };
-
-            ParadoxParser.Parse(data, action);
-
             Dictionary<int, byte> expected = new Dictionary<int, byte>()
             {
                 {1321, 31},
@@ -138,45 +114,39 @@ namespace Pdoxcl2Sharp.Test
                 {10237, 31}
             };
 
-            CollectionAssert.AreEquivalent(expected, maps);
+            TestDictionary(data, x => x.ReadDictionary(p => p.ReadInt32(), p => p.ReadByte()), expected, "low_pressure_zones");
         }
 
         [Test]
         public void EmptyMap()
         {
             var data = "low_pressure_zones={}".ToByteArray();
-            IDictionary<int, byte> maps = new Dictionary<int, byte>();
-
-            Action<ParadoxParser, string> action = (parser, s) =>
-            {
-                if (s == "low_pressure_zones")
-                {
-                    maps = parser.ReadDictionary(x => x.ReadInt32(), x => x.ReadByte());
-                }
-            };
-
-            ParadoxParser.Parse(data, action);
-            CollectionAssert.AreEquivalent(Enumerable.Empty<KeyValuePair<int, byte>>(), maps);
+            TestDictionary(data, x => x.ReadDictionary(p => p.ReadInt32(), p => p.ReadByte()), 
+                Enumerable.Empty<KeyValuePair<int, byte>>(), "low_pressure_zones");
         }
 
         [Test]
         public void EmptySpacedMap()
         {
             var data = "low_pressure_zones  =   {    }     ".ToByteArray();
-            IDictionary<int, byte> maps = new Dictionary<int, byte>();
-
-            Action<ParadoxParser, string> action = (parser, s) =>
-            {
-                if (s == "low_pressure_zones")
-                {
-                    maps = parser.ReadDictionary(x => x.ReadInt32(), x => x.ReadByte());
-                }
-            };
-
-            ParadoxParser.Parse(data, action);
-            CollectionAssert.AreEquivalent(Enumerable.Empty<KeyValuePair<int, byte>>(), maps);
+            TestDictionary(data, x => x.ReadDictionary(p => p.ReadInt32(), p => p.ReadByte()), 
+                Enumerable.Empty<KeyValuePair<int, byte>>(), "low_pressure_zones");
         }
 
+
+        private void TestDictionary<K, V>(byte[] data, Func<ParadoxParser, IDictionary<K, V>> func, IEnumerable<KeyValuePair<K, V>> expected, string tokenStr)
+        {
+            IDictionary<K, V> actual = null;
+
+            Action<ParadoxParser, string> action = (p, token) =>
+                {
+                    if (token == tokenStr)
+                        actual = func(p);
+                };
+
+            ParadoxParser.Parse(data, action);
+            CollectionAssert.AreEquivalent(expected, actual);
+        }
     }
 
 
