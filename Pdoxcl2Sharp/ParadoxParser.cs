@@ -436,13 +436,7 @@ namespace Pdoxcl2Sharp
             int startingIndent = currentIndent;
             IDictionary<T, V> result = new Dictionary<T, V>();
 
-            //Advance through the '{'
-            if (getNextToken() == LexerToken.Equals)
-            {
-                if (getNextToken() != LexerToken.LeftCurly)
-                    throw new InvalidOperationException("When reading inside brackets the first token must be a left curly");
-            }
-
+            advanceThroughLeftCurly();
             while (peekToken() != LexerToken.RightCurly && !eof)
             {
                 result.Add(keyFunc(this), valueFunc(this));
@@ -454,10 +448,7 @@ namespace Pdoxcl2Sharp
         {
             int startingIndent = currentIndent;
 
-            //Advance through the '{'
-            if (getNextToken() != LexerToken.LeftCurly)
-                throw new InvalidOperationException("When reading inside brackets the first token must be a left curly");
-
+            advanceThroughLeftCurly();
             action(this);
 
             switch (currentIndent.CompareTo(startingIndent))
@@ -474,7 +465,17 @@ namespace Pdoxcl2Sharp
             }
         }
 
-        /// <summary>
+        private void advanceThroughLeftCurly()
+        {
+            if ((currentToken = getNextToken()) == LexerToken.Equals)
+                currentToken = getNextToken();
+
+            if (currentToken != LexerToken.LeftCurly)
+                throw new InvalidOperationException("When reading inside brackets the first token must be a left curly");
+        }
+
+
+	/// <summary>
         /// Returns the equivalent System.DateTime as the input string.  Simple wrapper around
         /// DateTime.TryParseExact with specified format and invariant info.  This function is
         /// designed to work with tokens or strings created by <see cref="ReadString"/> and as
