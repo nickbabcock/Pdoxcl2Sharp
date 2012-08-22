@@ -442,7 +442,7 @@ namespace Pdoxcl2Sharp
         {
             List<T> result = new List<T>();
             ensureLeftCurly();
-            while (peekToken() != LexerToken.RightCurly && !eof)
+            while (currentToken != LexerToken.RightCurly && peekToken() != LexerToken.RightCurly && !eof)
                 result.Add(func());
             return result;
         }

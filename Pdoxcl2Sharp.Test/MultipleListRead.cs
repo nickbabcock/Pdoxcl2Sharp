@@ -16,6 +16,13 @@ namespace Pdoxcl2Sharp.Test
             Test<int>(data, x => x.ReadIntList(), new[] { 1, 2, 3, 4 }, "list", "list2");
         }
 
+        [Test]
+        public void NoSpaceMultiple()
+        {
+            var data = "list={1 2 3 4} list2={1 2 3 4}".ToByteArray();
+            Test<int>(data, x => x.ReadIntList(), new[] { 1, 2, 3, 4 }, "list", "list2");
+        }
+
         private void Test<T>(byte[] data,
                              Func<ParadoxParser, IEnumerable<T>> func,
                              IEnumerable<T> expected,
