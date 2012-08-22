@@ -330,17 +330,9 @@ namespace Pdoxcl2Sharp
         public IList<int> ReadIntList()
         {
             List<int> result = new List<int>();
-            do
-            {
-                while (peekToken() != LexerToken.Untyped && !eof)
-                    ;
-
-                if (eof)
-                    return result;
-
+            advanceThroughLeftCurly();
+            while (peekToken() != LexerToken.RightCurly && !eof)
                 result.Add(ReadInt32());
-            } while (currentToken != LexerToken.RightCurly && !eof);
-
             return result;
         }
 
