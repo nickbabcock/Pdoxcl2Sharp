@@ -455,7 +455,7 @@ namespace Pdoxcl2Sharp
         }
 
 
-        public IList<double> ReadFloatList()
+        public IList<double> ReadDoubleList()
         {
             List<double> result = new List<double>();
             do

@@ -29,7 +29,7 @@ namespace Pdoxcl2Sharp.Test
             floatAction = (parser, token) =>
                 {
                     if (token == "list")
-                        actualFloat = parser.ReadFloatList();
+                        actualFloat = parser.ReadDoubleList();
                 };
         }
 
