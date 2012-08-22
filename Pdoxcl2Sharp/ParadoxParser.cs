@@ -345,14 +345,13 @@ namespace Pdoxcl2Sharp
         }
 
 
-        public IList<double> ReadFloatList()
+        public IList<double> ReadDoubleList()
         {
             List<double> result = new List<double>();
             do
             {
                 if (!String.IsNullOrEmpty(ReadString()) && !eof)
                     result.Add(double.Parse(currentString, SignedFloatingStyle, CultureInfo.InvariantCulture));
-                //result.Add(ReadDouble());
             } while (peekToken() != LexerToken.RightCurly && !eof);
             return result;
         }
