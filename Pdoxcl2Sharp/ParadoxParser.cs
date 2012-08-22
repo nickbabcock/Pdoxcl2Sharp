@@ -370,6 +370,11 @@ namespace Pdoxcl2Sharp
 
         public IDictionary<T, V> ReadDictionary<T, V>(Func<ParadoxParser, T> keyFunc, Func<ParadoxParser, V> valueFunc)
         {
+            if (keyFunc == null)
+                throw new ArgumentNullException("keyFunc", "Function for extracting keys must not be null");
+            if (valueFunc == null)
+                throw new ArgumentNullException("valueFunc", "Function for extracting values must not be null");
+            
             int startingIndent = currentIndent;
             IDictionary<T, V> result = new Dictionary<T, V>();
 
