@@ -125,7 +125,7 @@ namespace Pdoxcl2Sharp.Test
         [Test]
         public void DoubleEmptyList()
         {
-            var data = "list{}".ToByteArray();
+            var data = "list={}".ToByteArray();
             ParadoxParser.Parse(data, floatAction);
             CollectionAssert.AreEqual(Enumerable.Empty<double>(), actualFloat);
         }
