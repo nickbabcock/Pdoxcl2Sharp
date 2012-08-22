@@ -432,11 +432,11 @@ namespace Pdoxcl2Sharp
             throw new FormatException(String.Format(CultureInfo.InvariantCulture, "{0} is not a correct DateTime", currentString));
         }
 
+
         /// <summary>
-        /// Advances the parser through the left bracket ('{') and then invokes the action.
-        /// It is assumed that the action will consume only what is contained in the brackets.
+        /// Reads the data between brackets as ints
         /// </summary>
-        /// <param name="action">Action that will be invoked after the parser has advanced through the leading bracket</param>
+        /// <returns>A list of the data interpreted as ints</returns>
         public IList<int> ReadIntList()
         {
             List<int> result = new List<int>();
@@ -455,6 +455,10 @@ namespace Pdoxcl2Sharp
         }
 
 
+        /// <summary>
+        /// Reads the data between brackets as doubles
+        /// </summary>
+        /// <returns>A list of the data interpreted as doubles</returns>
         public IList<double> ReadDoubleList()
         {
             List<double> result = new List<double>();
@@ -466,6 +470,11 @@ namespace Pdoxcl2Sharp
             return result;
         }
 
+
+        /// <summary>
+        /// Reads the data between brackets as strings
+        /// </summary>
+        /// <returns>A list of the data interpreted as strings</returns>
         public IList<string> ReadStringList()
         {
             List<string> result = new List<string>();
@@ -483,6 +492,13 @@ namespace Pdoxcl2Sharp
         /// It is assumed that key and value data will be separated by a token.
         /// It is also assumed that the key precedes the value definition.
         /// </summary>
+        /// <example>
+        /// extensions = 
+        /// {
+        ///     .log = "log file"
+        ///     .txt = "text file"
+        /// }
+        /// </example>
         /// <typeparam name="TKey">Type of the key of the dictionary</typeparam>
         /// <typeparam name="TValue">Type of the value of the dictionary</typeparam>
         /// <param name="keyFunc">Function that when given the parser will extract a key</param>
@@ -508,7 +524,8 @@ namespace Pdoxcl2Sharp
 
 
         /// <summary>
-        /// 
+        /// Advances the parser through the left bracket ('{') and then invokes the action.
+        /// It is assumed that the action will consume only what is contained in the brackets.
         /// This function is useful when the number of data within brackets is known but may be of various types.
         /// </summary>
         /// <param name="action">An action that the parser will perform to extract data inside the curly brackets</param>
