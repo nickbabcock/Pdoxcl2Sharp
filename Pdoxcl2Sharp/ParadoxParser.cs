@@ -432,6 +432,12 @@ namespace Pdoxcl2Sharp
             throw new FormatException(String.Format(CultureInfo.InvariantCulture, "{0} is not a correct DateTime", currentString));
         }
 
+        /// <summary>
+        /// Parses the date between curly brackets in a manner dictated by the function parameter
+        /// </summary>
+        /// <typeparam name="T">Type that the data will be intepreted as</typeparam>
+        /// <param name="func">Function that will extract the data</param>
+        /// <returns>Data between curly brackets constructed as a list.</returns>
         private IList<T> readList<T>(Func<T> func)
         {
             List<T> result = new List<T>();
