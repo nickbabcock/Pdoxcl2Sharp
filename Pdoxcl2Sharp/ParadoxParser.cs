@@ -387,6 +387,8 @@ namespace Pdoxcl2Sharp
         }
         public void ReadInsideBrackets(Action<ParadoxParser> action)
         {
+            if (action == null)
+                throw new ArgumentNullException("action", "Action for reading bracket content must not be null");
             int startingIndent = currentIndent;
 
             advanceThroughLeftCurly();
