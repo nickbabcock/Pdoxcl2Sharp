@@ -432,59 +432,35 @@ namespace Pdoxcl2Sharp
             throw new FormatException(String.Format(CultureInfo.InvariantCulture, "{0} is not a correct DateTime", currentString));
         }
 
+        private IList<T> readList<T>(Func<T> func)
+        {
+            List<T> result = new List<T>();
+            ensureLeftCurly();
+            while (peekToken() != LexerToken.RightCurly && !eof)
+                result.Add(func());
+            return result;
+        }
+
 
         /// <summary>
         /// Reads the data between brackets as ints
         /// </summary>
         /// <returns>A list of the data interpreted as ints</returns>
-        public IList<int> ReadIntList()
-        {
-            List<int> result = new List<int>();
-            do
-            {
-                while (peekToken() != LexerToken.Untyped && !eof)
-                    ;
-
-                if (eof)
-                    return result;
-
-                result.Add(ReadInt32());
-            } while (currentToken != LexerToken.RightCurly && !eof);
-
-            return result;
-        }
+        public IList<int> ReadIntList() { return readList(ReadInt32); }
 
 
         /// <summary>
         /// Reads the data between brackets as doubles
         /// </summary>
         /// <returns>A list of the data interpreted as doubles</returns>
-        public IList<double> ReadDoubleList()
-        {
-            List<double> result = new List<double>();
-            do
-            {
-                if (!String.IsNullOrEmpty(ReadString()) && !eof)
-                    result.Add(double.Parse(currentString, SignedFloatingStyle, CultureInfo.InvariantCulture));
-            } while (peekToken() != LexerToken.RightCurly && !eof);
-            return result;
-        }
+        public IList<double> ReadDoubleList() { return readList(ReadDouble); }
 
 
         /// <summary>
         /// Reads the data between brackets as strings
         /// </summary>
         /// <returns>A list of the data interpreted as strings</returns>
-        public IList<string> ReadStringList()
-        {
-            List<string> result = new List<string>();
-            while (peekToken() != LexerToken.RightCurly && !eof)
-            {
-                if (!String.IsNullOrEmpty(ReadString()))
-                    result.Add(currentString);
-            }
-            return result;
-        }
+        public IList<string> ReadStringList() { return readList(ReadString); }
 
 
         /// <summary>
