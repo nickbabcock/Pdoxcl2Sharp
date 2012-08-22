@@ -308,7 +308,7 @@ namespace Pdoxcl2Sharp
             double result;
             if (double.TryParse(ReadString(), SignedFloatingStyle, CultureInfo.InvariantCulture, out result))
                 return result;
-            throw new Exception();
+            throw new FormatException(String.Format("{0} is not a correct Double", currentString));
         }
 
         public float ReadFloat()
@@ -316,7 +316,7 @@ namespace Pdoxcl2Sharp
             float result;
             if (float.TryParse(ReadString(), SignedFloatingStyle, CultureInfo.InvariantCulture, out result))
                 return result;
-            throw new Exception();
+            throw new FormatException(String.Format("{0} is not a correct Float", currentString));
         }
 
         public DateTime ReadDateTime()
@@ -324,7 +324,7 @@ namespace Pdoxcl2Sharp
             DateTime result;
             if (TryParseDate(ReadString(), out result))
                 return result;
-            throw new Exception();
+            throw new FormatException(String.Format("{0} is not a correct DateTime", currentString));
         }
 
         public IList<int> ReadIntList()
