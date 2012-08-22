@@ -59,8 +59,7 @@ namespace Pdoxcl2Sharp
         }
 
         /// <summary>
-        /// Sets the current token according to the given parameter and then returns the 
-        /// current token.
+        /// Sets the current token to the token associated with the parameter
         /// </summary>
         /// <param name="c">Byte that will be evaluated for equivalent token</param>
         /// <returns>Current token</returns>
@@ -68,6 +67,13 @@ namespace Pdoxcl2Sharp
         {
             return currentToken = getToken(c);
         }
+
+        /// <summary>
+        /// Returns the associated LexerToken with a given byte.  Compares the byte with 
+        /// known ASCII values of the tokens
+        /// </summary>
+        /// <param name="c"></param>
+        /// <returns>LexerToken</returns>
         private static LexerToken getToken(byte c)
         {
             switch (c)
@@ -160,12 +166,6 @@ namespace Pdoxcl2Sharp
         /// <returns>The passed in parameter newly parsed</returns>
         public T Parse<T>(T file) where T : class, IParadoxFile
         {
-            parse(file.TokenCallback, currentIndent);
-            return file;
-        }
-
-        private void parse(Action<ParadoxParser, string> tokenCallback)
-        {
             int stopIndent = currentIndent;
             do
             {
@@ -224,6 +224,17 @@ namespace Pdoxcl2Sharp
             }
         }
 
+        /// <summary>
+        /// Retrieves the next token, so that a subsequent call to <see cref="getNextToken"/>
+        /// will return the same token.  If multiple peekTokens are invoked then it is the last
+        /// token encountered that <see cref="getNextToken"/> will also return.
+        /// 
+        /// <remarks>
+        ///     This function is a misnomer in the traditional sense the peek does not affect the underlying
+        ///     stream.  Though this function is prefixed with "peek", it advances the underlying stream.
+        /// </remarks>
+        /// </summary>
+        /// <returns>The next token in the stream</returns>
         private LexerToken peekToken()
         {
             nextToken = null;
@@ -248,7 +259,7 @@ namespace Pdoxcl2Sharp
         /// stream if necessary.  Since this is a raw byte, if a number
         /// is expected, better to use <see cref="ReadInt32"/>
         /// </summary>
-        /// <returns>The next raw byte in the buffer</returns>
+        /// <returns>The next raw byte in the buffer or 0 if the end of the file was reached</returns>
         private byte readByte()
         {
             if (currentPosition == bufferSize)
@@ -334,12 +345,23 @@ namespace Pdoxcl2Sharp
         }
 
         /// <summary>
-        /// Advances the parser and interprets whatever was encountered as a double
+        /// Advances the parser and interprets whatever was encountered as a short
         /// </summary>
-        /// <returns>double associated with the next series of bytes in the parser</returns>
+        /// <returns>Short associated with the next series of bytes in the parser</returns>
         public short ReadInt16() { return (short)ReadInt32(); }
+        
+
+        /// <summary>
+        /// Advances the parser and interprets whatever was encountered as a sbyte
+        /// </summary>
+        /// <returns>Sbyte associated with the next series of bytes in the parser</returns>
         public sbyte ReadSByte() { return (sbyte)ReadInt32(); }
 
+
+        /// <summary>
+        /// Advances the parser and inteprets whatever was encountered as an uint.
+        /// </summary>
+        /// <returns>uint associated with the next series of bytes in the parser</returns>
         public uint ReadUInt32()
         {
             uint result = 0;
@@ -357,6 +379,25 @@ namespace Pdoxcl2Sharp
             return result;
         }
 
+
+        /// <summary>
+        /// Advances the parser and inteprets whatever was encountered as an ushort.
+        /// </summary>
+        /// <returns>ushort associated with the next series of bytes in the parser</returns>
+        public ushort ReadUInt16() { return (ushort)ReadUInt32(); }
+
+
+        /// <summary>
+        /// Advances the parser and inteprets whatever was encountered as a byte.
+        /// </summary>
+        /// <returns>Byte associated with the next series of bytes in the parser</returns>
+        public byte ReadByte() { return (byte)ReadUInt32(); }
+
+
+        /// <summary>
+        /// Advances the parser and inteprets whatever was encountered as a double.
+        /// </summary>
+        /// <returns>Double associated with the next series of bytes in the parser</returns>
         public double ReadDouble()
         {
             double result;
@@ -365,10 +406,11 @@ namespace Pdoxcl2Sharp
             throw new FormatException(String.Format(CultureInfo.InvariantCulture, "{0} is not a correct Double", currentString));
         }
 
+
         /// <summary>
-        /// Advances the parser and interprets whatever was encountered as a DateTime
+        /// Advances the parser and inteprets whatever was encountered as a Float.
         /// </summary>
-        /// <returns>System.DateTime associated with next series of bytes in the parser</returns>
+        /// <returns>Float associated with the next series of bytes in the parser</returns>
         public float ReadFloat()
         {
             float result;
@@ -377,6 +419,11 @@ namespace Pdoxcl2Sharp
             throw new FormatException(String.Format(CultureInfo.InvariantCulture, "{0} is not a correct Float", currentString));
         }
 
+
+        /// <summary>
+        /// Advances the parser and interprets whatever was encountered as a DateTime
+        /// </summary>
+        /// <returns>System.DateTime associated with next series of bytes in the parser</returns>
         public DateTime ReadDateTime()
         {
             DateTime result;
@@ -415,7 +462,6 @@ namespace Pdoxcl2Sharp
             {
                 if (!String.IsNullOrEmpty(ReadString()) && !eof)
                     result.Add(double.Parse(currentString, SignedFloatingStyle, CultureInfo.InvariantCulture));
-                //result.Add(ReadDouble());
             } while (peekToken() != LexerToken.RightCurly && !eof);
             return result;
         }
@@ -431,6 +477,17 @@ namespace Pdoxcl2Sharp
             return result;
         }
 
+
+        /// <summary>
+        /// Extracts a dictionary from the data that is contained with brackets.
+        /// It is assumed that key and value data will be separated by a token.
+        /// It is also assumed that the key precedes the value definition.
+        /// </summary>
+        /// <typeparam name="TKey">Type of the key of the dictionary</typeparam>
+        /// <typeparam name="TValue">Type of the value of the dictionary</typeparam>
+        /// <param name="keyFunc">Function that when given the parser will extract a key</param>
+        /// <param name="valueFunc">Function that when given the parser will extract a value</param>
+        /// <returns>A dictionary that is populated from the data within brackets with the provided functions</returns>
         public IDictionary<TKey, TValue> ReadDictionary<TKey, TValue>(Func<ParadoxParser, TKey> keyFunc, Func<ParadoxParser, TValue> valueFunc)
         {
             if (keyFunc == null)
@@ -441,7 +498,7 @@ namespace Pdoxcl2Sharp
             int startingIndent = currentIndent;
             IDictionary<TKey, TValue> result = new Dictionary<TKey, TValue>();
 
-            advanceThroughLeftCurly();
+            ensureLeftCurly();
             while (peekToken() != LexerToken.RightCurly && !eof)
             {
                 result.Add(keyFunc(this), valueFunc(this));
@@ -449,6 +506,13 @@ namespace Pdoxcl2Sharp
             return result;
         }
 
+
+        /// <summary>
+        /// 
+        /// This function is useful when the number of data within brackets is known but may be of various types.
+        /// </summary>
+        /// <param name="action">An action that the parser will perform to extract data inside the curly brackets</param>
+        /// <exception cref="InvalidOperationException"></exception>
         public void ReadInsideBrackets(Action<ParadoxParser> action)
         {
             if (action == null)
@@ -456,7 +520,7 @@ namespace Pdoxcl2Sharp
 
             int startingIndent = currentIndent;
 
-            advanceThroughLeftCurly();
+            ensureLeftCurly();
             action(this);
 
             switch (currentIndent.CompareTo(startingIndent))
@@ -473,9 +537,18 @@ namespace Pdoxcl2Sharp
             }
         }
 
-        private void advanceThroughLeftCurly()
+
+        /// <summary>
+        /// Checks the next token in the stream in an attempt to locate a left curly.  If the token encountered is 
+        /// an equality symbol, it will read the next token and see if that is a left curly, e.g. x = { y }.
+        /// If the initial token isn't an equality symbol or a left curly, or if the initial token is an equality symbol
+        /// but the subsequent token isn't a left curly, then an exception is thrown.
+        /// </summary>
+        /// <exception cref="InvalidOperationException"></exception>
+        private void ensureLeftCurly()
         {
-            if ((currentToken = getNextToken()) == LexerToken.Equals)
+            currentToken = getNextToken();
+            if (currentToken == LexerToken.Equals)
                 currentToken = getNextToken();
 
             if (currentToken != LexerToken.LeftCurly)
@@ -483,7 +556,7 @@ namespace Pdoxcl2Sharp
         }
 
 
-	/// <summary>
+	    /// <summary>
         /// Returns the equivalent System.DateTime as the input string.  Simple wrapper around
         /// DateTime.TryParseExact with specified format and invariant info.  This function is
         /// designed to work with tokens or strings created by <see cref="ReadString"/> and as
