@@ -340,11 +340,9 @@ namespace Pdoxcl2Sharp
         public IList<double> ReadDoubleList()
         {
             List<double> result = new List<double>();
-            do
-            {
-                if (!String.IsNullOrEmpty(ReadString()) && !eof)
-                    result.Add(double.Parse(currentString, SignedFloatingStyle, CultureInfo.InvariantCulture));
-            } while (peekToken() != LexerToken.RightCurly && !eof);
+            advanceThroughLeftCurly();
+            while (peekToken() != LexerToken.RightCurly && !eof)
+                result.Add(double.Parse(ReadString(), SignedFloatingStyle, CultureInfo.InvariantCulture));
             return result;
         }
 
