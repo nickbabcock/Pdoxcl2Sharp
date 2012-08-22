@@ -327,35 +327,18 @@ namespace Pdoxcl2Sharp
             throw new FormatException(String.Format(CultureInfo.InvariantCulture, "{0} is not a correct DateTime", currentString));
         }
 
-        public IList<int> ReadIntList()
+        private IList<T> readList<T>(Func<T> func)
         {
-            List<int> result = new List<int>();
+            List<T> result = new List<T>();
             advanceThroughLeftCurly();
             while (peekToken() != LexerToken.RightCurly && !eof)
-                result.Add(ReadInt32());
+                result.Add(func());
             return result;
         }
 
-
-        public IList<double> ReadDoubleList()
-        {
-            List<double> result = new List<double>();
-            advanceThroughLeftCurly();
-            while (peekToken() != LexerToken.RightCurly && !eof)
-                result.Add(double.Parse(ReadString(), SignedFloatingStyle, CultureInfo.InvariantCulture));
-            return result;
-        }
-
-        public IList<string> ReadStringList()
-        {
-            List<string> result = new List<string>();
-            while (peekToken() != LexerToken.RightCurly && !eof)
-            {
-                if (!String.IsNullOrEmpty(ReadString()))
-                    result.Add(currentString);
-            }
-            return result;
-        }
+        public IList<int> ReadIntList() { return readList(ReadInt32); }
+        public IList<double> ReadDoubleList() { return readList(ReadDouble); }
+        public IList<string> ReadStringList() { return readList(ReadString); }
 
         public IDictionary<TKey, TValue> ReadDictionary<TKey, TValue>(Func<ParadoxParser, TKey> keyFunc, Func<ParadoxParser, TValue> valueFunc)
         {
