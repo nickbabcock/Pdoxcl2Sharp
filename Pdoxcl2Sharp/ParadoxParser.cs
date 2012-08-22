@@ -368,7 +368,7 @@ namespace Pdoxcl2Sharp
             return result;
         }
 
-        public IDictionary<T, V> ReadDictionary<T, V>(Func<ParadoxParser, T> keyFunc, Func<ParadoxParser, V> valueFunc)
+        public IDictionary<TKey, TValue> ReadDictionary<TKey, TValue>(Func<ParadoxParser, TKey> keyFunc, Func<ParadoxParser, TValue> valueFunc)
         {
             if (keyFunc == null)
                 throw new ArgumentNullException("keyFunc", "Function for extracting keys must not be null");
@@ -376,7 +376,7 @@ namespace Pdoxcl2Sharp
                 throw new ArgumentNullException("valueFunc", "Function for extracting values must not be null");
             
             int startingIndent = currentIndent;
-            IDictionary<T, V> result = new Dictionary<T, V>();
+            IDictionary<TKey, TValue> result = new Dictionary<TKey, TValue>();
 
             advanceThroughLeftCurly();
             while (peekToken() != LexerToken.RightCurly && !eof)
@@ -389,6 +389,7 @@ namespace Pdoxcl2Sharp
         {
             if (action == null)
                 throw new ArgumentNullException("action", "Action for reading bracket content must not be null");
+
             int startingIndent = currentIndent;
 
             advanceThroughLeftCurly();
