@@ -115,6 +115,12 @@ namespace Pdoxcl2Sharp
         private string currentString;
 
 
+        /// <summary>
+        /// Parses a series of bytes executes the parsing strategy when an unknown token is encountered.
+        /// </summary>
+        /// <param name="data">Bytes to be parsed</param>
+        /// <param name="parseStrategy">The strategy to be invoked when an unknown token is encountered</param>
+        /// <exception cref="ArgumentNullException"></exception>
         public ParadoxParser(byte[] data, Action<ParadoxParser, string> parseStrategy)
         {
             if (data == null)
@@ -129,6 +135,13 @@ namespace Pdoxcl2Sharp
             }
         }
 
+
+        /// <summary>
+        /// Immediately parses the file and populates the <see cref="IParadoxFile"/>
+        /// </summary>
+        /// <param name="file">The paradox structure that will be populated from the file</param>
+        /// <param name="filePath">The filepath that will be parsed</param>
+        /// <exception cref="ArgumentNullException"></exception>
         public ParadoxParser(IParadoxFile file, string filePath)
         {
             if (file == null)
@@ -143,6 +156,13 @@ namespace Pdoxcl2Sharp
             }
         }
 
+
+        /// <summary>
+        /// Immediately parses the file, executing the parsing strategy when an unknown token is encountered.
+        /// </summary>
+        /// <param name="filePath">The filepath that will be parsed</param>
+        /// <param name="parseStrategy">The function that will be called when there is a unknown token encountered</param>
+        /// <exception cref="ArgumentNullException"></exception>
         public ParadoxParser(string filePath, Action<ParadoxParser, string> parseStrategy)
         {
             if (parseStrategy == null)
