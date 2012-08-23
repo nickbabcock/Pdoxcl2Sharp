@@ -186,14 +186,7 @@ namespace Pdoxcl2Sharp
         /// <returns>The passed in parameter newly parsed</returns>
         public T Parse<T>(T file) where T : class, IParadoxFile
         {
-            int stopIndent = currentIndent;
-            do
-            {
-                string currentLine = ReadString();
-
-                if (currentLine != null)
-                    file.TokenCallback(this, currentLine);
-            } while (!eof && currentIndent < stopIndent);
+            doWhileBracket(() => file.TokenCallback(this, ReadString()));
             return file;
         }
 
@@ -511,14 +504,8 @@ namespace Pdoxcl2Sharp
             if (valueFunc == null)
                 throw new ArgumentNullException("valueFunc", "Function for extracting values must not be null");
             
-            int startingIndent = currentIndent;
             IDictionary<TKey, TValue> result = new Dictionary<TKey, TValue>();
-
-            ensureLeftCurly();
-            while (peekToken() != LexerToken.RightCurly && !eof)
-            {
-                result.Add(keyFunc(this), valueFunc(this));
-            }
+            doWhileBracket(() => result.Add(keyFunc(this), valueFunc(this)));
             return result;
         }
 
@@ -534,24 +521,7 @@ namespace Pdoxcl2Sharp
         {
             if (action == null)
                 throw new ArgumentNullException("action", "Action for reading bracket content must not be null");
-
-            int startingIndent = currentIndent;
-
-            ensureLeftCurly();
-            action(this);
-
-            switch (currentIndent.CompareTo(startingIndent))
-            {
-                case -1:
-                    throw new InvalidOperationException("Invoked action parsed further than the closing bracket");
-                case 0:
-                    return;
-                case 1:
-                    //Advance until the closing curly brace
-                    while (getNextToken() != LexerToken.RightCurly && startingIndent != currentIndent && !eof)
-                        ;
-                    break;
-            }
+            doWhileBracket(() => action(this));
         }
 
 
