@@ -461,9 +461,7 @@ namespace Pdoxcl2Sharp
         private IList<T> readList<T>(Func<T> func)
         {
             List<T> result = new List<T>();
-            ensureLeftCurly();
-            while (currentToken != LexerToken.RightCurly && peekToken() != LexerToken.RightCurly && !eof)
-                result.Add(func());
+            doWhileBracket(() => result.Add(func()));
             return result;
         }
 
@@ -572,6 +570,20 @@ namespace Pdoxcl2Sharp
 
             if (currentToken != LexerToken.LeftCurly)
                 throw new InvalidOperationException("When reading inside brackets the first token must be a left curly");
+        }
+
+        private void doWhileBracket(Action act)
+        {
+            int startingIndent = currentIndent;
+            ensureLeftCurly();
+
+            bool curlyEncountered;
+            curlyEncountered = currentToken == LexerToken.RightCurly || peekToken() == LexerToken.RightCurly;
+            while ((!curlyEncountered && startingIndent != currentIndent) && !eof)
+            {
+                act();
+                curlyEncountered = currentToken == LexerToken.RightCurly || peekToken() == LexerToken.RightCurly;
+            }
         }
 
 
