@@ -526,14 +526,17 @@ namespace Pdoxcl2Sharp
 
 
         /// <summary>
-        /// Checks the next token in the stream in an attempt to locate a left curly.  If the token encountered is 
+        /// Checks the current, and if needed next token in the stream in an attempt to locate a left curly.  If the token encountered is 
         /// an equality symbol, it will read the next token and see if that is a left curly, e.g. x = { y }.
-        /// If the initial token isn't an equality symbol or a left curly, or if the initial token is an equality symbol
+        /// If the initial read token isn't an equality symbol or a left curly, or if the initial read token is an equality symbol
         /// but the subsequent token isn't a left curly, then an exception is thrown.
         /// </summary>
         /// <exception cref="InvalidOperationException"></exception>
         private void ensureLeftCurly()
         {
+            if (currentToken == LexerToken.LeftCurly)
+                return;
+
             currentToken = getNextToken();
             if (currentToken == LexerToken.Equals)
                 currentToken = getNextToken();
