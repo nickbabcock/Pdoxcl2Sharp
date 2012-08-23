@@ -192,13 +192,8 @@ namespace Pdoxcl2Sharp
 
         private void parse(Action<ParadoxParser, string> tokenCallback)
         {
-            do
-            {
-                string currentLine = ReadString();
-
-                if (currentLine != null)
-                    tokenCallback(this, currentLine);
-            } while (!eof);
+            while (peekToken() == LexerToken.Untyped && !eof)
+                tokenCallback(this, ReadString());
         }
 
 
