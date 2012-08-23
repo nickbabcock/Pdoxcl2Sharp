@@ -292,34 +292,27 @@ namespace Pdoxcl2Sharp
         /// encountered, which then all the bytes between two enclosing quotes will be returned
         /// without the quotes in the return value
         /// </summary>
-        /// <returns>Returns null if the end of file encountered</returns>
+        /// <returns>String representing the next series of bytes in the stream</returns>
         public string ReadString()
         {
-            if (eof)
-                return null;
-
-            getNextToken();
-
-            if (eof)
-                return null;
-
-            switch (currentToken)
+            currentToken = getNextToken();
+            if (currentToken == LexerToken.Untyped)
             {
-                case LexerToken.Quote:
-                    while ((currentByte = readByte()) != QUOTE && !eof)
-                        stringBuffer.Append((char)currentByte);
-
-                    return saveBufferThenClear();
-                case LexerToken.Untyped:
-                    do
-                    {
-                        stringBuffer.Append((char)currentByte);
-                    } while (!IsSpace(currentByte = readByte()) && setCurrentToken(currentByte) == LexerToken.Untyped && !eof);
-
-                    return saveBufferThenClear();
-                default:
-                    return currentString = ReadString();
+                do
+                {
+                    stringBuffer.Append((char)currentByte);
+                } while (!IsSpace(currentByte = readByte()) && setCurrentToken(currentByte) == LexerToken.Untyped && !eof);
             }
+            else if (currentToken == LexerToken.Quote)
+            {
+                while ((currentByte = readByte()) != QUOTE && !eof)
+                    stringBuffer.Append((char)currentByte);
+            }
+            else
+            {
+                return ReadString();
+            }
+            return saveBufferThenClear();
         }
 
         /// <summary>
