@@ -545,17 +545,54 @@ namespace Pdoxcl2Sharp
                 throw new InvalidOperationException("When reading inside brackets the first token must be a left curly");
         }
 
+
+
+        /// <summary>
+        /// Executes an action while the matching closing right curly '}' is not met.
+        /// If the action does not consume all the data inside the bracket content,
+        /// the action is repeated.  Before the action is executed, the parser
+        /// ensures parsing at the beginning of the data
+        /// </summary>
+        /// <remarks>
+        /// Even if the action is blank, the function will protect against an infinite
+        /// loop and will read until the end of the bracket content or if the end of 
+        /// the file occured, whichever one comes first.
+        ///
+        /// If the action doesn't advance the underlying stream, the stream will still
+        /// advance as long as the loop conditional is true.  For the loop conditional to be
+        /// true the current token or the next token can't be a right a curly.
+        /// Since the action doesn't advance the stream it is guaranteed that current
+        /// iteration's currentToken is the same value as the previous iteration's
+        /// <see cref="peekToken"/> and <see cref="peekToken"/> token could not have been
+        /// a right curly.  Therefore if the action doesn't advance the stream,
+        /// currentToken will never be a right curly and <see cref="peekToken"/> will
+        /// always be invoked. <see cref="peekToken"/> advances the stream.
+        /// Infinite loop impossible
+        /// </remarks>
+        /// <param name="act">The action that will be repeatedly performed while there is data left in the brakcets</param>
         private void doWhileBracket(Action act)
         {
             int startingIndent = currentIndent;
             ensureLeftCurly();
 
-            bool curlyEncountered;
-            curlyEncountered = currentToken == LexerToken.RightCurly || peekToken() == LexerToken.RightCurly;
-            while ((!curlyEncountered && startingIndent != currentIndent) && !eof)
+            //Complicated condition walkthough:
+            //Stop executing the action when
+            //-either the current token or the next token is a right curly '}'
+            //--note: if the current token is a right curly then the underlying stream will not need to be advanced 
+            //        to read the subsequent token
+            //-the previous statement is true and the right curly encountered will set us back to the indent we started at
+            //-the file has ended.  Doesn't matter if the previous two statements are true
+            //
+            //Another way to look at it:
+            //Continue parsing (executing the action) when
+            //-eof has not been reached, this means that there is more to read
+            //-the previous is true and the (current token or the next isn't a right curly) 
+            // and current indent is not what was started at
+            while ((!(currentToken == LexerToken.RightCurly || peekToken() == LexerToken.RightCurly)
+                && startingIndent != currentIndent)
+                && !eof)
             {
                 act();
-                curlyEncountered = currentToken == LexerToken.RightCurly || peekToken() == LexerToken.RightCurly;
             }
         }
 
