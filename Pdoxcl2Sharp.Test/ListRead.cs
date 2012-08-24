@@ -131,6 +131,38 @@ namespace Pdoxcl2Sharp.Test
         }
 
         [Test]
+        public void ReadCommaIntList()
+        {
+            var data = "list = { 1, 2, 3, 4, 5 }".ToByteArray();
+            ParadoxParser.Parse(data, action);
+            CollectionAssert.AreEqual(new[] { 1, 2, 3, 4, 5 }, actual);
+        }
+
+        [Test]
+        public void ReadCommaIntListNoSpace()
+        {
+            var data = "list={1,2,3,4,5}".ToByteArray();
+            ParadoxParser.Parse(data, action);
+            CollectionAssert.AreEqual(new[] { 1, 2, 3, 4, 5 }, actual);
+        }
+
+        [Test]
+        public void ReadCommaDoubleList()
+        {
+            byte[] data = "list = { 1.200, .63, 2.11, 23.421 }".ToByteArray();
+            ParadoxParser.Parse(data, floatAction);
+            CollectionAssert.AreEqual(expectedFloat, actualFloat);
+        }
+
+        [Test]
+        public void ReadCommaDoubleNoSpaceList()
+        {
+            byte[] data = "list={1.200,.63,2.11,23.421}".ToByteArray();
+            ParadoxParser.Parse(data, floatAction);
+            CollectionAssert.AreEqual(expectedFloat, actualFloat);
+        }
+
+        [Test]
         public void SimpleReadStringList()
         {
             var data = "\tinfantry_brigade = {\r\n\t\"III División 'Pellegrini'\" \"II División 'San Martín'\" \r\n \"I División 'Ing. Krausse'\"}".ToByteArray();
@@ -164,6 +196,19 @@ namespace Pdoxcl2Sharp.Test
             Test<string>(data, x => x.ReadStringList(), expected, "theoretical");
         }
 
+        [Test]
+        public void ReadStringCommaList()
+        {
+            var data = "list = { \"I'm space\", first, second }".ToByteArray();
+            Test<string>(data, x => x.ReadStringList(), new[] { "I'm space", "first", "second" }, "list");
+        }
+
+        [Test]
+        public void ReadStringCommaNoSpaceList()
+        {
+            var data = "list={\"I'm space\",first,second}".ToByteArray();
+            Test<string>(data, x => x.ReadStringList(), new[] { "I'm space", "first", "second" }, "list");
+        }
 
         private void Test<T>(byte[] data, Func<ParadoxParser, IEnumerable<T>> func, IEnumerable<T> expected, string tokenStr)
         {
