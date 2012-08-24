@@ -44,13 +44,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\SharedAssemblyVersion.cs">
+      <Link>Properties\SharedAssemblyVersion.cs</Link>
+    </Compile>
     <Compile Include="Bracket.cs" />
     <Compile Include="Building.cs" />
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="ListRead.cs" />
     <Compile Include="MultipleListRead.cs" />
     <Compile Include="Parse.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SingleParse.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -62,6 +64,7 @@
       <Name>Pdoxcl2Sharp</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
