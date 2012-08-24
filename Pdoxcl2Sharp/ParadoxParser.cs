@@ -107,7 +107,8 @@ namespace Pdoxcl2Sharp
         private int currentPosition;
         private int bufferSize;
         private byte[] buffer = new byte[BUFFER_SIZE];
-        private StringBuilder stringBuffer = new StringBuilder(MAX_TOKEN_SIZE);
+        private char[] stringBuffer = new char[MAX_TOKEN_SIZE];
+        private int stringBufferCount = 0;
         private Stream stream;
 
         private bool eof = false;
@@ -254,18 +255,6 @@ namespace Pdoxcl2Sharp
         }
 
         /// <summary>
-        /// Transfers the string buffer to the current string.
-        /// Clears the buffer for the next round of reading
-        /// </summary>
-        /// <returns>The string contained inside the buffer</returns>
-        private string saveBufferThenClear()
-        {
-            currentString = stringBuffer.ToString();
-            stringBuffer.Clear();
-            return currentString;
-        }
-
-        /// <summary>
         /// Retrieves the next byte in the buffer, reading from the
         /// stream if necessary.  Since this is a raw byte, if a number
         /// is expected, better to use <see cref="ReadInt32"/>
@@ -303,19 +292,21 @@ namespace Pdoxcl2Sharp
             {
                 do
                 {
-                    stringBuffer.Append((char)currentByte);
+                    stringBuffer[stringBufferCount++] = (char)currentByte;
                 } while (!IsSpace(currentByte = readByte()) && setCurrentToken(currentByte) == LexerToken.Untyped && !eof);
             }
             else if (currentToken == LexerToken.Quote)
             {
                 while ((currentByte = readByte()) != QUOTE && !eof)
-                    stringBuffer.Append((char)currentByte);
+                    stringBuffer[stringBufferCount++] = (char)currentByte;
             }
             else
             {
                 return ReadString();
             }
-            return saveBufferThenClear();
+            currentString = new string(stringBuffer, 0, stringBufferCount);
+            stringBufferCount = 0;
+            return currentString;
         }
 
         /// <summary>
