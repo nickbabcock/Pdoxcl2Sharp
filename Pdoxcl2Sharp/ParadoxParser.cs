@@ -151,7 +151,7 @@ namespace Pdoxcl2Sharp
             if (String.IsNullOrEmpty(filePath))
                 throw new ArgumentNullException("filePath");
 
-            using (stream = new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite))
+            using (stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
                 parse(file.TokenCallback);
             }
@@ -172,7 +172,7 @@ namespace Pdoxcl2Sharp
             if (String.IsNullOrEmpty(filePath))
                 throw new ArgumentNullException("filePath");
 
-            using (stream = new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite))
+            using (stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
                 parse(parseStrategy);
             }
