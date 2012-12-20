@@ -119,7 +119,9 @@ namespace Pdoxcl2Sharp
         private bool eof = false;
 
         private string currentString;
-
+        internal string CurrentString { get { return currentString; } }
+        public int CurrentIndex { get { return currentIndent; } }
+        internal LexerToken CurrentToken { get { return currentToken; } }
 
         /// <summary>
         /// Parses a series of bytes executes the parsing strategy when an unknown token is encountered.
