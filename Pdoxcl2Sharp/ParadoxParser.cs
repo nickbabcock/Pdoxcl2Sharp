@@ -65,7 +65,12 @@ namespace Pdoxcl2Sharp
         /// <returns>Current token</returns>
         private LexerToken setCurrentToken(byte c)
         {
-            return currentToken = getToken(c);
+            currentToken = getToken(c);
+            if (currentToken == LexerToken.LeftCurly)
+                currentIndent++;
+            else if (currentToken == LexerToken.RightCurly)
+                currentIndent--;
+            return currentToken;
         }
 
         /// <summary>
@@ -219,21 +224,13 @@ namespace Pdoxcl2Sharp
             while (IsSpace(currentByte = readByte()) && !eof)
                 ;
 
-            switch (setCurrentToken(currentByte))
+            if (setCurrentToken(currentByte) == LexerToken.Comment)
             {
-                case LexerToken.Comment:
-                    while ((currentByte = readByte()) != NEWLINE && !eof)
-                        ;
-                    return getNextToken();
-                case LexerToken.LeftCurly:
-                    currentIndent++;
-                    return LexerToken.LeftCurly;
-                case LexerToken.RightCurly:
-                    currentIndent--;
-                    return LexerToken.RightCurly;
-                default:
-                    return currentToken;
+                while ((currentByte = readByte()) != NEWLINE && !eof)
+                    ;
+                return getNextToken();
             }
+            return currentToken;
         }
 
         /// <summary>
