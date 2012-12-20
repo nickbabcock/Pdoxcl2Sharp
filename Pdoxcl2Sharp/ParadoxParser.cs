@@ -557,25 +557,17 @@ namespace Pdoxcl2Sharp
             int startingIndent = currentIndent;
             ensureLeftCurly();
 
-            //Complicated condition walkthough:
-            //Stop executing the action when
-            //-either the current token or the next token is a right curly '}'
-            //--note: if the current token is a right curly then the underlying stream will not need to be advanced 
-            //        to read the subsequent token
-            //-the previous statement is true and the right curly encountered will set us back to the indent we started at
-            //-the file has ended.  Doesn't matter if the previous two statements are true
-            //
-            //Another way to look at it:
-            //Continue parsing (executing the action) when
-            //-eof has not been reached, this means that there is more to read
-            //-the previous is true and the (current token or the next isn't a right curly) 
-            // and current indent is not what was started at
-            while ((!(currentToken == LexerToken.RightCurly || peekToken() == LexerToken.RightCurly)
-                && startingIndent != currentIndent)
-                && !eof)
+            do
             {
+                if (currentToken == LexerToken.RightCurly || peekToken() == LexerToken.RightCurly)
+                {
+                    while (startingIndent != currentIndent && peekToken() == LexerToken.RightCurly && !eof)
+                        ;
+                    if (startingIndent == currentIndent)
+                        break;
+                }
                 act();
-            }
+            } while (!eof);
         }
 
 

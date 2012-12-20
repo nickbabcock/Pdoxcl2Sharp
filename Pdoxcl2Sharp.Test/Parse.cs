@@ -218,5 +218,74 @@ namespace Pdoxcl2Sharp.Test
             Assert.AreEqual(12209, actualMonarch);
         }
 
+        [Test]
+        public void NestedParse()
+        {
+            string input = @"rebel_faction=
+{
+	id=
+	{
+		id=21016
+		type=40
+	}
+	type=""nationalist_rebels""
+}";
+            string actual = string.Empty;
+            Action<ParadoxParser, string> action = (p, s) =>
+                {
+                    if (s == "rebel_faction")
+                    {
+                        Action<ParadoxParser, string> innerAction = (p2, s2) =>
+                            {
+                                if (p2.CurrentIndex == 1 && s2 == "type")
+                                    actual = p2.ReadString();
+                            };
+                        p.Parse(innerAction);
+                    }
+                };
+            ParadoxParser.Parse(input.ToByteArray(), action);
+            Assert.AreEqual("nationalist_rebels", actual);
+        }
+
+
+        [Test]
+        public void NestedParseAfter()
+        {
+            string input = @"rebel_faction=
+{
+	id=
+	{
+		id=21016
+		type=40
+	}
+	type=""nationalist_rebels""
+    army=
+    {
+        id=1
+        type=1
     }
+}
+me=you";
+            string actual = string.Empty;
+            string meActual = string.Empty;
+            Action<ParadoxParser, string> action = (p, s) =>
+                {
+                    if (s == "rebel_faction")
+                    {
+                        Action<ParadoxParser, string> innerAction = (p2, s2) =>
+                            {
+                                if (p2.CurrentIndex == 1 && s2 == "type")
+                                    actual = p2.ReadString();
+                            };
+                        p.Parse(innerAction);
+                    }
+                    else if (s == "me")
+                        meActual = p.ReadString();
+                };
+            ParadoxParser.Parse(input.ToByteArray(), action);
+            Assert.AreEqual("nationalist_rebels", actual);
+            Assert.AreEqual("you", meActual);
+        }
+    }
+
 }
