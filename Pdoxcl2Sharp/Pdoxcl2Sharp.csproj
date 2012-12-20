@@ -46,6 +46,7 @@
     </Compile>
     <Compile Include="IParadoxFile.cs" />
     <Compile Include="ParadoxParser.cs" />
+    <Compile Include="ParadoxSaver.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
