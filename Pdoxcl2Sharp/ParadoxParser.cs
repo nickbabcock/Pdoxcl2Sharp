@@ -192,8 +192,13 @@ namespace Pdoxcl2Sharp
         /// <returns>The passed in parameter newly parsed</returns>
         public T Parse<T>(T file) where T : class, IParadoxFile
         {
-            doWhileBracket(() => file.TokenCallback(this, ReadString()));
+            Parse(file.TokenCallback);
             return file;
+        }
+
+        public void Parse(Action<ParadoxParser, string> action)
+        {
+            doWhileBracket(() => action(this, ReadString()));
         }
 
         private void parse(Action<ParadoxParser, string> tokenCallback)
