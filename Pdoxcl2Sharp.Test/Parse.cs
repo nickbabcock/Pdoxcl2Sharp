@@ -219,6 +219,34 @@ namespace Pdoxcl2Sharp.Test
         }
 
         [Test]
+        public void WhenChristWasBorn()
+        {
+            string input = "date=1.1.1";
+            DateTime expected = new DateTime(1, 1, 1);
+            DateTime actual = DateTime.MaxValue;
+            Dictionary<string, Action<ParadoxParser>> dictionary = new Dictionary<string, Action<ParadoxParser>>
+            {
+                {"date", x => actual = x.ReadDateTime()}
+            };
+            ParadoxParser p = new ParadoxParser(input.ToByteArray(), dictionary.ParserAdapter());
+            Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public void FirstMilleniumParty()
+        {
+            string input = "date=999.1.1";
+            DateTime expected = new DateTime(999, 1, 1);
+            DateTime actual = DateTime.MaxValue;
+            Dictionary<string, Action<ParadoxParser>> dictionary = new Dictionary<string, Action<ParadoxParser>>
+            {
+                {"date", x => actual = x.ReadDateTime()}
+            };
+            ParadoxParser p = new ParadoxParser(input.ToByteArray(), dictionary.ParserAdapter());
+            Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
         public void NestedParse()
         {
             string input = @"rebel_faction=

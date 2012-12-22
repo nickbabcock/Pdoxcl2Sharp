@@ -581,17 +581,28 @@ namespace Pdoxcl2Sharp
 
 
 	    /// <summary>
-        /// Returns the equivalent System.DateTime as the input string.  Simple wrapper around
-        /// DateTime.TryParseExact with specified format and invariant info.  This function is
-        /// designed to work with tokens or strings created by <see cref="ReadString"/> and as
-        /// such, doesn't allow whitespace.
+        /// Returns the equivalent System.DateTime as the input string.  For the string
+        /// to be a valid date it must be formatted as (year).(month).(day), where
+        /// integers represent the actual year and not abbreviations.
         /// </summary>
         /// <param name="dateTime">A string containing the date to parse.</param>
         /// <param name="result">Contains the equivalent System.DateTime as the input parameter</param>
         /// <returns>True if the conversion was successful</returns>
         public static bool TryParseDate(string dateTime, out DateTime result)
-        { 
-            return DateTime.TryParseExact(dateTime, "yyyy.M.d", DateTimeFormatInfo.InvariantInfo, DateTimeStyles.None, out result);
+        {
+            result = DateTime.MinValue;
+            string[] splitted = dateTime.Split('.');
+            if (splitted.Length != 3)
+                return false;
+            int year, month, day;
+            if (!int.TryParse(splitted[0], NumberStyles.None, CultureInfo.InvariantCulture, out year))
+                return false;
+            if (!int.TryParse(splitted[1], NumberStyles.None, CultureInfo.InvariantCulture, out month))
+                return false;
+            if (!int.TryParse(splitted[2], NumberStyles.None, CultureInfo.InvariantCulture, out day))
+                return false;
+            result = new DateTime(year, month, day);
+            return true;
         }
 
         public static void Parse(byte[] data, Action<ParadoxParser, string> parseStrategy)
