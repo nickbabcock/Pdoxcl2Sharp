@@ -465,6 +465,11 @@ namespace Pdoxcl2Sharp
         /// <returns>A list of the data interpreted as strings</returns>
         public IList<string> ReadStringList() { return readList(ReadString); }
 
+        /// <summary>
+        /// Reads the data between brackets as DateTimes
+        /// </summary>
+        /// <returns>A list of the data interpreted as DateTimes</returns>
+        public IList<DateTime> ReadDateTimeList() { return readList(ReadDateTime); }
 
         /// <summary>
         /// Extracts a dictionary from the data that is contained with brackets.
