@@ -102,21 +102,6 @@ namespace Pdoxcl2Sharp.Test
             string expected = "list={1 2 3 4} list2={ 4 3 2 1 }";
             Assert.AreEqual(expected, save.ToString());
         }
-        //[Test]
-        //public void tabbedSingleSave()
-        //{
-        //    string input = "\tculture=michigan";
-        //    string newCulture = "ohio";
-        //    StringWriter save = new StringWriter();
-
-        //    Action<ParadoxSaver, string> action = (p, s) =>
-        //    {
-        //        if (s == "culture")
-        //            p.WriteValue(newCulture);
-        //    };
-        //    ParadoxSaver t = new ParadoxSaver(save, input.ToByteArray(), action);
-        //    Assert.AreEqual("\tculture=ohio", save.ToString()); 
-        //}
         [Test]
         public void WriteIgnored()
         {
