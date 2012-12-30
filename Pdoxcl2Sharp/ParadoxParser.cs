@@ -99,6 +99,7 @@ namespace Pdoxcl2Sharp
                 case EXCLAMATION:
                     return  LexerToken.Comment;
                 case COMMA:
+                case SEMI_COLON:
                     return  LexerToken.Comma;
                 default:
                     return  LexerToken.Untyped;
