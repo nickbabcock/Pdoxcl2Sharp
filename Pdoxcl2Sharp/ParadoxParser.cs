@@ -602,6 +602,9 @@ namespace Pdoxcl2Sharp
                 return false;
             if (!int.TryParse(splitted[2], NumberStyles.None, CultureInfo.InvariantCulture, out day))
                 return false;
+
+            if ((year < 1 || year > 9999) || (month < 1 || month > 12) || (day < 1 || day > DateTime.DaysInMonth(year, month)))
+                return false;
             result = new DateTime(year, month, day);
             return true;
         }
