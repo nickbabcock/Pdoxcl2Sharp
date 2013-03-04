@@ -43,6 +43,24 @@ namespace Pdoxcl2Sharp.Test
         }
 
         [Test]
+        public void SingleQuoteIgnore()
+        {
+            string input = "culture=\"michigan\"";
+            StringWriter save = new StringWriter();
+            ParadoxSaver t = new ParadoxSaver(save, input.ToByteArray(), (p, s) => { });
+            StringAssert.Contains(input, save.ToString());
+        }
+
+        [Test]
+        public void SpaceQuoteIgnore()
+        {
+            string input = "culture=\"Aztec Patriots\"";
+            StringWriter save = new StringWriter();
+            ParadoxSaver t = new ParadoxSaver(save, input.ToByteArray(), (p, s) => { });
+            StringAssert.Contains(input, save.ToString());
+        }
+
+        [Test]
         public void WriteNumericalList()
         {
             List<int> list = new List<int>() { 1, 2, 3 };
@@ -164,6 +182,16 @@ start_date=""1399.10.14""";
             Assert.That(equivalentSemantics(input));
         }
 
+        [Test]
+        public void EquivalentBeginningWrite()
+        {
+            string input = 
+@"date=""1605.3.14""
+player=""NAJ""
+monarch=10031";
+            Assert.That(equivalentSemantics(input));
+        }
+
         private static bool equivalentSemantics(string input)
         {
             StringWriter save = new StringWriter();
@@ -171,11 +199,21 @@ start_date=""1399.10.14""";
             string output = save.ToString();
 
             List<string> first = new List<string>();
+            List<int> firstInd = new List<int>();
             List<string> second = new List<string>();
-            ParadoxParser.Parse(input.ToByteArray(), (p, s) => first.Add(s));
-            ParadoxParser.Parse(output.ToByteArray(), (p, s) => second.Add(s));
+            List<int> secondInd = new List<int>();
+            ParadoxParser.Parse(input.ToByteArray(), (p, s) => 
+                {
+                    first.Add(s);
+                    firstInd.Add(p.CurrentIndex);
+                });
+            ParadoxParser.Parse(output.ToByteArray(), (p, s) =>
+                {
+                    second.Add(s);
+                    secondInd.Add(p.CurrentIndex);
+                });
 
-            return first.SequenceEqual(second);
+            return first.SequenceEqual(second) && firstInd.SequenceEqual(secondInd);
         }
     }
 }

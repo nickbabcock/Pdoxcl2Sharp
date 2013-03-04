@@ -28,48 +28,90 @@ namespace Pdoxcl2Sharp
             if (action == null)
                 throw new ArgumentNullException("action", "Must define an action when saving");
 
+            parse(output, action, (p) => ParadoxParser.Parse(data, p));
+        }
+        public ParadoxSaver(TextWriter output, IParadoxFile file, Action<ParadoxSaver, string> action, string filePath, string originalFilePath)
+        {
+            if (output == null)
+                throw new ArgumentNullException("output", "Must provide an output to write data");
+
+            if (file == null)
+                throw new ArgumentNullException("file");
+
+            if (action == null)
+                throw new ArgumentNullException("action", "Must define an action when saving");
+
+            if (String.IsNullOrEmpty(filePath))
+                throw new ArgumentNullException("filePath");
+
+            if (String.IsNullOrEmpty(originalFilePath))
+                throw new ArgumentNullException("originalFilePath");
+
+            parse(output, action, (p) => ParadoxParser.Parse(originalFilePath, p));
+        }
+        private void parse(TextWriter output, Action<ParadoxSaver, string> action, Action<Action<ParadoxParser, string>> parseAction)
+        {
             writer = output;
             builder = new StringBuilder();
             prevIndex = 0;
             prevToken = LexerToken.Untyped;
             Action<ParadoxParser, string> parser = (p, s) =>
+            {
+                lastWrite = WriteType.None;
+                underlyingParser = p;
+
+                while (prevIndex > p.CurrentIndex && p.CurrentToken != LexerToken.RightCurly)
                 {
-                    lastWrite = WriteType.None;
-                    underlyingParser = p;
-                    action(this, s);
+                    if (prevIndex > 1)
+                        writer.Write(new string('\t', prevIndex - 1));
+                    writer.Write("}\r\n");
+                    prevIndex--;
+                }
+                action(this, s);
 
+                switch (lastWrite)
+                {
+                    case WriteType.Single:
+                        p.ReadString();
+                        break;
+                    case WriteType.None:
+                        preprocess(p.CurrentToken);
 
-                    switch (lastWrite)
-                    {
-                        case WriteType.Single:
-                            p.ReadString();
-                            break;
-                        case WriteType.None:
-                            preprocess(p.CurrentToken);
-
-                            if (p.CurrentToken == LexerToken.Equals)
-                                writer.Write(new string('\t', underlyingParser.CurrentIndex));
+                        if (p.CurrentToken == LexerToken.Equals)
+                            writer.Write(new string('\t', p.CurrentIndex));
+                        
+                        if (p.CurrentToken != LexerToken.Quote)
                             writer.Write(s);
+                        else
+                        {
+                            writer.Write('"');
+                            writer.Write(s);
+                            writer.Write('"');
+                        }
 
-                            if (prevIndex > underlyingParser.CurrentIndex)
-                                writer.Write("} ");
+                        if (prevIndex > p.CurrentIndex)
+                        {
+                            writer.Write("} ");
+                            prevIndex--;
+                        }
 
-                            if (p.CurrentToken == LexerToken.Equals)
-                                writer.Write('=');
-                            else if (p.CurrentToken == LexerToken.Untyped && prevToken == LexerToken.Equals
-                                && prevIndex >= underlyingParser.CurrentIndex)
-                                writer.Write(writer.NewLine);
-                            else if (p.CurrentToken == LexerToken.Untyped)
-                                writer.Write(' ');
-                            break;
-                        case WriteType.List:
-                            p.ReadStringList();
-                            break;
-                    }
-                    prevIndex = underlyingParser.CurrentIndex;
-                    prevToken = underlyingParser.CurrentToken;
-                };
-            ParadoxParser.Parse(data, parser);
+                        if (p.CurrentToken == LexerToken.Equals)
+                            writer.Write('=');
+                        else if ((p.CurrentToken == LexerToken.Untyped || p.CurrentToken == LexerToken.Quote)
+                            && prevToken == LexerToken.Equals
+                            && prevIndex >= underlyingParser.CurrentIndex)
+                            writer.Write(writer.NewLine);
+                        else if (p.CurrentToken == LexerToken.Untyped)
+                            writer.Write(' ');
+                        break;
+                    case WriteType.List:
+                        p.ReadStringList();
+                        break;
+                }
+                prevIndex = underlyingParser.CurrentIndex;
+                prevToken = underlyingParser.CurrentToken;
+            };
+            parseAction(parser);
             if (prevIndex != 0)
                 writer.Write('}');
         }
