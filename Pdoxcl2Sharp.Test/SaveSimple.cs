@@ -137,5 +137,45 @@ namespace Pdoxcl2Sharp.Test
             string expected = "advisor={\r\n\tid=1562\r\n\ttype=39\r\n}";
             Assert.AreEqual(expected, save.ToString());
         }
+
+        [Test]
+        public void EquivalentTechWrite()
+        {
+            string input =
+@"	technology=
+	{
+		land_tech={22 1396.431}
+		naval_tech={22 774.762}
+    }";
+            Assert.That(equivalentSemantics(input));
+        }
+
+        [Test]
+        public void EquivalentSettingsWrite()
+        {
+            string input =
+@"gameplaysettings=
+{
+	setgameplayoptions=
+	{
+0 0 0 0 0 0 0 2 0 1 1 0 0 	}
+}
+start_date=""1399.10.14""";
+            Assert.That(equivalentSemantics(input));
+        }
+
+        private static bool equivalentSemantics(string input)
+        {
+            StringWriter save = new StringWriter();
+            ParadoxSaver t = new ParadoxSaver(save, input.ToByteArray(), (p, s) => { });
+            string output = save.ToString();
+
+            List<string> first = new List<string>();
+            List<string> second = new List<string>();
+            ParadoxParser.Parse(input.ToByteArray(), (p, s) => first.Add(s));
+            ParadoxParser.Parse(output.ToByteArray(), (p, s) => second.Add(s));
+
+            return first.SequenceEqual(second);
+        }
     }
 }
