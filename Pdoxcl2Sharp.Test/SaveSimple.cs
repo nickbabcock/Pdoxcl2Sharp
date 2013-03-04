@@ -17,7 +17,7 @@ namespace Pdoxcl2Sharp.Test
             string input = "culture=michigan";
             string newCulture = "ohio";
             StringWriter save = new StringWriter();
-            
+
             Action<ParadoxSaver, string> action = (p, s) =>
                 {
                     if (s == "culture")
@@ -121,6 +121,17 @@ namespace Pdoxcl2Sharp.Test
             Assert.AreEqual(expected, save.ToString());
         }
         [Test]
+        public void IgnoreEmptyList()
+        {
+            string input = "list={} list={}";
+            StringWriter save = new StringWriter();
+            ParadoxSaver t = new ParadoxSaver(save, input.ToByteArray(), (p, s) => { });
+
+            Assert.DoesNotThrow(() =>
+                ParadoxParser.Parse(save.ToString().ToByteArray(), (p, s) => p.ReadStringList()));
+
+        }
+        [Test]
         public void WriteIgnored()
         {
             string input = "culture=michigan\r\ncity=me";
@@ -134,7 +145,7 @@ namespace Pdoxcl2Sharp.Test
         {
             string input = "advisor={\r\n\tid=1562\r\n\ttype=39\r\n}";
             StringWriter save = new StringWriter();
-            Action<ParadoxSaver, string> action = (p, s) => 
+            Action<ParadoxSaver, string> action = (p, s) =>
             {
                 if (s == "id")
                     p.WriteValue("1", appendNewLine: true);
@@ -150,7 +161,7 @@ namespace Pdoxcl2Sharp.Test
         {
             string input = "advisor={\r\n\tid=1562\r\n\ttype=39\r\n}";
             StringWriter save = new StringWriter();
-            Action<ParadoxSaver, string> action = (p, s) => {  };
+            Action<ParadoxSaver, string> action = (p, s) => { };
             ParadoxSaver t = new ParadoxSaver(save, input.ToByteArray(), action);
             string expected = "advisor={\r\n\tid=1562\r\n\ttype=39\r\n}";
             Assert.AreEqual(expected, save.ToString());
@@ -185,7 +196,7 @@ start_date=""1399.10.14""";
         [Test]
         public void EquivalentBeginningWrite()
         {
-            string input = 
+            string input =
 @"date=""1605.3.14""
 player=""NAJ""
 monarch=10031";
@@ -202,7 +213,7 @@ monarch=10031";
             List<int> firstInd = new List<int>();
             List<string> second = new List<string>();
             List<int> secondInd = new List<int>();
-            ParadoxParser.Parse(input.ToByteArray(), (p, s) => 
+            ParadoxParser.Parse(input.ToByteArray(), (p, s) =>
                 {
                     first.Add(s);
                     firstInd.Add(p.CurrentIndex);
@@ -214,6 +225,20 @@ monarch=10031";
                 });
 
             return first.SequenceEqual(second) && firstInd.SequenceEqual(secondInd);
+        }
+
+        [Test]
+        public void ReadAndSaveForeign()
+        {
+            string input = @"name=""Vjenceslav Draškovic""";
+            string expected = "Vjenceslav Draškovic";
+            string actual = string.Empty;
+            ParadoxParser.Parse(input.ToByteArray(), (p, s) => actual = p.ReadString());
+            Assert.AreEqual(expected, actual);
+
+            StringWriter save = new StringWriter();
+            ParadoxSaver t = new ParadoxSaver(save, input.ToByteArray(), (p, s) => { });
+            Console.WriteLine(save.ToString());
         }
     }
 }

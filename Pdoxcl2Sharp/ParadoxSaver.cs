@@ -57,6 +57,11 @@ namespace Pdoxcl2Sharp
             prevToken = LexerToken.Untyped;
             Action<ParadoxParser, string> parser = (p, s) =>
             {
+                //If the last token was an equals
+                //Means that an empty list was encountered 
+                if (prevToken == LexerToken.Equals && p.CurrentToken == LexerToken.Equals && prevIndex >= p.CurrentIndex)
+                    writer.Write("{}\r\n");
+
                 lastWrite = WriteType.None;
                 underlyingParser = p;
 
@@ -112,6 +117,12 @@ namespace Pdoxcl2Sharp
                 prevToken = underlyingParser.CurrentToken;
             };
             parseAction(parser);
+
+
+            //If the last token was an equals
+            //Means that an empty list was encountered 
+            if (prevToken == LexerToken.Equals)
+                writer.Write("{}");
             if (prevIndex != 0)
                 writer.Write('}');
         }
