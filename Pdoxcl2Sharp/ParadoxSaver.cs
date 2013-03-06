@@ -14,13 +14,14 @@ namespace Pdoxcl2Sharp
             List,
             None
         }
-        private TextWriter writer;
+        private StringWriter writer;
         private ParadoxParser underlyingParser;
         private WriteType lastWrite;
         private StringBuilder builder;
         private int prevIndex;
         private LexerToken prevToken;
-        public ParadoxSaver(TextWriter output, byte[] data, Action<ParadoxSaver, string> action)
+
+        public ParadoxSaver(StringWriter output, byte[] data, Action<ParadoxSaver, string> action)
         {
             if (output == null)
                 throw new ArgumentNullException("output", "Must provide an output to write data");
@@ -30,7 +31,7 @@ namespace Pdoxcl2Sharp
 
             parse(output, action, (p) => ParadoxParser.Parse(data, p));
         }
-        public ParadoxSaver(TextWriter output, IParadoxFile file, Action<ParadoxSaver, string> action, string filePath, string originalFilePath)
+        public ParadoxSaver(StringWriter output, IParadoxFile file, Action<ParadoxSaver, string> action, string filePath, string originalFilePath)
         {
             if (output == null)
                 throw new ArgumentNullException("output", "Must provide an output to write data");
@@ -49,7 +50,7 @@ namespace Pdoxcl2Sharp
 
             parse(output, action, (p) => ParadoxParser.Parse(originalFilePath, p));
         }
-        private void parse(TextWriter output, Action<ParadoxSaver, string> action, Action<Action<ParadoxParser, string>> parseAction)
+        private void parse(StringWriter output, Action<ParadoxSaver, string> action, Action<Action<ParadoxParser, string>> parseAction)
         {
             writer = output;
             builder = new StringBuilder();
@@ -60,7 +61,7 @@ namespace Pdoxcl2Sharp
                 //If the last token was an equals
                 //Means that an empty list was encountered 
                 if (prevToken == LexerToken.Equals && p.CurrentToken == LexerToken.Equals && prevIndex >= p.CurrentIndex)
-                    writer.Write("{}\r\n");
+                    writer.Write("{}" + Environment.NewLine);
 
                 lastWrite = WriteType.None;
                 underlyingParser = p;
@@ -69,7 +70,7 @@ namespace Pdoxcl2Sharp
                 {
                     if (prevIndex > 1)
                         writer.Write(new string('\t', prevIndex - 1));
-                    writer.Write("}\r\n");
+                    writer.Write('}' + Environment.NewLine);
                     prevIndex--;
                 }
                 action(this, s);
@@ -105,7 +106,7 @@ namespace Pdoxcl2Sharp
                         else if ((p.CurrentToken == LexerToken.Untyped || p.CurrentToken == LexerToken.Quote)
                             && prevToken == LexerToken.Equals
                             && prevIndex >= underlyingParser.CurrentIndex)
-                            writer.Write(writer.NewLine);
+                            writer.Write(Environment.NewLine);
                         else if (p.CurrentToken == LexerToken.Untyped)
                             writer.Write(' ');
                         break;
@@ -132,7 +133,7 @@ namespace Pdoxcl2Sharp
             {
                 writer.Write('{');
                 if (token == LexerToken.Equals)
-                    writer.Write(writer.NewLine);
+                    writer.Write(Environment.NewLine);
             }
         }
         public void WriteValue(string value, bool appendNewLine = false, bool quoteWrap = false)
@@ -155,7 +156,7 @@ namespace Pdoxcl2Sharp
                 builder.Append(value);
             }
             if (appendNewLine)
-                builder.Append(writer.NewLine);
+                builder.Append(Environment.NewLine);
             writer.Write(builder.ToString());
         }
 
@@ -202,13 +203,13 @@ namespace Pdoxcl2Sharp
 
             builder.Append(" }");
             if (appendNewLine)
-                builder.Append(writer.NewLine);
+                builder.Append(Environment.NewLine);
             writer.Write(builder.ToString());
         }
         private void writeNewLineDelimitedList<T>(IEnumerable<T> list, bool appendNewLine = false, bool quoteWrap = false)
         {
             builder.Append("={");
-            builder.Append(writer.NewLine);
+            builder.Append(Environment.NewLine);
 
             if (!quoteWrap)
             {
@@ -216,7 +217,7 @@ namespace Pdoxcl2Sharp
                 {
                     builder.Append('\t', underlyingParser.CurrentIndex + 1);
                     builder.Append(value.ToString());
-                    builder.Append(writer.NewLine);
+                    builder.Append(Environment.NewLine);
                 }
             }
             else
@@ -227,13 +228,13 @@ namespace Pdoxcl2Sharp
                     builder.Append('"');
                     builder.Append(value.ToString());
                     builder.Append('"');
-                    builder.Append(writer.NewLine);
+                    builder.Append(Environment.NewLine);
                 }
             }
             builder.Append('\t', underlyingParser.CurrentIndex);
             builder.Append('}');
             if (appendNewLine)
-                builder.Append(writer.NewLine);
+                builder.Append(Environment.NewLine);
             writer.Write(builder.ToString());
         }
     }

@@ -11,20 +11,34 @@ namespace Pdoxcl2Sharp.Test
     [TestFixture]
     class SaveSimple
     {
+        private static string runner(string input, Action<ParadoxSaver, string> action)
+        {
+            //MemoryStream mem = new MemoryStream();
+            //BinaryWriter bw = new BinaryWriter(mem, Encoding.GetEncoding(1252));
+            StringWriter sw = new StringWriter();
+
+            ParadoxSaver t = new ParadoxSaver(sw, input.ToByteArray(), action);
+            return sw.ToString();
+
+            //mem.Seek(0, SeekOrigin.Begin);
+            //BinaryReader br = new BinaryReader(mem);
+            //char[] charas = (br.ReadChars((int)br.BaseStream.Length));
+            //string result = new string(charas);
+            //return result;
+        }
+
         [Test]
         public void SingleSave()
         {
             string input = "culture=michigan";
             string newCulture = "ohio";
-            StringWriter save = new StringWriter();
 
             Action<ParadoxSaver, string> action = (p, s) =>
                 {
                     if (s == "culture")
                         p.WriteValue(newCulture);
                 };
-            ParadoxSaver t = new ParadoxSaver(save, input.ToByteArray(), action);
-            Assert.AreEqual("culture=ohio", save.ToString());
+            Assert.AreEqual("culture=ohio", runner(input, action));
         }
 
         [Test]
@@ -32,32 +46,26 @@ namespace Pdoxcl2Sharp.Test
         {
             string input = "culture=\"michigan\"";
             string newCulture = "ohio";
-            StringWriter save = new StringWriter();
             Action<ParadoxSaver, string> action = (p, s) =>
             {
                 if (s == "culture")
                     p.WriteValue(newCulture, quoteWrap: true);
             };
-            ParadoxSaver t = new ParadoxSaver(save, input.ToByteArray(), action);
-            Assert.AreEqual("culture=\"ohio\"", save.ToString());
+            Assert.AreEqual("culture=\"ohio\"", runner(input, action));
         }
 
         [Test]
         public void SingleQuoteIgnore()
         {
             string input = "culture=\"michigan\"";
-            StringWriter save = new StringWriter();
-            ParadoxSaver t = new ParadoxSaver(save, input.ToByteArray(), (p, s) => { });
-            StringAssert.Contains(input, save.ToString());
+            StringAssert.Contains(input, runner(input, (p, s) => { }));
         }
 
         [Test]
         public void SpaceQuoteIgnore()
         {
             string input = "culture=\"Aztec Patriots\"";
-            StringWriter save = new StringWriter();
-            ParadoxSaver t = new ParadoxSaver(save, input.ToByteArray(), (p, s) => { });
-            StringAssert.Contains(input, save.ToString());
+            StringAssert.Contains(input, runner(input, (p, s) => { }));
         }
 
         [Test]
@@ -65,14 +73,12 @@ namespace Pdoxcl2Sharp.Test
         {
             List<int> list = new List<int>() { 1, 2, 3 };
             string input = "numbers={ 3 2 1 }";
-            StringWriter save = new StringWriter();
             Action<ParadoxSaver, string> action = (p, s) =>
             {
                 if (s == "numbers")
                     p.WriteList(list, appendNewLine: false);
             };
-            ParadoxSaver t = new ParadoxSaver(save, input.ToByteArray(), action);
-            Assert.AreEqual("numbers={ 1 2 3 }", save.ToString());
+            Assert.AreEqual("numbers={ 1 2 3 }", runner(input, action));
         }
 
         [Test]
@@ -80,14 +86,12 @@ namespace Pdoxcl2Sharp.Test
         {
             List<string> list = new List<string>() { "Infi a", "Infi B" };
             string input = "reg={ }";
-            StringWriter save = new StringWriter();
             Action<ParadoxSaver, string> action = (p, s) =>
             {
                 if (s == "reg")
                     p.WriteList(list, appendNewLine: false, quoteWrap: true);
             };
-            ParadoxSaver t = new ParadoxSaver(save, input.ToByteArray(), action);
-            Assert.AreEqual("reg={ \"Infi a\" \"Infi B\" }", save.ToString());
+            Assert.AreEqual("reg={ \"Infi a\" \"Infi B\" }", runner(input, action));
         }
 
         [Test]
@@ -95,37 +99,32 @@ namespace Pdoxcl2Sharp.Test
         {
             List<string> list = new List<string>() { "infantry_theory", "militia_theory", "mobile_theory" };
             string input = "theoretical={ }";
-            StringWriter save = new StringWriter();
             Action<ParadoxSaver, string> action = (p, s) =>
             {
                 if (s == "theoretical")
                     p.WriteList(list, appendNewLine: false, delimiter: Environment.NewLine);
             };
-            ParadoxSaver t = new ParadoxSaver(save, input.ToByteArray(), action);
             string expected = "theoretical={\r\n\tinfantry_theory\r\n\tmilitia_theory\r\n\tmobile_theory\r\n}";
-            Assert.AreEqual(expected, save.ToString());
+            Assert.AreEqual(expected, runner(input, action));
         }
 
         [Test]
         public void IgnoreList()
         {
             string input = "list={1 2 3 4} list2={1 2 3 4}";
-            StringWriter save = new StringWriter();
             Action<ParadoxSaver, string> action = (p, s) =>
                 {
                     if (s == "list2")
                         p.WriteList(new int[] { 4, 3, 2, 1 });
                 };
-            ParadoxSaver t = new ParadoxSaver(save, input.ToByteArray(), action);
             string expected = "list={1 2 3 4} list2={ 4 3 2 1 }";
-            Assert.AreEqual(expected, save.ToString());
+            Assert.AreEqual(expected, runner(input, action));
         }
         [Test]
         public void IgnoreEmptyList()
         {
             string input = "list={} list={}";
-            StringWriter save = new StringWriter();
-            ParadoxSaver t = new ParadoxSaver(save, input.ToByteArray(), (p, s) => { });
+            string save = runner(input, (p, s) => { }); ;
 
             Assert.DoesNotThrow(() =>
                 ParadoxParser.Parse(save.ToString().ToByteArray(), (p, s) => p.ReadStringList()));
@@ -135,16 +134,12 @@ namespace Pdoxcl2Sharp.Test
         public void WriteIgnored()
         {
             string input = "culture=michigan\r\ncity=me";
-            StringWriter save = new StringWriter();
-            Action<ParadoxSaver, string> action = (p, s) => { };
-            ParadoxSaver t = new ParadoxSaver(save, input.ToByteArray(), action);
-            Assert.AreEqual(input + Environment.NewLine, save.ToString());
+            Assert.AreEqual(input + Environment.NewLine, runner(input, (p, s) =>{}));
         }
         [Test]
         public void writeTabbed()
         {
             string input = "advisor={\r\n\tid=1562\r\n\ttype=39\r\n}";
-            StringWriter save = new StringWriter();
             Action<ParadoxSaver, string> action = (p, s) =>
             {
                 if (s == "id")
@@ -152,19 +147,15 @@ namespace Pdoxcl2Sharp.Test
                 else if (s == "type")
                     p.WriteValue("2", appendNewLine: true);
             };
-            ParadoxSaver t = new ParadoxSaver(save, input.ToByteArray(), action);
             string expected = "advisor={\r\n\tid=1\r\n\ttype=2\r\n}";
-            Assert.AreEqual(expected, save.ToString());
+            Assert.AreEqual(expected, runner(input, action));
         }
         [Test]
         public void writeIgnoredTabbed()
         {
             string input = "advisor={\r\n\tid=1562\r\n\ttype=39\r\n}";
-            StringWriter save = new StringWriter();
-            Action<ParadoxSaver, string> action = (p, s) => { };
-            ParadoxSaver t = new ParadoxSaver(save, input.ToByteArray(), action);
             string expected = "advisor={\r\n\tid=1562\r\n\ttype=39\r\n}";
-            Assert.AreEqual(expected, save.ToString());
+            Assert.AreEqual(expected, runner(input, (p,s) => {}));
         }
 
         [Test]
@@ -205,9 +196,7 @@ monarch=10031";
 
         private static bool equivalentSemantics(string input)
         {
-            StringWriter save = new StringWriter();
-            ParadoxSaver t = new ParadoxSaver(save, input.ToByteArray(), (p, s) => { });
-            string output = save.ToString();
+            string output = runner(input, (p, s) => { });
 
             List<string> first = new List<string>();
             List<int> firstInd = new List<int>();
@@ -236,9 +225,7 @@ monarch=10031";
             ParadoxParser.Parse(input.ToByteArray(), (p, s) => actual = p.ReadString());
             Assert.AreEqual(expected, actual);
 
-            StringWriter save = new StringWriter();
-            ParadoxSaver t = new ParadoxSaver(save, input.ToByteArray(), (p, s) => { });
-            Console.WriteLine(save.ToString());
+            CollectionAssert.AreEqual(expected.ToCharArray(), runner(expected, (p, s) => { }).Trim());
         }
     }
 }

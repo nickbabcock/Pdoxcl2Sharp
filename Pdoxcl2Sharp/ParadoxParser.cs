@@ -113,7 +113,7 @@ namespace Pdoxcl2Sharp
         private int currentPosition;
         private int bufferSize;
         private byte[] buffer = new byte[BUFFER_SIZE];
-        private char[] stringBuffer = new char[MAX_TOKEN_SIZE];
+        private byte[] stringBuffer = new byte[MAX_TOKEN_SIZE];
         private int stringBufferCount = 0;
         private Stream stream;
 
@@ -298,19 +298,20 @@ namespace Pdoxcl2Sharp
             {
                 do
                 {
-                    stringBuffer[stringBufferCount++] = (char)currentByte;
+                    stringBuffer[stringBufferCount++] = currentByte;
                 } while (!IsSpace(currentByte = readByte()) && setCurrentToken(currentByte) == LexerToken.Untyped && !eof);
             }
             else if (currentToken == LexerToken.Quote)
             {
                 while ((currentByte = readByte()) != QUOTE && !eof)
-                    stringBuffer[stringBufferCount++] = (char)currentByte;
+                    stringBuffer[stringBufferCount++] = currentByte;
             }
             else
             {
                 return ReadString();
             }
-            currentString = new string(stringBuffer, 0, stringBufferCount);
+
+            currentString = Encoding.Default.GetString(stringBuffer, 0, stringBufferCount);
             stringBufferCount = 0;
             return currentString;
         }
