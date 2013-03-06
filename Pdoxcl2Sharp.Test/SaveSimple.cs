@@ -13,18 +13,9 @@ namespace Pdoxcl2Sharp.Test
     {
         private static string runner(string input, Action<ParadoxSaver, string> action)
         {
-            //MemoryStream mem = new MemoryStream();
-            //BinaryWriter bw = new BinaryWriter(mem, Encoding.GetEncoding(1252));
             StringWriter sw = new StringWriter();
-
             ParadoxSaver t = new ParadoxSaver(sw, input.ToByteArray(), action);
             return sw.ToString();
-
-            //mem.Seek(0, SeekOrigin.Begin);
-            //BinaryReader br = new BinaryReader(mem);
-            //char[] charas = (br.ReadChars((int)br.BaseStream.Length));
-            //string result = new string(charas);
-            //return result;
         }
 
         [Test]
@@ -221,6 +212,18 @@ monarch=10031";
         {
             string input = @"name=""Vjenceslav Draškovic""";
             string expected = "Vjenceslav Draškovic";
+            string actual = string.Empty;
+            ParadoxParser.Parse(input.ToByteArray(), (p, s) => actual = p.ReadString());
+            Assert.AreEqual(expected, actual);
+
+            CollectionAssert.AreEqual(expected.ToCharArray(), runner(expected, (p, s) => { }).Trim());
+        }
+
+        [Test]
+        public void ReadAndSaveForeign2()
+        {
+            string input = @"name=""Östergötland""";
+            string expected = "Östergötland";
             string actual = string.Empty;
             ParadoxParser.Parse(input.ToByteArray(), (p, s) => actual = p.ReadString());
             Assert.AreEqual(expected, actual);

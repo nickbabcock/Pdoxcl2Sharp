@@ -14,14 +14,14 @@ namespace Pdoxcl2Sharp
             List,
             None
         }
-        private StringWriter writer;
+        private TextWriter writer;
         private ParadoxParser underlyingParser;
         private WriteType lastWrite;
         private StringBuilder builder;
         private int prevIndex;
         private LexerToken prevToken;
 
-        public ParadoxSaver(StringWriter output, byte[] data, Action<ParadoxSaver, string> action)
+        public ParadoxSaver(TextWriter output, byte[] data, Action<ParadoxSaver, string> action)
         {
             if (output == null)
                 throw new ArgumentNullException("output", "Must provide an output to write data");
@@ -31,7 +31,7 @@ namespace Pdoxcl2Sharp
 
             parse(output, action, (p) => ParadoxParser.Parse(data, p));
         }
-        public ParadoxSaver(StringWriter output, IParadoxFile file, Action<ParadoxSaver, string> action, string filePath, string originalFilePath)
+        public ParadoxSaver(TextWriter output, IParadoxFile file, Action<ParadoxSaver, string> action, string filePath, string originalFilePath)
         {
             if (output == null)
                 throw new ArgumentNullException("output", "Must provide an output to write data");
@@ -50,7 +50,7 @@ namespace Pdoxcl2Sharp
 
             parse(output, action, (p) => ParadoxParser.Parse(originalFilePath, p));
         }
-        private void parse(StringWriter output, Action<ParadoxSaver, string> action, Action<Action<ParadoxParser, string>> parseAction)
+        private void parse(TextWriter output, Action<ParadoxSaver, string> action, Action<Action<ParadoxParser, string>> parseAction)
         {
             writer = output;
             builder = new StringBuilder();
