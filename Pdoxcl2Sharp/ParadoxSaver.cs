@@ -21,6 +21,9 @@ namespace Pdoxcl2Sharp
         private int prevIndex;
         private LexerToken prevToken;
 
+        public int CurrentIndex { get { return underlyingParser.CurrentIndex; } }
+
+
         public ParadoxSaver(TextWriter output, byte[] data, Action<ParadoxSaver, string> action)
         {
             if (output == null)
@@ -56,68 +59,7 @@ namespace Pdoxcl2Sharp
             builder = new StringBuilder();
             prevIndex = 0;
             prevToken = LexerToken.Untyped;
-            Action<ParadoxParser, string> parser = (p, s) =>
-            {
-                //If the last token was an equals
-                //Means that an empty list was encountered 
-                if (prevToken == LexerToken.Equals && p.CurrentToken == LexerToken.Equals && prevIndex >= p.CurrentIndex)
-                    writer.Write("{}" + Environment.NewLine);
-
-                lastWrite = WriteType.None;
-                underlyingParser = p;
-
-                while (prevIndex > p.CurrentIndex && p.CurrentToken != LexerToken.RightCurly)
-                {
-                    if (prevIndex > 1)
-                        writer.Write(new string('\t', prevIndex - 1));
-                    writer.Write('}' + Environment.NewLine);
-                    prevIndex--;
-                }
-                action(this, s);
-
-                switch (lastWrite)
-                {
-                    case WriteType.Single:
-                        p.ReadString();
-                        break;
-                    case WriteType.None:
-                        preprocess(p.CurrentToken);
-
-                        if (p.CurrentToken == LexerToken.Equals)
-                            writer.Write(new string('\t', p.CurrentIndex));
-                        
-                        if (p.CurrentToken != LexerToken.Quote)
-                            writer.Write(s);
-                        else
-                        {
-                            writer.Write('"');
-                            writer.Write(s);
-                            writer.Write('"');
-                        }
-
-                        if (prevIndex > p.CurrentIndex)
-                        {
-                            writer.Write("} ");
-                            prevIndex--;
-                        }
-
-                        if (p.CurrentToken == LexerToken.Equals)
-                            writer.Write('=');
-                        else if ((p.CurrentToken == LexerToken.Untyped || p.CurrentToken == LexerToken.Quote)
-                            && prevToken == LexerToken.Equals
-                            && prevIndex >= underlyingParser.CurrentIndex)
-                            writer.Write(Environment.NewLine);
-                        else if (p.CurrentToken == LexerToken.Untyped)
-                            writer.Write(' ');
-                        break;
-                    case WriteType.List:
-                        p.ReadStringList();
-                        break;
-                }
-                prevIndex = underlyingParser.CurrentIndex;
-                prevToken = underlyingParser.CurrentToken;
-            };
-            parseAction(parser);
+            parseAction(wrapUnderlyingAction(action));
 
 
             //If the last token was an equals
@@ -132,7 +74,7 @@ namespace Pdoxcl2Sharp
             if (prevIndex < underlyingParser.CurrentIndex)
             {
                 writer.Write('{');
-                if (token == LexerToken.Equals)
+                if (token == LexerToken.Equals || lastWrite == WriteType.Single)
                     writer.Write(Environment.NewLine);
             }
         }
@@ -236,6 +178,78 @@ namespace Pdoxcl2Sharp
             if (appendNewLine)
                 builder.Append(Environment.NewLine);
             writer.Write(builder.ToString());
+        }
+
+
+        private Action<ParadoxParser, string> wrapUnderlyingAction(Action<ParadoxSaver, string> action)
+        {
+            return (ParadoxParser p, string s) =>
+                {
+                    //If the last token was an equals
+                    //Means that an empty list was encountered 
+                    if (prevToken == LexerToken.Equals && p.CurrentToken == LexerToken.Equals && prevIndex >= p.CurrentIndex)
+                        writer.Write("{}" + Environment.NewLine);
+
+                    lastWrite = WriteType.None;
+                    underlyingParser = p;
+
+                    while (prevIndex > p.CurrentIndex && p.CurrentToken != LexerToken.RightCurly)
+                    {
+                        if (prevIndex > 1)
+                            writer.Write(new string('\t', prevIndex - 1));
+                        writer.Write('}' + Environment.NewLine);
+                        prevIndex--;
+                    }
+                    action(this, s);
+
+                    switch (lastWrite)
+                    {
+                        case WriteType.Single:
+                            p.ReadString();
+                            break;
+                        case WriteType.None:
+                            preprocess(p.CurrentToken);
+
+                            if (p.CurrentToken == LexerToken.Equals)
+                                writer.Write(new string('\t', p.CurrentIndex));
+
+                            if (p.CurrentToken != LexerToken.Quote)
+                                writer.Write(s);
+                            else
+                            {
+                                writer.Write('"');
+                                writer.Write(s);
+                                writer.Write('"');
+                            }
+
+                            if (prevIndex > p.CurrentIndex)
+                            {
+                                writer.Write("} ");
+                                prevIndex--;
+                            }
+
+                            if (p.CurrentToken == LexerToken.Equals)
+                                writer.Write('=');
+                            else if ((p.CurrentToken == LexerToken.Untyped || p.CurrentToken == LexerToken.Quote)
+                                && prevToken == LexerToken.Equals
+                                && prevIndex >= underlyingParser.CurrentIndex)
+                                writer.Write(Environment.NewLine);
+                            else if (p.CurrentToken == LexerToken.Untyped)
+                                writer.Write(' ');
+                            break;
+                        case WriteType.List:
+                            p.ReadStringList();
+                            break;
+                    }
+                    prevIndex = underlyingParser.CurrentIndex;
+                    prevToken = underlyingParser.CurrentToken;
+                };
+        }
+        public void Parse(Action<ParadoxSaver, string> action)
+        {
+            writer.Write(new string('\t', CurrentIndex) + underlyingParser.CurrentString + '=');
+            underlyingParser.Parse(wrapUnderlyingAction(action));
+            writer.WriteLine(new string('\t', CurrentIndex) + '}');
         }
     }
 }

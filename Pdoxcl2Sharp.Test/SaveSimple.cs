@@ -230,5 +230,25 @@ monarch=10031";
 
             CollectionAssert.AreEqual(expected.ToCharArray(), runner(expected, (p, s) => { }).Trim());
         }
+
+        [Test]
+        public void SaveHeader()
+        {
+            string input = "1={\r\n\tname1=value1\r\n}";
+            string expected = "1={\r\n\tname1=value2\r\n}\r\n";
+            Action<ParadoxSaver, string> action = (p,s) =>
+                {
+                    if (s == "1")
+                    {
+                        p.Parse((p2, s2) =>
+                            {
+                                if (s2 == "name1")
+                                    p2.WriteValue("value2", appendNewLine: true, quoteWrap: false);
+                            });
+                    }
+                };
+            string actual = runner(input, action);
+            Assert.AreEqual(expected, actual);
+        }
     }
 }
