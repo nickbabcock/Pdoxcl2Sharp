@@ -10,7 +10,7 @@ namespace Pdoxcl2Sharp.Test
     {
         public static byte[] ToByteArray(this string str)
         {
-            return Encoding.Default.GetBytes(str);
+            return Encoding.UTF8.GetBytes(str);
         }
 
         public static Action<ParadoxParser, string> ParserAdapter(this IDictionary<string, Action<ParadoxParser>> dictionary)
