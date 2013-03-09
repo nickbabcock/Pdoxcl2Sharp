@@ -311,7 +311,7 @@ namespace Pdoxcl2Sharp
                 return ReadString();
             }
 
-            currentString = Encoding.UTF8.GetString(stringBuffer, 0, stringBufferCount);
+            currentString = Encoding.GetEncoding(1252).GetString(stringBuffer, 0, stringBufferCount);
             stringBufferCount = 0;
             return currentString;
         }
