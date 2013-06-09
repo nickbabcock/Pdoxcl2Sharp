@@ -22,24 +22,24 @@ namespace Pdoxcl2Sharp
     public class ParadoxParser
     {
         // White space constants
-        private const byte SPACE = 0x20;
-        private const byte HORIZONTAL_TAB = 0x09;
-        private const byte NEWLINE = 0x0A;
-        private const byte VERTICAL_TAB = 0x0B;
-        private const byte FEED = 0x0C;
-        private const byte CARRIAGE_RETURN = 0x0D;
+        private const char SPACE = ' ';
+        private const char HORIZONTAL_TAB = '\t';
+        private const char NEWLINE = '\n';
+        private const char VERTICAL_TAB = (char)0x0B;
+        private const char FEED = (char)0x0C;
+        private const char CARRIAGE_RETURN = '\r';
 
         //Single character contants
-        private const byte EQUALS = 0x3D;
-        private const byte QUOTE = 0x22;
-        private const byte RIGHT_CURLY = 0x7D;
-        private const byte LEFT_CURLY = 0x7B;
-        private const byte COMMENT = 0x23;
-        private const byte SEMI_COLON = 0x3B;
-        private const byte LEFTPARANTHESIS = 0x28;
-        private const byte RIGHTPARANTHESIS = 0x29;
-        private const byte EXCLAMATION = 0x21;
-        private const byte COMMA = 0x2C;
+        private const char EQUALS = '=';
+        private const char QUOTE = '"';
+        private const char RIGHT_CURLY = '}';
+        private const char LEFT_CURLY = '{';
+        private const char COMMENT = '#';
+        private const char SEMI_COLON = ';';
+        private const char LEFTPARANTHESIS = '(';
+        private const char RIGHTPARANTHESIS = ')';
+        private const char EXCLAMATION = '!';
+        private const char COMMA = ',';
 
         private const int MAX_TOKEN_SIZE = 256;
         private const int BUFFER_SIZE = 0x8000; //32KB buffer
@@ -53,7 +53,7 @@ namespace Pdoxcl2Sharp
         /// </summary>
         /// <param name="c">The byte that will be tested if it is whitespace</param>
         /// <returns>True if the byte is whitespace</returns>
-        public static bool IsSpace(byte c)
+        public static bool IsSpace(char c)
         {
             return c == SPACE || (c >= HORIZONTAL_TAB && c <= CARRIAGE_RETURN);
         }
@@ -63,7 +63,7 @@ namespace Pdoxcl2Sharp
         /// </summary>
         /// <param name="c">Byte that will be evaluated for equivalent token</param>
         /// <returns>Current token</returns>
-        private LexerToken setCurrentToken(byte c)
+        private LexerToken setCurrentToken(char c)
         {
             currentToken = getToken(c);
             if (currentToken == LexerToken.LeftCurly)
@@ -79,7 +79,7 @@ namespace Pdoxcl2Sharp
         /// </summary>
         /// <param name="c"></param>
         /// <returns>LexerToken</returns>
-        private static LexerToken getToken(byte c)
+        private static LexerToken getToken(char c)
         {
             switch (c)
             {
@@ -109,13 +109,14 @@ namespace Pdoxcl2Sharp
         private int currentIndent;
         private LexerToken currentToken;
         private LexerToken? nextToken;
-        private byte currentByte;
+        private char currentByte;
         private int currentPosition;
         private int bufferSize;
-        private byte[] buffer = new byte[BUFFER_SIZE];
-        private byte[] stringBuffer = new byte[MAX_TOKEN_SIZE];
+        private char[] buffer = new char[BUFFER_SIZE];
+        private char[] stringBuffer = new char[MAX_TOKEN_SIZE];
         private int stringBufferCount = 0;
         private Stream stream;
+        private StreamReader reader;
 
         private bool eof = false;
 
@@ -206,12 +207,15 @@ namespace Pdoxcl2Sharp
 
         private void parse(Action<ParadoxParser, string> tokenCallback)
         {
-            LexerToken pt;
-            do
+            using (reader = new StreamReader(stream, Encoding.GetEncoding(1252)))
             {
-                while ((((pt = peekToken()) == LexerToken.Untyped) || pt == LexerToken.Quote) && !eof)
-                    tokenCallback(this, ReadString());
-            } while (!eof);
+                LexerToken pt;
+                do
+                {
+                    while ((((pt = peekToken()) == LexerToken.Untyped) || pt == LexerToken.Quote) && !eof)
+                        tokenCallback(this, ReadString());
+                } while (!eof);
+            }
         }
 
 
@@ -261,24 +265,24 @@ namespace Pdoxcl2Sharp
         }
 
         /// <summary>
-        /// Retrieves the next byte in the buffer, reading from the
-        /// stream if necessary.  Since this is a raw byte, if a number
+        /// Retrieves the next char in the buffer, reading from the
+        /// stream if necessary.  Since this is a raw char, if a number
         /// is expected, better to use <see cref="ReadInt32"/>
         /// </summary>
         /// <returns>The next raw byte in the buffer or 0 if the end of the file was reached</returns>
-        private byte readByte()
+        private char readByte()
         {
             if (currentPosition == bufferSize)
             {
                 if (!eof)
-                    bufferSize = stream.Read(buffer, 0, BUFFER_SIZE);
+                    bufferSize = reader.ReadBlock(buffer, 0, BUFFER_SIZE);
 
                 currentPosition = 0;
 
                 if (bufferSize == 0)
                 {
                     eof = true;
-                    return 0;
+                    return '\0';
                 }
             }
 
@@ -311,7 +315,7 @@ namespace Pdoxcl2Sharp
                 return ReadString();
             }
 
-            currentString = Encoding.GetEncoding(1252).GetString(stringBuffer, 0, stringBufferCount);
+            currentString = new string(stringBuffer, 0, stringBufferCount);
             stringBufferCount = 0;
             return currentString;
         }
