@@ -250,5 +250,28 @@ monarch=10031";
             string actual = runner(input, action);
             Assert.AreEqual(expected, actual);
         }
+
+        [Test]
+        public void SaverSkipper()
+        {
+            string input = "core=VEN\r\ncore=ABB\r\nVEN=name1";
+            Action<ParadoxSaver, string> action = (p, s) =>
+            {
+                if (s == "core")
+                {
+                    p.SkipNext();
+                }
+                else if (s == "VEN")
+                {
+                    p.WriteValue("name2", appendNewLine: true);
+                    foreach (string str in new string[] { "ABB", "VEN" })
+                        p.Write(string.Format("core={0}", str), appendNewLine: true);
+
+                }
+            };
+            string actual = runner(input, action);
+            string expected = "VEN=name2\r\ncore=ABB\r\ncore=VEN\r\n";
+            Assert.AreEqual(expected, actual);
+        }
     }
 }

@@ -12,8 +12,10 @@ namespace Pdoxcl2Sharp
         {
             Single,
             List,
-            None
+            None,
+            Skip
         }
+
         private TextWriter writer;
         private ParadoxParser underlyingParser;
         private WriteType lastWrite;
@@ -87,6 +89,28 @@ namespace Pdoxcl2Sharp
             builder.Append('\t', underlyingParser.CurrentIndex);
             builder.Append(underlyingParser.CurrentString);
             builder.Append('=');
+            if (quoteWrap)
+            {
+                builder.Append('"');
+                builder.Append(value);
+                builder.Append('"');
+            }
+            else
+            {
+                builder.Append(value);
+            }
+            if (appendNewLine)
+                builder.Append(Environment.NewLine);
+            writer.Write(builder.ToString());
+        }
+
+        public void Write(string value, bool appendNewLine = false, bool quoteWrap = false)
+        {
+            builder.Clear();
+            lastWrite = WriteType.Single;
+            preprocess(prevToken);
+
+            builder.Append('\t', underlyingParser.CurrentIndex);
             if (quoteWrap)
             {
                 builder.Append('"');
@@ -250,6 +274,11 @@ namespace Pdoxcl2Sharp
             writer.Write(new string('\t', CurrentIndex) + underlyingParser.CurrentString + '=');
             underlyingParser.Parse(wrapUnderlyingAction(action));
             writer.WriteLine(new string('\t', CurrentIndex) + '}');
+        }
+        public void SkipNext()
+        {
+            underlyingParser.ReadString();
+            lastWrite = WriteType.Skip;
         }
     }
 }
