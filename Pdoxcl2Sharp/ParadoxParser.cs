@@ -207,7 +207,7 @@ namespace Pdoxcl2Sharp
 
         private void parse(Action<ParadoxParser, string> tokenCallback)
         {
-            using (reader = new StreamReader(stream, Encoding.GetEncoding(1252)))
+            using (reader = new StreamReader(stream, Encoding.GetEncoding(1252), false, BUFFER_SIZE))
             {
                 LexerToken pt;
                 do
