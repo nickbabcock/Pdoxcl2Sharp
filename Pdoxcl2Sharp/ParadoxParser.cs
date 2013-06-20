@@ -200,6 +200,12 @@ namespace Pdoxcl2Sharp
             return file;
         }
 
+        /// <summary>
+        /// Applies an an action on each token found while parsing the content for the duration
+        /// of brackets ('{').  This means that it is an error if this function is called without
+        /// the next token being an open bracket.
+        /// </summary>
+        /// <param name="action">The action to be performed on each token between brackets</param>
         public void Parse(Action<ParadoxParser, string> action)
         {
             doWhileBracket(() => action(this, ReadString()));
