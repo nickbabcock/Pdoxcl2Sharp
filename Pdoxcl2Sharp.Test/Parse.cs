@@ -13,7 +13,7 @@ namespace Pdoxcl2Sharp.Test
         public void Simple()
         {
             string toParse = "culture=michigan";
-            var data = toParse.ToCharArray().Select(x => (byte)x).ToArray();
+            var data = toParse.ToStream();
 
 
             string actual = String.Empty;
@@ -29,7 +29,7 @@ namespace Pdoxcl2Sharp.Test
         [Test]
         public void SimpleWithSpace()
         {
-            var data = "culture = michigan".ToByteArray();
+            var data = "culture = michigan".ToStream();
 
             string actual = String.Empty;
             Dictionary<string, Action<ParadoxParser>> dictionary = new Dictionary<string, Action<ParadoxParser>>
@@ -45,7 +45,7 @@ namespace Pdoxcl2Sharp.Test
         public void SimpleName()
         {
             string toParse = "name=\"Nick\"";
-            var data = toParse.ToCharArray().Select(x => (byte)x).ToArray();
+            var data = toParse.ToStream();
 
             string actual = String.Empty;
             Dictionary<string, Action<ParadoxParser>> dictionary = new Dictionary<string, Action<ParadoxParser>>
@@ -61,7 +61,7 @@ namespace Pdoxcl2Sharp.Test
         public void SimpleComment()
         {
             string toParse = "#culture=michigan";
-            var data = toParse.ToCharArray().Select(x => (byte)x).ToArray();
+            var data = toParse.ToStream();
 
             string actual = String.Empty;
             Dictionary<string, Action<ParadoxParser>> dictionary = new Dictionary<string, Action<ParadoxParser>>
@@ -77,7 +77,7 @@ namespace Pdoxcl2Sharp.Test
         public void SimpleInt32()
         {
             string toParse = "ID=130";
-            var data = toParse.ToCharArray().Select(x => (byte)x).ToArray();
+            var data = toParse.ToStream();
 
             int actual = 0;
             Dictionary<string, Action<ParadoxParser>> dictionary = new Dictionary<string, Action<ParadoxParser>>
@@ -91,7 +91,7 @@ namespace Pdoxcl2Sharp.Test
         [Test]
         public void NegativeInt32()
         {
-            var data = "ID=-130".ToByteArray();
+            var data = "ID=-130".ToStream();
             int actual = 0;
             Dictionary<string, Action<ParadoxParser>> dictionary = new Dictionary<string, Action<ParadoxParser>>
             {
@@ -106,7 +106,7 @@ namespace Pdoxcl2Sharp.Test
         [Test]
         public void Int32WithSpace()
         {
-            var data = "ID = -130".ToByteArray();
+            var data = "ID = -130".ToStream();
             int actual = 0;
 
             Dictionary<string, Action<ParadoxParser>> dictionary = new Dictionary<string, Action<ParadoxParser>>
@@ -122,7 +122,7 @@ namespace Pdoxcl2Sharp.Test
         [Test]
         public void TrickyNewLine()
         {
-            var data = "tag=tagger\ntype=typer".ToByteArray();
+            var data = "tag=tagger\ntype=typer".ToStream();
             string tag = string.Empty;
             string type = String.Empty;
 
@@ -141,7 +141,7 @@ namespace Pdoxcl2Sharp.Test
         [Test]
         public void TrickyNewLineWithQuotes()
         {
-            var data = "name=\"namer1\"\ncolor=\"Gray\"".ToByteArray();
+            var data = "name=\"namer1\"\ncolor=\"Gray\"".ToStream();
 
             string name = string.Empty;
             string color = string.Empty;
@@ -159,7 +159,7 @@ namespace Pdoxcl2Sharp.Test
         [Test]
         public void ExtraNewLinesDontMatter()
         {
-            var data = "\n\n\n\n ID=100 \n\n\n\n\n\n".ToByteArray();
+            var data = "\n\n\n\n ID=100 \n\n\n\n\n\n".ToStream();
 
             int id = 0;
             Dictionary<string, Action<ParadoxParser>> dictionary = new Dictionary<string, Action<ParadoxParser>>
@@ -175,7 +175,7 @@ namespace Pdoxcl2Sharp.Test
         public void SimpleDate()
         {
             string toParse = "date=\"1770.12.5\"";
-            var data = toParse.ToCharArray().Select(x => (byte)x).ToArray();
+            var data = toParse.ToStream();
 
             DateTime actual = DateTime.MinValue;
             Dictionary<string, Action<ParadoxParser>> dictionary = new Dictionary<string, Action<ParadoxParser>>
@@ -195,7 +195,7 @@ namespace Pdoxcl2Sharp.Test
                              "player=\"JAP\"" + Environment.NewLine +
                              "monarch=12209";
 
-            var data = toParse.ToCharArray().Select(x => (byte)x).ToArray();
+            var data = toParse.ToStream();
             DateTime? actualDate = null;
             string actualPlayer = null;
             int? actualMonarch = null;
@@ -228,7 +228,7 @@ namespace Pdoxcl2Sharp.Test
             {
                 {"date", x => actual = x.ReadDateTime()}
             };
-            ParadoxParser p = new ParadoxParser(input.ToByteArray(), dictionary.ParserAdapter());
+            ParadoxParser p = new ParadoxParser(input.ToStream(), dictionary.ParserAdapter());
             Assert.AreEqual(expected, actual);
         }
 
@@ -242,7 +242,7 @@ namespace Pdoxcl2Sharp.Test
             {
                 {"date", x => actual = x.ReadDateTime()}
             };
-            ParadoxParser p = new ParadoxParser(input.ToByteArray(), dictionary.ParserAdapter());
+            ParadoxParser p = new ParadoxParser(input.ToStream(), dictionary.ParserAdapter());
             Assert.AreEqual(expected, actual);
         }
 
@@ -271,7 +271,7 @@ namespace Pdoxcl2Sharp.Test
                         p.Parse(innerAction);
                     }
                 };
-            ParadoxParser.Parse(input.ToByteArray(), action);
+            ParadoxParser.Parse(input.ToStream(), action);
             Assert.AreEqual("nationalist_rebels", actual);
         }
 
@@ -310,7 +310,7 @@ me=you";
                     else if (s == "me")
                         meActual = p.ReadString();
                 };
-            ParadoxParser.Parse(input.ToByteArray(), action);
+            ParadoxParser.Parse(input.ToStream(), action);
             Assert.AreEqual("nationalist_rebels", actual);
             Assert.AreEqual("you", meActual);
         }

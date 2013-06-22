@@ -126,12 +126,12 @@ namespace Pdoxcl2Sharp
         internal LexerToken CurrentToken { get { return currentToken; } }
 
         /// <summary>
-        /// Parses a series of bytes executes the parsing strategy when an unknown token is encountered.
+        /// Parses a stream and executes the parsing strategy when an unknown token is encountered.
         /// </summary>
-        /// <param name="data">Bytes to be parsed</param>
+        /// <param name="data">Stream to be parsed</param>
         /// <param name="parseStrategy">The strategy to be invoked when an unknown token is encountered</param>
         /// <exception cref="ArgumentNullException"></exception>
-        public ParadoxParser(byte[] data, Action<ParadoxParser, string> parseStrategy)
+        public ParadoxParser(Stream data, Action<ParadoxParser, string> parseStrategy)
         {
             if (data == null)
                 throw new ArgumentNullException("data");
@@ -139,10 +139,8 @@ namespace Pdoxcl2Sharp
             if (parseStrategy == null)
                 throw new ArgumentNullException("parseStrategy");
 
-            using (stream = new MemoryStream(data))
-            {
-                parse(parseStrategy);
-            }
+            stream = data;
+            parse(parseStrategy);
         }
 
 
@@ -621,7 +619,7 @@ namespace Pdoxcl2Sharp
             return true;
         }
 
-        public static void Parse(byte[] data, Action<ParadoxParser, string> parseStrategy)
+        public static void Parse(Stream data, Action<ParadoxParser, string> parseStrategy)
         {
             ParadoxParser p = new ParadoxParser(data, parseStrategy);
         }

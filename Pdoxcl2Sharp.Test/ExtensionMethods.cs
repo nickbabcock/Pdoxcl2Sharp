@@ -8,9 +8,9 @@ namespace Pdoxcl2Sharp.Test
 {
     public static class ExtensionMethods
     {
-        public static byte[] ToByteArray(this string str)
+        public static Stream ToStream(this string str)
         {
-            return Encoding.GetEncoding(1252).GetBytes(str);
+            return new MemoryStream(Encoding.GetEncoding(1252).GetBytes(str));
         }
 
         public static Action<ParadoxParser, string> ParserAdapter(this IDictionary<string, Action<ParadoxParser>> dictionary)

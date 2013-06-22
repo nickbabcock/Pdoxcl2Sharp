@@ -26,7 +26,7 @@ namespace Pdoxcl2Sharp
         public int CurrentIndex { get { return underlyingParser.CurrentIndex; } }
 
 
-        public ParadoxSaver(TextWriter output, byte[] data, Action<ParadoxSaver, string> action)
+        public ParadoxSaver(TextWriter output, Stream data, Action<ParadoxSaver, string> action)
         {
             if (output == null)
                 throw new ArgumentNullException("output", "Must provide an output to write data");
@@ -36,6 +36,7 @@ namespace Pdoxcl2Sharp
 
             parse(output, action, (p) => ParadoxParser.Parse(data, p));
         }
+
         public ParadoxSaver(TextWriter output, IParadoxFile file, Action<ParadoxSaver, string> action, string filePath, string originalFilePath)
         {
             if (output == null)

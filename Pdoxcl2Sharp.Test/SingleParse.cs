@@ -12,7 +12,7 @@ namespace Pdoxcl2Sharp.Test
         [Test]
         public void ReadSingleString()
         {
-            var data = "michigan".ToByteArray();
+            var data = "michigan".ToStream();
             string actual = string.Empty;
             Action<ParadoxParser, string> action = (x, s) => actual = s;
             ParadoxParser.Parse(data, action);
@@ -22,7 +22,7 @@ namespace Pdoxcl2Sharp.Test
         [Test]
         public void ReadSingleSpacedString()
         {
-            var data = "   michigan    ".ToByteArray();
+            var data = "   michigan    ".ToStream();
             string actual = string.Empty;
             Action<ParadoxParser, string> action = (x, s) => actual = s;
             ParadoxParser.Parse(data, action);

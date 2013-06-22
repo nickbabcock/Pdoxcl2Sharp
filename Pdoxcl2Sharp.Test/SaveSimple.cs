@@ -14,7 +14,7 @@ namespace Pdoxcl2Sharp.Test
         private static string runner(string input, Action<ParadoxSaver, string> action)
         {
             StringWriter sw = new StringWriter();
-            ParadoxSaver t = new ParadoxSaver(sw, input.ToByteArray(), action);
+            ParadoxSaver t = new ParadoxSaver(sw, input.ToStream(), action);
             return sw.ToString();
         }
 
@@ -118,7 +118,7 @@ namespace Pdoxcl2Sharp.Test
             string save = runner(input, (p, s) => { }); ;
 
             Assert.DoesNotThrow(() =>
-                ParadoxParser.Parse(save.ToString().ToByteArray(), (p, s) => p.ReadStringList()));
+                ParadoxParser.Parse(save.ToString().ToStream(), (p, s) => p.ReadStringList()));
 
         }
         [Test]
@@ -193,12 +193,12 @@ monarch=10031";
             List<int> firstInd = new List<int>();
             List<string> second = new List<string>();
             List<int> secondInd = new List<int>();
-            ParadoxParser.Parse(input.ToByteArray(), (p, s) =>
+            ParadoxParser.Parse(input.ToStream(), (p, s) =>
                 {
                     first.Add(s);
                     firstInd.Add(p.CurrentIndex);
                 });
-            ParadoxParser.Parse(output.ToByteArray(), (p, s) =>
+            ParadoxParser.Parse(output.ToStream(), (p, s) =>
                 {
                     second.Add(s);
                     secondInd.Add(p.CurrentIndex);
@@ -213,7 +213,7 @@ monarch=10031";
             string input = @"name=""Vjenceslav Draškovic""";
             string expected = "Vjenceslav Draškovic";
             string actual = string.Empty;
-            ParadoxParser.Parse(input.ToByteArray(), (p, s) => actual = p.ReadString());
+            ParadoxParser.Parse(input.ToStream(), (p, s) => actual = p.ReadString());
             Assert.AreEqual(expected, actual);
 
             CollectionAssert.AreEqual(expected.ToCharArray(), runner(expected, (p, s) => { }).Trim());
@@ -225,7 +225,7 @@ monarch=10031";
             string input = @"name=""Östergötland""";
             string expected = "Östergötland";
             string actual = string.Empty;
-            ParadoxParser.Parse(input.ToByteArray(), (p, s) => actual = p.ReadString());
+            ParadoxParser.Parse(input.ToStream(), (p, s) => actual = p.ReadString());
             Assert.AreEqual(expected, actual);
 
             CollectionAssert.AreEqual(expected.ToCharArray(), runner(expected, (p, s) => { }).Trim());

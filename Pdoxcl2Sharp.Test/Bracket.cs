@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using NUnit.Framework;
+using System.IO;
 namespace Pdoxcl2Sharp.Test
 {
     [TestFixture]
@@ -12,7 +13,7 @@ namespace Pdoxcl2Sharp.Test
         public void SingleBracket()
         {
             string toParse = "date={date2=\"1770.12.5\"}";
-            var data = toParse.ToCharArray().Select(x => (byte)x).ToArray();
+            var data = toParse.ToStream();
 
             Dater actual = new Dater();
             Dictionary<string, Action<ParadoxParser>> dictionary = new Dictionary<string, Action<ParadoxParser>>
@@ -28,7 +29,7 @@ namespace Pdoxcl2Sharp.Test
         public void MultipleBracket()
         {
             var data = ("date={date2=\"1770.12.5\"}" + Environment.NewLine +
-                       "date={date2=\"1666.6.6\"}").ToByteArray();
+                       "date={date2=\"1666.6.6\"}").ToStream();
             List<Dater> actual = new List<Dater>();
             Dictionary<string, Action<ParadoxParser>> dictionary = new Dictionary<string, Action<ParadoxParser>>
             {
@@ -59,7 +60,7 @@ namespace Pdoxcl2Sharp.Test
         [Test]
         public void TechnologyBracket()
         {
-            var data = "\t\tland_tech={45 1020.600}".ToByteArray();
+            var data = "\t\tland_tech={45 1020.600}".ToStream();
 
             int? tech = null ;
             double? progress = null;
@@ -84,7 +85,7 @@ namespace Pdoxcl2Sharp.Test
 	13657	= 31 #aleutian
 	11566	= 31 #central pacific
 	10237	= 31 #brazil
-}".ToByteArray();
+}".ToStream();
 
             Dictionary<int, byte> expected = new Dictionary<int, byte>()
             {
@@ -104,7 +105,7 @@ namespace Pdoxcl2Sharp.Test
 	1321=31
 	13657=31
 	11566=31
-	10237=31}".ToByteArray();
+	10237=31}".ToStream();
 
             Dictionary<int, byte> expected = new Dictionary<int, byte>()
             {
@@ -120,7 +121,7 @@ namespace Pdoxcl2Sharp.Test
         [Test]
         public void EmptyMap()
         {
-            var data = "low_pressure_zones={}".ToByteArray();
+            var data = "low_pressure_zones={}".ToStream();
             TestDictionary(data, x => x.ReadDictionary(p => p.ReadInt32(), p => p.ReadByte()), 
                 Enumerable.Empty<KeyValuePair<int, byte>>(), "low_pressure_zones");
         }
@@ -128,13 +129,13 @@ namespace Pdoxcl2Sharp.Test
         [Test]
         public void EmptySpacedMap()
         {
-            var data = "low_pressure_zones  =   {    }     ".ToByteArray();
+            var data = "low_pressure_zones  =   {    }     ".ToStream();
             TestDictionary(data, x => x.ReadDictionary(p => p.ReadInt32(), p => p.ReadByte()), 
                 Enumerable.Empty<KeyValuePair<int, byte>>(), "low_pressure_zones");
         }
 
 
-        private void TestDictionary<K, V>(byte[] data, Func<ParadoxParser, IDictionary<K, V>> func, IEnumerable<KeyValuePair<K, V>> expected, string tokenStr)
+        private void TestDictionary<K, V>(Stream data, Func<ParadoxParser, IDictionary<K, V>> func, IEnumerable<KeyValuePair<K, V>> expected, string tokenStr)
         {
             IDictionary<K, V> actual = null;
 
