@@ -641,6 +641,11 @@ namespace Pdoxcl2Sharp
             ParadoxParser p = new ParadoxParser(data, parseStrategy);
         }
 
+        public static void Parse(IParadoxParse entity, Stream data)
+        {
+            ParadoxParser p = new ParadoxParser(entity, data);
+        }
+
         public static void Parse(IParadoxParse file, string filePath)
         {
             ParadoxParser p = new ParadoxParser(file, filePath);
@@ -650,6 +655,5 @@ namespace Pdoxcl2Sharp
         {
             ParadoxParser p = new ParadoxParser(filePath, parseStrategy);
         }
-
     }
 }
