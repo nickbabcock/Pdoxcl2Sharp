@@ -133,16 +133,22 @@ namespace Pdoxcl2Sharp
         /// <exception cref="ArgumentNullException"></exception>
         public ParadoxParser(Stream data, Action<ParadoxParser, string> parseStrategy)
         {
-            if (data == null)
-                throw new ArgumentNullException("data");
-
-            if (parseStrategy == null)
-                throw new ArgumentNullException("parseStrategy");
-
-            stream = data;
-            parse(parseStrategy);
+            init(data, parseStrategy);
         }
 
+        /// <summary>
+        /// Immediately parses the entity and populates the <see cref="IParadoxParse"/>
+        /// </summary>
+        /// <param name="file">The paradox structure that will be populated from the stream</param>
+        /// <param name="data">The stream that will be parsed</param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public ParadoxParser(IParadoxParse parser, Stream data)
+        {
+            if (parser == null)
+                throw new ArgumentNullException("parser");
+
+            init(data, parser.TokenCallback);
+        }
 
         /// <summary>
         /// Immediately parses the file and populates the <see cref="IParadoxParse"/>
@@ -155,13 +161,7 @@ namespace Pdoxcl2Sharp
             if (file == null)
                 throw new ArgumentNullException("file");
 
-            if (String.IsNullOrEmpty(filePath))
-                throw new ArgumentNullException("filePath");
-
-            using (stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            {
-                parse(file.TokenCallback);
-            }
+            init(filePath, file.TokenCallback);
         }
 
 
@@ -173,7 +173,24 @@ namespace Pdoxcl2Sharp
         /// <exception cref="ArgumentNullException"></exception>
         public ParadoxParser(string filePath, Action<ParadoxParser, string> parseStrategy)
         {
-            if (parseStrategy == null)
+            init(filePath, parseStrategy);
+        }
+
+        private void init(Stream data, Action<ParadoxParser, string> action)
+        {
+            if (data == null)
+                throw new ArgumentNullException("data");
+
+            if (action == null)
+                throw new ArgumentNullException("parseStrategy");
+
+            stream = data;
+            parse(action);
+        }
+
+        private void init(string filePath, Action<ParadoxParser, string> action)
+        {
+            if (action == null)
                 throw new ArgumentNullException("parseStrategy");
 
             if (String.IsNullOrEmpty(filePath))
@@ -181,7 +198,7 @@ namespace Pdoxcl2Sharp
 
             using (stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
-                parse(parseStrategy);
+                parse(action);
             }
         }
 
