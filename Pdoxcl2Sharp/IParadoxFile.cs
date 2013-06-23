@@ -6,9 +6,9 @@ using System.Text;
 namespace Pdoxcl2Sharp
 {
     /// <summary>
-    /// Defines a common interface for parsing a Paradox File
+    /// Defines a common interface for parsing content in Paradox's format
     /// </summary>
-    public interface IParadoxFile
+    public interface IParadoxParse
     {
         /// <summary>
         /// This function is invoked as a callback when the parser encounters

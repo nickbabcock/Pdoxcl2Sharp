@@ -151,7 +151,7 @@ namespace Pdoxcl2Sharp.Test
     }
 
 
-    class Dater : Pdoxcl2Sharp.IParadoxFile
+    class Dater : Pdoxcl2Sharp.IParadoxParse
     {
         private IDictionary<string, Action<ParadoxParser>> parseValues;
         public Dater()

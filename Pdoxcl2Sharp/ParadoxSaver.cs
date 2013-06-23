@@ -37,7 +37,7 @@ namespace Pdoxcl2Sharp
             parse(output, action, (p) => ParadoxParser.Parse(data, p));
         }
 
-        public ParadoxSaver(TextWriter output, IParadoxFile file, Action<ParadoxSaver, string> action, string filePath, string originalFilePath)
+        public ParadoxSaver(TextWriter output, IParadoxParse file, Action<ParadoxSaver, string> action, string filePath, string originalFilePath)
         {
             if (output == null)
                 throw new ArgumentNullException("output", "Must provide an output to write data");

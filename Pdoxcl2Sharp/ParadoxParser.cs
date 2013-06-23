@@ -145,12 +145,12 @@ namespace Pdoxcl2Sharp
 
 
         /// <summary>
-        /// Immediately parses the file and populates the <see cref="IParadoxFile"/>
+        /// Immediately parses the file and populates the <see cref="IParadoxParse"/>
         /// </summary>
         /// <param name="file">The paradox structure that will be populated from the file</param>
         /// <param name="filePath">The filepath that will be parsed</param>
         /// <exception cref="ArgumentNullException"></exception>
-        public ParadoxParser(IParadoxFile file, string filePath)
+        public ParadoxParser(IParadoxParse file, string filePath)
         {
             if (file == null)
                 throw new ArgumentNullException("file");
@@ -187,12 +187,12 @@ namespace Pdoxcl2Sharp
 
         /// <summary>
         /// Used to parse a set of tokens that are contained within curly brackets.
-        /// For example, if a file contains a set of countries and each country was an <see cref="IParadoxFile"/>,
+        /// For example, if a file contains a set of countries and each country was an <see cref="IParadoxParse"/>,
         /// the file would invoke this method whenever it found a new country.
         /// </summary>
         /// <param name="innerStructure">Defines how to parse the inner set of tokens.</param>
         /// <returns>The passed in parameter newly parsed</returns>
-        public T Parse<T>(T file) where T : class, IParadoxFile
+        public T Parse<T>(T file) where T : class, IParadoxParse
         {
             Parse(file.TokenCallback);
             return file;
@@ -624,7 +624,7 @@ namespace Pdoxcl2Sharp
             ParadoxParser p = new ParadoxParser(data, parseStrategy);
         }
 
-        public static void Parse(IParadoxFile file, string filePath)
+        public static void Parse(IParadoxParse file, string filePath)
         {
             ParadoxParser p = new ParadoxParser(file, filePath);
         }
