@@ -44,7 +44,7 @@
     <Compile Include="..\SharedAssemblyVersion.cs">
       <Link>Properties\SharedAssemblyVersion.cs</Link>
     </Compile>
-    <Compile Include="IParadoxFile.cs" />
+    <Compile Include="IParadoxParse.cs" />
     <Compile Include="ParadoxParser.cs" />
     <Compile Include="ParadoxSaver.cs" />
   </ItemGroup>

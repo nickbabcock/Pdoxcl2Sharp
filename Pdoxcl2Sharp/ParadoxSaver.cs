@@ -81,15 +81,19 @@ namespace Pdoxcl2Sharp
                     writer.Write(Environment.NewLine);
             }
         }
-        public void WriteValue(string value, bool appendNewLine = false, bool quoteWrap = false)
+
+        private void writeInner(string value, bool isValueWrite, bool appendNewLine = false, bool quoteWrap = false)
         {
             builder.Clear();
             lastWrite = WriteType.Single;
             preprocess(prevToken);
 
             builder.Append('\t', underlyingParser.CurrentIndex);
-            builder.Append(underlyingParser.CurrentString);
-            builder.Append('=');
+            if (isValueWrite)
+            {
+                builder.Append(underlyingParser.CurrentString);
+                builder.Append('=');
+            }
             if (quoteWrap)
             {
                 builder.Append('"');
@@ -105,26 +109,14 @@ namespace Pdoxcl2Sharp
             writer.Write(builder.ToString());
         }
 
+        public void WriteValue(string value, bool appendNewLine = false, bool quoteWrap = false)
+        {
+            writeInner(value, true, appendNewLine, quoteWrap);
+        }
+
         public void Write(string value, bool appendNewLine = false, bool quoteWrap = false)
         {
-            builder.Clear();
-            lastWrite = WriteType.Single;
-            preprocess(prevToken);
-
-            builder.Append('\t', underlyingParser.CurrentIndex);
-            if (quoteWrap)
-            {
-                builder.Append('"');
-                builder.Append(value);
-                builder.Append('"');
-            }
-            else
-            {
-                builder.Append(value);
-            }
-            if (appendNewLine)
-                builder.Append(Environment.NewLine);
-            writer.Write(builder.ToString());
+            writeInner(value, false, appendNewLine, quoteWrap);
         }
 
         public void WriteList<T>(IEnumerable<T> list, bool appendNewLine = false,
