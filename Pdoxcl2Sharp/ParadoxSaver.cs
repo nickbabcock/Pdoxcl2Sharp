@@ -200,62 +200,62 @@ namespace Pdoxcl2Sharp
 
         private Action<ParadoxParser, string> wrapUnderlyingAction(Action<ParadoxSaver, string> action)
         {
-            return (ParadoxParser p, string s) =>
+            return (ParadoxParser parser, string token) =>
                 {
                     //If the last token was an equals
                     //Means that an empty list was encountered 
-                    if (prevToken == LexerToken.Equals && p.CurrentToken == LexerToken.Equals && prevIndex >= p.CurrentIndex)
+                    if (prevToken == LexerToken.Equals && parser.CurrentToken == LexerToken.Equals && prevIndex >= parser.CurrentIndex)
                         writer.Write("{}" + Environment.NewLine);
 
                     lastWrite = WriteType.None;
-                    underlyingParser = p;
+                    underlyingParser = parser;
 
-                    while (prevIndex > p.CurrentIndex && p.CurrentToken != LexerToken.RightCurly)
+                    while (prevIndex > parser.CurrentIndex && parser.CurrentToken != LexerToken.RightCurly)
                     {
                         if (prevIndex > 1)
                             writer.Write(new string('\t', prevIndex - 1));
                         writer.Write('}' + Environment.NewLine);
                         prevIndex--;
                     }
-                    action(this, s);
+                    action(this, token);
 
                     switch (lastWrite)
                     {
                         case WriteType.Single:
-                            p.ReadString();
+                            parser.ReadString();
                             break;
                         case WriteType.None:
-                            preprocess(p.CurrentToken);
+                            preprocess(parser.CurrentToken);
 
-                            if (p.CurrentToken == LexerToken.Equals)
-                                writer.Write(new string('\t', p.CurrentIndex));
+                            if (parser.CurrentToken == LexerToken.Equals)
+                                writer.Write(new string('\t', parser.CurrentIndex));
 
-                            if (p.CurrentToken != LexerToken.Quote)
-                                writer.Write(s);
+                            if (parser.CurrentToken != LexerToken.Quote)
+                                writer.Write(token);
                             else
                             {
                                 writer.Write('"');
-                                writer.Write(s);
+                                writer.Write(token);
                                 writer.Write('"');
                             }
 
-                            if (prevIndex > p.CurrentIndex)
+                            if (prevIndex > parser.CurrentIndex)
                             {
                                 writer.Write("} ");
                                 prevIndex--;
                             }
 
-                            if (p.CurrentToken == LexerToken.Equals)
+                            if (parser.CurrentToken == LexerToken.Equals)
                                 writer.Write('=');
-                            else if ((p.CurrentToken == LexerToken.Untyped || p.CurrentToken == LexerToken.Quote)
+                            else if ((parser.CurrentToken == LexerToken.Untyped || parser.CurrentToken == LexerToken.Quote)
                                 && prevToken == LexerToken.Equals
                                 && prevIndex >= underlyingParser.CurrentIndex)
                                 writer.Write(Environment.NewLine);
-                            else if (p.CurrentToken == LexerToken.Untyped)
+                            else if (parser.CurrentToken == LexerToken.Untyped)
                                 writer.Write(' ');
                             break;
                         case WriteType.List:
-                            p.ReadStringList();
+                            parser.ReadStringList();
                             break;
                     }
                     prevIndex = underlyingParser.CurrentIndex;
