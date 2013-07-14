@@ -16,7 +16,7 @@ namespace Pdoxcl2Sharp.Test
         [Test]
         public void SaveNoChange()
         {
-            using (FileStream output = new FileStream(outputPath, FileMode.Create, FileAccess.ReadWrite))
+            FileStream output = new FileStream(outputPath, FileMode.Create, FileAccess.ReadWrite);
             using (ParadoxSaver saver = new ParadoxSaver(output))
             {
                 var date = new DateTime(1641, 6, 11);

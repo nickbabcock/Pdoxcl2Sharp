@@ -20,7 +20,7 @@ namespace Pdoxcl2Sharp
         Untyped
     }
 
-    public class ParadoxParser
+    public class ParadoxParser : IDisposable
     {
         private const int MaxTokenSize = 256;
         private const int BufferSize = 0x8000;
@@ -35,7 +35,6 @@ namespace Pdoxcl2Sharp
         private char[] buffer = new char[BufferSize];
         private char[] stringBuffer = new char[MaxTokenSize];
         private int stringBufferCount = 0;
-        private Stream stream;
         private StreamReader reader;
         private bool eof = false;
         private string currentString;
@@ -45,53 +44,13 @@ namespace Pdoxcl2Sharp
         /// Parses a stream and executes the parsing strategy when an unknown token is encountered.
         /// </summary>
         /// <param name="data">Stream to be parsed</param>
-        /// <param name="parseStrategy">The strategy to be invoked when an unknown token is encountered</param>
         /// <exception cref="ArgumentNullException">If any of the parameters are null</exception>
-        public ParadoxParser(Stream data, Action<ParadoxParser, string> parseStrategy)
+        public ParadoxParser(Stream data)
         {
-            this.Init(data, parseStrategy);
-        }
+            if (data == null)
+                throw new ArgumentNullException("data");
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ParadoxParser"/> class.
-        /// Immediately parses the entity and populates the <see cref="IParadoxRead"/>
-        /// </summary>
-        /// <param name="parser">The paradox structure that will be populated from the stream</param>
-        /// <param name="data">The stream that will be parsed</param>
-        /// <exception cref="ArgumentNullException">If any of the parameters are null</exception>
-        public ParadoxParser(IParadoxRead parser, Stream data)
-        {
-            if (parser == null)
-                throw new ArgumentNullException("parser");
-
-            this.Init(data, parser.TokenCallback);
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ParadoxParser"/> class.
-        /// Immediately parses the file and populates the <see cref="IParadoxRead"/>
-        /// </summary>
-        /// <param name="file">The paradox structure that will be populated from the file</param>
-        /// <param name="filePath">The file path that will be parsed</param>
-        /// <exception cref="ArgumentNullException">If any of the parameters are null</exception>
-        public ParadoxParser(IParadoxRead file, string filePath)
-        {
-            if (file == null)
-                throw new ArgumentNullException("file");
-
-            this.Init(filePath, file.TokenCallback);
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ParadoxParser"/> class.
-        /// Immediately parses the file, executing the parsing strategy when an unknown token is encountered.
-        /// </summary>
-        /// <param name="filePath">The file path that will be parsed</param>
-        /// <param name="parseStrategy">The function that will be called when there is a unknown token encountered</param>
-        /// <exception cref="ArgumentNullException">If any of the parameters are null</exception>
-        public ParadoxParser(string filePath, Action<ParadoxParser, string> parseStrategy)
-        {
-            this.Init(filePath, parseStrategy);
+            this.reader = new StreamReader(data, Encoding.GetEncoding(Globals.WindowsCodePage), false, BufferSize);
         }
 
         /// <summary>
@@ -101,6 +60,22 @@ namespace Pdoxcl2Sharp
         public int CurrentIndent
         {
             get { return this.currentIndent; }
+        }
+
+        /// <summary>
+        /// Gets the last string read by the parser
+        /// </summary>
+        public string CurrentString
+        {
+            get { return this.currentString; }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the parser is at the end of the stream
+        /// </summary>
+        public bool EndOfStream
+        {
+            get { return this.eof; }
         }
 
         /// <summary>
@@ -144,22 +119,24 @@ namespace Pdoxcl2Sharp
 
         public static void Parse(Stream data, Action<ParadoxParser, string> parseStrategy)
         {
-            ParadoxParser p = new ParadoxParser(data, parseStrategy);
+            using (ParadoxParser parser = new ParadoxParser(data))
+            {
+                while (!parser.EndOfStream)
+                {
+                    parseStrategy(parser, parser.ReadString());
+                }
+            }
         }
 
         public static void Parse(IParadoxRead entity, Stream data)
         {
-            ParadoxParser p = new ParadoxParser(entity, data);
-        }
-
-        public static void Parse(IParadoxRead file, string filePath)
-        {
-            ParadoxParser p = new ParadoxParser(file, filePath);
-        }
-
-        public static void Parse(string filePath, Action<ParadoxParser, string> parseStrategy)
-        {
-            ParadoxParser p = new ParadoxParser(filePath, parseStrategy);
+            using (ParadoxParser parser = new ParadoxParser(data))
+            {
+                while (!parser.EndOfStream)
+                {
+                    entity.TokenCallback(parser, parser.ReadString());
+                }
+            }
         }
 
         /// <summary>
@@ -417,6 +394,26 @@ namespace Pdoxcl2Sharp
         }
 
         /// <summary>
+        /// Releases all resources held by the writer
+        /// </summary>
+        public void Dispose()
+        {
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (this.reader != null)
+                {
+                    this.reader.Dispose();
+                }
+            }
+        }
+
+        /// <summary>
         /// Returns the associated LexerToken with a given byte.  Compares the byte with 
         /// known ASCII values of the tokens
         /// </summary>
@@ -521,45 +518,6 @@ namespace Pdoxcl2Sharp
 
                 act();
             } while (!this.eof);
-        }
-
-        private void Init(Stream data, Action<ParadoxParser, string> action)
-        {
-            if (data == null)
-                throw new ArgumentNullException("data");
-
-            if (action == null)
-                throw new ArgumentNullException("parseStrategy");
-
-            this.stream = data;
-            this.InnerParse(action);
-        }
-
-        private void Init(string filePath, Action<ParadoxParser, string> action)
-        {
-            if (action == null)
-                throw new ArgumentNullException("parseStrategy");
-
-            if (string.IsNullOrEmpty(filePath))
-                throw new ArgumentNullException("filePath");
-
-            using (this.stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            {
-                this.InnerParse(action);
-            }
-        }
-
-        private void InnerParse(Action<ParadoxParser, string> tokenCallback)
-        {
-            using (this.reader = new StreamReader(this.stream, Encoding.GetEncoding(Globals.WindowsCodePage), false, BufferSize))
-            {
-                LexerToken pt;
-                do
-                {
-                    while ((((pt = this.PeekToken()) == LexerToken.Untyped) || pt == LexerToken.Quote) && !this.eof)
-                        tokenCallback(this, this.ReadString());
-                } while (!this.eof);
-            }
         }
 
         /// <summary>

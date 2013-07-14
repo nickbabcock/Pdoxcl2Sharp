@@ -42,7 +42,7 @@ namespace Pdoxcl2Sharp.Test
 	time = 180
 	max_level = 10
 	visibility = yes".ToStream();
-            ParadoxParser p = new ParadoxParser(data, TokenCallback);
+            ParadoxParser.Parse(data, TokenCallback);
 
             Assert.AreEqual(0.13f, completionSize);
             Assert.AreEqual("construction_practical", onCompletion);

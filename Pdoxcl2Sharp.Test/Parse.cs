@@ -24,8 +24,10 @@ namespace Pdoxcl2Sharp.Test
         {
             var data = "   michigan    ".ToStream();
             string actual = string.Empty;
-            Action<ParadoxParser, string> action = (x, s) => actual = s;
-            ParadoxParser.Parse(data, action);
+            using (ParadoxParser parser = new ParadoxParser(data))
+            {
+                actual = parser.ReadString();
+            }
             Assert.AreEqual("michigan", actual);
         }
 
@@ -41,7 +43,7 @@ namespace Pdoxcl2Sharp.Test
             {
                 { "culture", x => actual = x.ReadString() }
             };
-            ParadoxParser p = new ParadoxParser(data, dictionary.ParserAdapter());
+            ParadoxParser.Parse(data, dictionary.ParserAdapter());
 
             Assert.AreEqual("michigan", actual);
         }
@@ -56,7 +58,7 @@ namespace Pdoxcl2Sharp.Test
             {
                 { "culture", x => actual = x.ReadString() }
             };
-            ParadoxParser p = new ParadoxParser(data, dictionary.ParserAdapter());
+            ParadoxParser.Parse(data, dictionary.ParserAdapter());
 
             Assert.AreEqual("michigan", actual);
         }
@@ -72,7 +74,7 @@ namespace Pdoxcl2Sharp.Test
             {
                 { "name", x => actual = x.ReadString() }
             };
-            ParadoxParser p = new ParadoxParser(data, dictionary.ParserAdapter());
+            ParadoxParser.Parse(data, dictionary.ParserAdapter());
 
             Assert.AreEqual("Nick", actual);
         }
@@ -89,7 +91,7 @@ namespace Pdoxcl2Sharp.Test
                 { "culture", x => actual = x.ReadString() }
             };
 
-            ParadoxParser p = new ParadoxParser(data, dictionary.ParserAdapter());
+            ParadoxParser.Parse(data, dictionary.ParserAdapter());
             Assert.AreEqual(String.Empty, actual);
         }
 
@@ -104,7 +106,7 @@ namespace Pdoxcl2Sharp.Test
             {
                 { "ID", x => actual = x.ReadInt32() }
             };
-            ParadoxParser p = new ParadoxParser(data, dictionary.ParserAdapter());
+            ParadoxParser.Parse(data, dictionary.ParserAdapter());
 
             Assert.AreEqual(130, actual);
         }
@@ -118,7 +120,7 @@ namespace Pdoxcl2Sharp.Test
                 { "ID", x => actual = x.ReadInt32() }
             };
 
-            ParadoxParser p = new ParadoxParser(data, dictionary.ParserAdapter());
+            ParadoxParser.Parse(data, dictionary.ParserAdapter());
 
             Assert.AreEqual(-130, actual);
         }
@@ -134,7 +136,7 @@ namespace Pdoxcl2Sharp.Test
                 { "ID", x => actual = x.ReadInt32() }
             };
 
-            ParadoxParser p = new ParadoxParser(data, dictionary.ParserAdapter());
+            ParadoxParser.Parse(data, dictionary.ParserAdapter());
 
             Assert.AreEqual(-130, actual);
         }
@@ -152,7 +154,7 @@ namespace Pdoxcl2Sharp.Test
                 { "type", x => type = x.ReadString() }
             };
 
-            ParadoxParser p = new ParadoxParser(data, dictionary.ParserAdapter());
+            ParadoxParser.Parse(data, dictionary.ParserAdapter());
 
             Assert.AreEqual("tagger", tag);
             Assert.AreEqual("typer", type);
@@ -170,7 +172,7 @@ namespace Pdoxcl2Sharp.Test
                 {"name", x => name = x.ReadString()},
                 {"color", x => color = x.ReadString()}
             };
-            ParadoxParser p = new ParadoxParser(data, dictionary.ParserAdapter());
+            ParadoxParser.Parse(data, dictionary.ParserAdapter());
 
             Assert.AreEqual("namer1", name);
             Assert.AreEqual("Gray", color);
@@ -186,7 +188,7 @@ namespace Pdoxcl2Sharp.Test
             {
                 {"ID", x => id = x.ReadInt32()}
             };
-            ParadoxParser p = new ParadoxParser(data, dictionary.ParserAdapter());
+            ParadoxParser.Parse(data, dictionary.ParserAdapter());
             Assert.AreEqual(100, id);
 
         }
@@ -202,7 +204,7 @@ namespace Pdoxcl2Sharp.Test
             {
                 { "date", x => actual = x.ReadDateTime() }
             };
-            ParadoxParser p = new ParadoxParser(data, dictionary.ParserAdapter());
+            ParadoxParser.Parse(data, dictionary.ParserAdapter());
 
             DateTime expected = new DateTime(1770, 12, 5);
             Assert.AreEqual(expected, actual);
@@ -227,7 +229,7 @@ namespace Pdoxcl2Sharp.Test
                 { "monarch", x => actualMonarch = x.ReadInt32() }
             };
 
-            ParadoxParser p = new ParadoxParser(data, dictionary.ParserAdapter());
+            ParadoxParser.Parse(data, dictionary.ParserAdapter());
 
             Assert.That(actualDate.HasValue);
             Assert.That(!String.IsNullOrEmpty(actualPlayer));
@@ -248,7 +250,7 @@ namespace Pdoxcl2Sharp.Test
             {
                 {"date", x => actual = x.ReadDateTime()}
             };
-            ParadoxParser p = new ParadoxParser(input.ToStream(), dictionary.ParserAdapter());
+            ParadoxParser.Parse(input.ToStream(), dictionary.ParserAdapter());
             Assert.AreEqual(expected, actual);
         }
 
@@ -262,7 +264,7 @@ namespace Pdoxcl2Sharp.Test
             {
                 {"date", x => actual = x.ReadDateTime()}
             };
-            ParadoxParser p = new ParadoxParser(input.ToStream(), dictionary.ParserAdapter());
+            ParadoxParser.Parse(input.ToStream(), dictionary.ParserAdapter());
             Assert.AreEqual(expected, actual);
         }
 

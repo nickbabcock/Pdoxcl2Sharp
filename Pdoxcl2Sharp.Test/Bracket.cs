@@ -21,7 +21,7 @@ namespace Pdoxcl2Sharp.Test
                 {"date", x => x.Parse(actual)}
             };
 
-            ParadoxParser p = new ParadoxParser(data, dictionary.ParserAdapter());
+            ParadoxParser.Parse(data, dictionary.ParserAdapter());
             Assert.AreEqual(new DateTime(1770, 12, 5), actual.Date);            
         }
 
@@ -40,7 +40,7 @@ namespace Pdoxcl2Sharp.Test
                 }}
             };
 
-            ParadoxParser p = new ParadoxParser(data, dictionary.ParserAdapter());
+            ParadoxParser.Parse(data, dictionary.ParserAdapter());
 
             List<DateTime> expected = new List<DateTime>
             {
@@ -70,7 +70,7 @@ namespace Pdoxcl2Sharp.Test
                 {"land_tech", x => x.ReadInsideBrackets(parser => ReadInto(parser, ref tech, ref progress))}
             };
 
-            ParadoxParser p = new ParadoxParser(data, dictionary.ParserAdapter());
+            ParadoxParser.Parse(data, dictionary.ParserAdapter());
             Assert.That(tech.HasValue);
             Assert.That(progress.HasValue);
             Assert.AreEqual(45, tech);
