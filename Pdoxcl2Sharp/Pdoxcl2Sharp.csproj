@@ -50,7 +50,7 @@
     <Compile Include="IParadoxRead.cs" />
     <Compile Include="IParadoxWrite.cs" />
     <Compile Include="ParadoxParser.cs" />
-    <Compile Include="ParadoxWriter.cs" />
+    <Compile Include="ParadoxSaver.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config">

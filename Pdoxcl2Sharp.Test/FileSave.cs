@@ -16,10 +16,9 @@ namespace Pdoxcl2Sharp.Test
         [Test]
         public void SaveNoChange()
         {
-            using (StreamWriter output = new StreamWriter(outputPath, false, Globals.ParadoxEncoding))
+            using (FileStream output = new FileStream(outputPath, FileMode.Create, FileAccess.ReadWrite))
+            using (ParadoxSaver saver = new ParadoxSaver(output))
             {
-                var saver = new Pdoxcl2Sharp.ParadoxSaver(output);
-
                 var date = new DateTime(1641, 6, 11);
                 var player = "ALG";
                 var inner = new InnerInfo()

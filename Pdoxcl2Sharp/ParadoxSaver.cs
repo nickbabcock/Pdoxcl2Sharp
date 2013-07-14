@@ -15,7 +15,7 @@ namespace Pdoxcl2Sharp
         LeadingTabs = 1 << 3
     }
 
-    public class ParadoxSaver
+    public class ParadoxSaver : IDisposable
     {
         private static string[] tabs = 
         {
@@ -37,19 +37,14 @@ namespace Pdoxcl2Sharp
         /// Initializes a new instance of the <see cref="ParadoxSaver"/> class with the specified <see cref="TextWriter"/>
         /// </summary>
         /// <param name="output">The stream that will be written to</param>
-        public ParadoxSaver(TextWriter output)
+        public ParadoxSaver(Stream output)
         {
             if (output == null)
             {
                 throw new ArgumentNullException("output", "Must be able to write data to an object");
             }
-            else if (output.Encoding.WindowsCodePage != Globals.WindowsCodePage && output.Encoding.WindowsCodePage != Globals.UTF16CodePage)
-            {
-                string err = string.Format("Stream encoding page must be {0} or {1}", Globals.WindowsCodePage, Globals.UTF16CodePage);
-                throw new ArgumentException("output", err);
-            }
 
-            this.writer = output;
+            this.writer = new StreamWriter(output, Globals.ParadoxEncoding);
             this.currentIndent = 0;
         }
 
@@ -221,6 +216,26 @@ namespace Pdoxcl2Sharp
             this.WriteLine("{", ValueWrite.LeadingTabs);
             obj.Write(this);
             this.WriteLine("}", ValueWrite.LeadingTabs);
+        }
+
+        /// <summary>
+        /// Releases all resources held by the writer
+        /// </summary>
+        public void Dispose()
+        {
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (this.writer != null)
+                {
+                    this.writer.Dispose();
+                }
+            }
         }
 
         private void UpdateCurrentIndentFromIndentsIn(string str)

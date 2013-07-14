@@ -14,28 +14,40 @@ namespace Pdoxcl2Sharp.Test
         [Test]
         public void SingleSaveNewLine()
         {
-            StringWriter sw = new StringWriter();
-            ParadoxSaver saver = new ParadoxSaver(sw);
-            saver.Write("culture", "michigan");
-            Assert.AreEqual("culture=michigan", sw.ToString());
+            using (MemoryStream ms = new MemoryStream())
+            {
+                using (ParadoxSaver saver = new ParadoxSaver(ms))
+                {
+                    saver.Write("culture", "michigan");
+                }
+                Assert.AreEqual("culture=michigan", Globals.ParadoxEncoding.GetString(ms.ToArray()));
+            }
         }
 
         [Test]
         public void SingleQuoteSaveNewLine()
         {
-            StringWriter sw = new StringWriter();
-            ParadoxSaver saver = new ParadoxSaver(sw);
-            saver.Write("culture", "michigan", ValueWrite.Quoted);
-            Assert.AreEqual("culture=\"michigan\"", sw.ToString());
+            using (MemoryStream ms = new MemoryStream())
+            {
+                using (ParadoxSaver saver = new ParadoxSaver(ms))
+                {
+                    saver.Write("culture", "michigan", ValueWrite.Quoted);
+                }
+                Assert.AreEqual("culture=\"michigan\"", Globals.ParadoxEncoding.GetString(ms.ToArray()));
+            }
         }
 
         [Test]
         public void SaveComment()
         {
-            StringWriter sw = new StringWriter();
-            ParadoxSaver saver = new ParadoxSaver(sw);
-            saver.WriteComment("This is a comment");
-            Assert.AreEqual("#This is a comment" + sw.NewLine, sw.ToString());
+            using (MemoryStream ms = new MemoryStream())
+            {
+                using (ParadoxSaver saver = new ParadoxSaver(ms))
+                {
+                    saver.WriteComment("This is a comment");
+                }
+                Assert.AreEqual("#This is a comment" + Environment.NewLine, Globals.ParadoxEncoding.GetString(ms.ToArray()));
+            }
         }
 
         [Test]
@@ -43,15 +55,14 @@ namespace Pdoxcl2Sharp.Test
         {
             string actual;
             using (MemoryStream ms = new MemoryStream())
-            using (StreamWriter sw = new StreamWriter(ms, Globals.ParadoxEncoding))
             {
-                ParadoxSaver saver = new ParadoxSaver(sw);
-                saver.Write("name", "šžŸ", ValueWrite.None);
-                sw.Flush();
-
-                actual = sw.Encoding.GetString(ms.ToArray());
+                using (ParadoxSaver saver = new ParadoxSaver(ms))
+                {
+                    saver.Write("name", "šžŸ", ValueWrite.None);
+                }
+                actual = Globals.ParadoxEncoding.GetString(ms.ToArray());
+                Assert.AreEqual("name=šžŸ", actual);
             }
-            Assert.AreEqual("name=šžŸ", actual);
         }
     }
 }

@@ -190,7 +190,8 @@ namespace Pdoxcl2Sharp
         /// <summary>
         /// Returns, in string form, the bytes between two tokens, unless the a quote is 
         /// encountered, which then all the bytes between two enclosing quotes will be returned
-        /// without the quotes in the return value
+        /// without the quotes in the return value.  <see cref="CurrentString"/> is set to the 
+        /// return value.
         /// </summary>
         /// <returns>String representing the next series of bytes in the stream</returns>
         public string ReadString()
