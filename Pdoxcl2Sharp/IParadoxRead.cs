@@ -8,7 +8,7 @@ namespace Pdoxcl2Sharp
     /// <summary>
     /// Defines a common interface for parsing content in Paradox's format
     /// </summary>
-    public interface IParadoxParse
+    public interface IParadoxRead
     {
         /// <summary>
         /// This function is invoked as a callback when the parser encounters

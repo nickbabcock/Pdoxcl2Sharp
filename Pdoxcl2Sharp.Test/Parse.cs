@@ -10,6 +10,26 @@ namespace Pdoxcl2Sharp.Test
     public class Parse
     {
         [Test]
+        public void ReadSingleString()
+        {
+            var data = "michigan".ToStream();
+            string actual = string.Empty;
+            Action<ParadoxParser, string> action = (x, s) => actual = s;
+            ParadoxParser.Parse(data, action);
+            Assert.AreEqual("michigan", actual);
+        }
+
+        [Test]
+        public void ReadSingleSpacedString()
+        {
+            var data = "   michigan    ".ToStream();
+            string actual = string.Empty;
+            Action<ParadoxParser, string> action = (x, s) => actual = s;
+            ParadoxParser.Parse(data, action);
+            Assert.AreEqual("michigan", actual);
+        }
+
+        [Test]
         public void Simple()
         {
             string toParse = "culture=michigan";
@@ -265,7 +285,7 @@ namespace Pdoxcl2Sharp.Test
                     {
                         Action<ParadoxParser, string> innerAction = (p2, s2) =>
                             {
-                                if (p2.CurrentIndex == 1 && s2 == "type")
+                                if (p2.CurrentIndent == 1 && s2 == "type")
                                     actual = p2.ReadString();
                             };
                         p.Parse(innerAction);
@@ -302,7 +322,7 @@ me=you";
                     {
                         Action<ParadoxParser, string> innerAction = (p2, s2) =>
                             {
-                                if (p2.CurrentIndex == 1 && s2 == "type")
+                                if (p2.CurrentIndent == 1 && s2 == "type")
                                     actual = p2.ReadString();
                             };
                         p.Parse(innerAction);

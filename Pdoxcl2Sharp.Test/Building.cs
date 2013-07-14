@@ -7,7 +7,7 @@ using NUnit.Framework;
 namespace Pdoxcl2Sharp.Test
 {
     [TestFixture]
-    class Building : IParadoxParse
+    class Building : IParadoxRead
     {
         string onCompletion;
         float completionSize;
