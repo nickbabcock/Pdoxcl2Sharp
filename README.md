@@ -18,25 +18,25 @@ parse" mechanism.
 
 Say you want to parse this file:
 
-	# Hey, I'm a comment, put me anywhere and everything 
-	# until the end of line won't matter and will be chucked! 
+    # Hey, I'm a comment, put me anywhere and everything 
+    # until the end of line won't matter and will be chucked! 
 
-	theoretical = {
-		infantry_theory
-		militia_theory
-		mobile_theory
-	}
-	
+    theoretical = {
+        infantry_theory
+        militia_theory
+        mobile_theory
+    }
+    
 
 Here's how:
 
-	public class TheoreticalFile : IParadoxRead, IParadoxWrite
-	{
-		IList<string> theories = new List<string>();
-		public void TokenCallback(ParadoxParser parser, string token)
-		{
+    public class TheoreticalFile : IParadoxRead, IParadoxWrite
+    {
+        IList<string> theories = new List<string>();
+        public void TokenCallback(ParadoxParser parser, string token)
+        {
             theories.Add(token);
-		}
+        }
 
         public void Write(ParadoxSaver writer)
         {
@@ -48,31 +48,31 @@ Here's how:
             }
             saver.WriteLine("}");
         }
-	}
+    }
 
-	public static int Main()
-	{
-		TheoreticalFile theoryFile;
+    public static int Main()
+    {
+        TheoreticalFile theoryFile;
 
-		using (FileStream fs = new FileStream("theories.txt"))
-		using (ParadoxParser parse = new ParadoxParser(fs))
-		{
-			while (!parse.EndOfStream)
-			{
-				if (parse.ReadString() == "theoretical")
-				{
-					theoryFile = parse.Parse(new TheoreticalFile())
-				}
-			}
-		}
+        using (FileStream fs = new FileStream("theories.txt"))
+        using (ParadoxParser parse = new ParadoxParser(fs))
+        {
+            while (!parse.EndOfStream)
+            {
+                if (parse.ReadString() == "theoretical")
+                {
+                    theoryFile = parse.Parse(new TheoreticalFile())
+                }
+            }
+        }
 
-		//Save the information into RAM
-		using (FileStream fs = new FileStream("theories.new.txt"))
+        //Save the information into RAM
+        using (FileStream fs = new FileStream("theories.new.txt"))
         using (ParadoxSaver saver = new ParadoxSaver(ms))
         {
             theoryFile.Write(saver);
         }
-	}
+    }
 
 ## Advanced Examples
 
@@ -92,8 +92,23 @@ brackets `{}`) and the parent and the children share the same tokens such as
 children will be at a higher indent than the parents.  Perhaps a better
 solution to this approach is to define a separate class for the children or an
 `Action<ParadoxParser, string>` and invoke `Parse` on the parser.
-	
+
+## Contributing
+
+So you want to help?  Great!  Here are a series of steps to get you on your way!
+Let me first say that if you have any troubles, file an issue.
+
+- Get a github account
+- Fork the repo
+- Add a failing test.  The purpose of this is to show that what you are adding couldn't have been done before, or was wrong.
+- Add your changes
+- Commit your changes in such a way there is only a single commit difference between the main branch here and yours.  If you need help, check out [git workflow][]
+- Push changes to your repo
+- Submit a pull request and I'll review it!
+    
 ## License
 
 Pdoxcl2Sharp is licensed under MIT, so feel free to do whatever you want, as
 long as this license follows the code.
+
+[git workflow]: https://sandofsky.com/blog/git-workflow.html
