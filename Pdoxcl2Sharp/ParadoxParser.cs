@@ -128,15 +128,9 @@ namespace Pdoxcl2Sharp
             }
         }
 
-        public static void Parse(IParadoxRead entity, Stream data)
+        public static void Parse(Stream data, IParadoxRead entity)
         {
-            using (ParadoxParser parser = new ParadoxParser(data))
-            {
-                while (!parser.EndOfStream)
-                {
-                    entity.TokenCallback(parser, parser.ReadString());
-                }
-            }
+            Parse(data, entity.TokenCallback);
         }
 
         /// <summary>
