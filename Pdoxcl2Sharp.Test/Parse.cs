@@ -211,6 +211,16 @@ namespace Pdoxcl2Sharp.Test
         }
 
         [Test]
+        public void HourlyDate()
+        {
+            string toParse = "date=\"1936.1.10.4\"";
+            DateTime actual = DateTime.MinValue;
+            ParadoxParser.Parse(toParse.ToStream(), (p, s) => { if (s == "date") actual = p.ReadDateTime(); });
+            DateTime expected = new DateTime(1936, 1, 10, 4, 0, 0);
+            Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
         public void SimpleMultiLine()
         {
             string toParse = "date=\"1770.12.5\"" + Environment.NewLine +
