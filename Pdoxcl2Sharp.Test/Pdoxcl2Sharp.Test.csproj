@@ -45,6 +45,7 @@
     <Compile Include="MultipleListRead.cs" />
     <Compile Include="Parse.cs" />
     <Compile Include="Saving.cs" />
+    <Compile Include="SuperState.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
