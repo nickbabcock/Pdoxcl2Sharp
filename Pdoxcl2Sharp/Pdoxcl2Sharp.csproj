@@ -49,8 +49,10 @@
     <Compile Include="Globals.cs" />
     <Compile Include="IParadoxRead.cs" />
     <Compile Include="IParadoxWrite.cs" />
+    <Compile Include="ParadoxCompressedSaver.cs" />
     <Compile Include="ParadoxParser.cs" />
     <Compile Include="ParadoxSaver.cs" />
+    <Compile Include="ParadoxStreamWriter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config">

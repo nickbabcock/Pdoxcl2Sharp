@@ -15,6 +15,6 @@ namespace Pdoxcl2Sharp
         /// Outputs the class's contents to the writer.
         /// </summary>
         /// <param name="writer">Object to write the structure of the class</param>
-        void Write(ParadoxSaver writer);
+        void Write(ParadoxStreamWriter writer);
     }
 }

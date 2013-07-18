@@ -12,6 +12,27 @@ namespace Pdoxcl2Sharp.Test
     {
         private static string filePath = "FileTest.txt";
         private static string outputPath = filePath + ".out";
+        private static string compressedFilePath = "FileTextCompressed.txt";
+        private static string outputCompressedPath = compressedFilePath + ".out";
+
+        private string player;
+        private DateTime date;
+        private InnerInfo inner;
+
+        [TestFixtureSetUp]
+        public void Setup()
+        {
+            date = new DateTime(1641, 6, 11);
+            player = "ALG";
+            inner = new InnerInfo()
+            {
+                Id = 1,
+                Name = "Stocšžolm",
+                DiscoveredBy = new[] { "REB", "SWE" },
+                CitySize = 12.000,
+                GenericInfantry = new[] { "infantry_brigade", "infantry_brigade", "infantry_brigade" }
+            };
+        }
 
         [Test]
         public void SaveNoChange()
@@ -19,22 +40,24 @@ namespace Pdoxcl2Sharp.Test
             FileStream output = new FileStream(outputPath, FileMode.Create, FileAccess.ReadWrite);
             using (ParadoxSaver saver = new ParadoxSaver(output))
             {
-                var date = new DateTime(1641, 6, 11);
-                var player = "ALG";
-                var inner = new InnerInfo()
-                {
-                    Id = 1,
-                    Name = "Stocšžolm",
-                    DiscoveredBy = new[] {"REB", "SWE"},
-                    CitySize = 12.000,
-                    GenericInfantry = new[] {"infantry_brigade", "infantry_brigade", "infantry_brigade"}
-                };
-
                 saver.WriteLine("date", date);
                 saver.WriteLine("player", player, ValueWrite.Quoted);
                 saver.Write(inner.Id.ToString(), inner);
             }
             FileAssert.AreEqual(filePath, outputPath);
+        }
+
+        [Test]
+        public void SaveNoChangeCompressed()
+        {
+            FileStream output = new FileStream(outputCompressedPath, FileMode.Create, FileAccess.ReadWrite);
+            using (ParadoxCompressedSaver saver = new ParadoxCompressedSaver(output))
+            {
+                saver.WriteLine("date", date);
+                saver.WriteLine("player", player, ValueWrite.Quoted);
+                saver.Write(inner.Id.ToString(), inner);
+            }
+            FileAssert.AreEqual(compressedFilePath, outputCompressedPath);
         }
 
         private class InnerInfo : IParadoxWrite
@@ -45,7 +68,7 @@ namespace Pdoxcl2Sharp.Test
             public double CitySize { get; set; }
             public IEnumerable<string> GenericInfantry { get; set; }
 
-            public void Write(ParadoxSaver writer)
+            public void Write(ParadoxStreamWriter writer)
             {
                 writer.WriteLine("name", Name, ValueWrite.Quoted);
                 writer.WriteLine("citysize", CitySize);
