@@ -135,9 +135,10 @@ namespace Pdoxcl2Sharp
             }
         }
 
-        public static void Parse(Stream data, IParadoxRead entity)
+        public static T Parse<T>(Stream data, T entity) where T : IParadoxRead
         {
             Parse(data, entity.TokenCallback);
+            return entity;
         }
 
         /// <summary>
