@@ -79,12 +79,17 @@ namespace Pdoxcl2Sharp
         }
 
         /// <summary>
-        /// Returns the equivalent System.DateTime as the input string.  For the string
-        /// to be a valid date it must be formatted as (year).(month).(day), where
-        /// integers represent the actual year and not abbreviations.
+        /// Converts the specified string representation of a date and time from
+        /// Paradox's format of (year).(month).(day) and optionally (hour) to
+        /// its <see cref="DateTime"> equivalent, and returns a value that
+        /// indicates whether the conversion succeeded. 
         /// </summary>
         /// <param name="dateTime">A string containing the date to parse.</param>
-        /// <param name="result">Contains the equivalent System.DateTime as the input parameter</param>
+        /// <param name="result">
+        /// When this method returns, contains the <see cref="DateTime"> equivalent
+        /// to the date and time contained in string parameter, if the conversion succeeded,
+        /// or MinValue if the conversion failed.
+        /// </param>
         /// <returns>True if the conversion was successful</returns>
         public static bool TryParseDate(string dateTime, out DateTime result)
         {
@@ -456,10 +461,13 @@ namespace Pdoxcl2Sharp
         }
 
         /// <summary>
-        /// Checks the current, and if needed next token in the stream in an attempt to locate a left curly.  If the token encountered is 
-        /// an equality symbol, it will read the next token and see if that is a left curly, e.g. x = { y }.
-        /// If the initial read token isn't an equality symbol or a left curly, or if the initial read token is an equality symbol
-        /// but the subsequent token isn't a left curly, then an exception is thrown.
+        /// Checks the current token, and if needed, reads next token in the
+        /// stream in an attempt to locate a left curly.  If the token
+        /// encountered is an equality symbol, it will read the next token and
+        /// see if that is a left curly, e.g. x = { y }.  If the initial read
+        /// token isn't an equality symbol or a left curly, or if the initial
+        /// read token is an equality symbol but the subsequent token isn't a
+        /// left curly, then an invalid operation exception is thrown.
         /// </summary>
         private void EnsureLeftCurly()
         {
