@@ -46,7 +46,7 @@ namespace Pdoxcl2Sharp.Test
                 {
                     saver.WriteComment("This is a comment");
                 }
-                Assert.AreEqual("#This is a comment" + Environment.NewLine, Globals.ParadoxEncoding.GetString(ms.ToArray()));
+                Assert.AreEqual("#This is a comment\r\n", Globals.ParadoxEncoding.GetString(ms.ToArray()));
             }
         }
 
