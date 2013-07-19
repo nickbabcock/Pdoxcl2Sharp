@@ -92,21 +92,15 @@ namespace Pdoxcl2Sharp
             string[] splitted = dateTime.Split('.');
             if (splitted.Length != 3 && splitted.Length != 4)
                 return false;
-            int year, month, day;
-            int hour = 0;
-            if (!int.TryParse(splitted[0], NumberStyles.None, CultureInfo.InvariantCulture, out year))
-                return false;
-            if (!int.TryParse(splitted[1], NumberStyles.None, CultureInfo.InvariantCulture, out month))
-                return false;
-            if (!int.TryParse(splitted[2], NumberStyles.None, CultureInfo.InvariantCulture, out day))
-                return false;
 
-            if (splitted.Length == 4)
+            int[] dateUnits = new int[Math.Max(splitted.Length, 4)];
+            for (int i = 0; i < splitted.Length; i++)
             {
-                if (!int.TryParse(splitted[3], NumberStyles.None, CultureInfo.InvariantCulture, out hour))
+                if (!int.TryParse(splitted[i], NumberStyles.None, CultureInfo.InvariantCulture, out dateUnits[i]))
                     return false;
             }
 
+            int year = dateUnits[0], month = dateUnits[1], day = dateUnits[2], hour = dateUnits[3];
             if ((year < 1 || year > 9999) || (month < 1 || month > 12) || (day < 1 || day > DateTime.DaysInMonth(year, month)) || (hour < 0 || hour > 23))
                 return false;
             result = new DateTime(year, month, day, hour, 0, 0);
