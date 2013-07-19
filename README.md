@@ -35,7 +35,10 @@ Here's how:
         IList<string> theories = new List<string>();
         public void TokenCallback(ParadoxParser parser, string token)
         {
-            theories.Add(token);
+            if (token == "theoretical") 
+            {
+                theories = parser.ReadStringList();
+            }
         }
 
         public void Write(ParadoxSaver writer)
@@ -55,15 +58,8 @@ Here's how:
         TheoreticalFile theoryFile;
 
         using (FileStream fs = new FileStream("theories.txt"))
-        using (ParadoxParser parse = new ParadoxParser(fs))
         {
-            while (!parse.EndOfStream)
-            {
-                if (parse.ReadString() == "theoretical")
-                {
-                    theoryFile = parse.Parse(new TheoreticalFile())
-                }
-            }
+            theoryFile = ParadoxParser.Parse(fs, new TheoryFile());
         }
 
         //Save the information into RAM
