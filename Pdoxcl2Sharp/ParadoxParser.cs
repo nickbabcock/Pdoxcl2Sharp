@@ -44,7 +44,7 @@ namespace Pdoxcl2Sharp
         /// Parses a stream and executes the parsing strategy when an unknown token is encountered.
         /// </summary>
         /// <param name="data">Stream to be parsed</param>
-        /// <exception cref="ArgumentNullException">If any of the parameters are null</exception>
+        /// <exception cref="ArgumentNullException">If <paramref name="data"/> is null</exception>
         public ParadoxParser(Stream data)
         {
             if (data == null)
@@ -81,12 +81,12 @@ namespace Pdoxcl2Sharp
         /// <summary>
         /// Converts the specified string representation of a date and time from
         /// Paradox's format of (year).(month).(day) and optionally (hour) to
-        /// its <see cref="DateTime"> equivalent, and returns a value that
+        /// its <see cref="DateTime"/> equivalent, and returns a value that
         /// indicates whether the conversion succeeded. 
         /// </summary>
         /// <param name="dateTime">A string containing the date to parse.</param>
         /// <param name="result">
-        /// When this method returns, contains the <see cref="DateTime"> equivalent
+        /// When this method returns, contains the <see cref="DateTime"/> equivalent
         /// to the date and time contained in string parameter, if the conversion succeeded,
         /// or MinValue if the conversion failed.
         /// </param>
@@ -113,16 +113,20 @@ namespace Pdoxcl2Sharp
         }
 
         /// <summary>
-        /// Checks to see whether a given byte is considered a whitespace: space, horizontal tab,
-        /// newline, vertical tab, feed, or carriage return
+        /// Checks to see whether a given character is considered whitespace.
         /// </summary>
-        /// <param name="c">The byte that will be tested if it is whitespace</param>
-        /// <returns>True if the byte is whitespace</returns>
+        /// <param name="c">The character to evaluate</param>
+        /// <returns>True if <paramref name="c"/> is whitespace</returns>
         public static bool IsSpace(char c)
         {
             return c == ' ' || (c >= '\t' && c <= '\r');
         }
 
+        /// <summary>
+        /// Parses a given stream and applies an action to each token found
+        /// </summary>
+        /// <param name="data">Stream to parse</param>
+        /// <param name="parseStrategy">Action to be performed on found tokens</param>
         public static void Parse(Stream data, Action<ParadoxParser, string> parseStrategy)
         {
             using (ParadoxParser parser = new ParadoxParser(data))
@@ -134,6 +138,13 @@ namespace Pdoxcl2Sharp
             }
         }
 
+        /// <summary>
+        /// Parses a given stream with a defined structure
+        /// </summary>
+        /// <param name="data">Stream to parse</param>
+        /// <param name="entity">Defines how to parse the stream</param>
+        /// <typeparam name="T">Type of the structure to be parsed</typeparam>
+        /// <returns><paramref name="entity"/> in a fluent interface</returns>
         public static T Parse<T>(Stream data, T entity) where T : IParadoxRead
         {
             Parse(data, entity.TokenCallback);
@@ -141,13 +152,12 @@ namespace Pdoxcl2Sharp
         }
 
         /// <summary>
-        /// Used to parse a set of tokens that are contained within curly brackets.
-        /// For example, if a file contains a set of countries and each country was an <see cref="IParadoxRead"/>,
-        /// the file would invoke this method whenever it found a new country.
+        /// Reads everything between same level brackets and parses it based on the 
+        /// <paramref name="innerStructure"/>
         /// </summary>
         /// <param name="innerStructure">Defines how to parse the inner set of tokens.</param>
         /// <typeparam name="T">Type of the structure to parse</typeparam>
-        /// <returns>The passed in parameter newly parsed</returns>
+        /// <returns><paramref name="innerStructure"/> in a fluent interface</returns>
         public T Parse<T>(T innerStructure) where T : class, IParadoxRead
         {
             Parse(innerStructure.TokenCallback);
@@ -155,23 +165,21 @@ namespace Pdoxcl2Sharp
         }
 
         /// <summary>
-        /// Applies an an action on each token found while parsing the content for the duration
-        /// of brackets ('{').  This means that it is an error if this function is called without
-        /// the next token being an open bracket.
+        /// Reads everything between same level brackets and applies the action to each token
         /// </summary>
-        /// <param name="action">The action to be performed on each token between brackets</param>
+        /// <param name="action">The action to be performed on each token</param>
         public void Parse(Action<ParadoxParser, string> action)
         {
             this.DoWhileBracket(() => action(this, this.ReadString()));
         }
 
         /// <summary>
-        /// Returns, in string form, the bytes between two tokens, unless the a quote is 
-        /// encountered, which then all the bytes between two enclosing quotes will be returned
-        /// without the quotes in the return value.  <see cref="CurrentString"/> is set to the 
-        /// return value.
+        /// Reads a string from the current stream. String will be strictly composed of 
+        /// <see cref="LexerToken.Untyped"/>. If quotes are encountered in the stream then the return value
+        /// will be the string that is contained within the quotes (the quotes are stripped)
+        /// <see cref="CurrentString"/> is set to the return value.
         /// </summary>
-        /// <returns>String representing the next series of bytes in the stream</returns>
+        /// <returns>The string being read</returns>
         public string ReadString()
         {
             this.currentToken = this.GetNextToken();
@@ -198,9 +206,10 @@ namespace Pdoxcl2Sharp
         }
 
         /// <summary>
-        /// Advances the parser and interprets whatever was encountered as an integer
+        /// Reads a 4-byte signed integer from the current stream and advances the current position
+        /// of the stream a variable amount depending on the string representation of the number
         /// </summary>
-        /// <returns>Integer associated with the next series of bytes in the parser</returns>
+        /// <returns>A 4-byte signed integer read from the current stream</returns>
         public int ReadInt32()
         {
             int result = 0;
@@ -224,27 +233,30 @@ namespace Pdoxcl2Sharp
         }
 
         /// <summary>
-        /// Advances the parser and interprets whatever was encountered as a short
+        /// Reads a 2-byte signed integer from the current stream and advances the current position
+        /// of the stream a variable amount depending on the string representation of the number
         /// </summary>
-        /// <returns>Short associated with the next series of bytes in the parser</returns>
+        /// <returns>A 2-byte signed integer read from the current stream</returns>
         public short ReadInt16() 
         { 
             return (short)this.ReadInt32();
         }
         
         /// <summary>
-        /// Advances the parser and interprets whatever was encountered as a signed byte
+        /// Reads a signed byte from the current stream and advances the current position
+        /// of the stream a variable amount depending on the string representation of the number
         /// </summary>
-        /// <returns>Signed byte associated with the next series of bytes in the parser</returns>
+        /// <returns>A signed byte read from the current stream</returns>
         public sbyte ReadSByte() 
         { 
             return (sbyte)this.ReadInt32();
         }
 
         /// <summary>
-        /// Advances the parser and interprets whatever was encountered as an unsigned integer.
+        /// Reads a 4-byte unsigned integer from the current stream and advances the current position
+        /// of the stream a variable amount depending on the string representation of the number
         /// </summary>
-        /// <returns>Unsigned integer associated with the next series of bytes in the parser</returns>
+        /// <returns>A 4-byte unsigned integer read from the current stream</returns>
         public uint ReadUInt32()
         {
             uint result = 0;
@@ -263,57 +275,62 @@ namespace Pdoxcl2Sharp
         }
 
         /// <summary>
-        /// Advances the parser and interprets whatever was encountered as an unsigned short integer.
+        /// Reads a 2-byte unsigned integer from the current stream and advances the current position
+        /// of the stream a variable amount depending on the string representation of the number
         /// </summary>
-        /// <returns>Unsigned short integer associated with the next series of bytes in the parser</returns>
+        /// <returns>A 2-byte unsigned integer read from the current stream</returns>
         public ushort ReadUInt16() 
         { 
             return (ushort)this.ReadUInt32();
         }
 
         /// <summary>
-        /// Advances the parser and interprets whatever was encountered as a byte.
+        /// Reads a byte from the current stream and advances the current position
+        /// of the stream a variable amount depending on the string representation of the number
         /// </summary>
-        /// <returns>Byte associated with the next series of bytes in the parser</returns>
+        /// <returns>A byte read from the current stream</returns>
         public byte ReadByte() 
         { 
             return (byte)this.ReadUInt32();
         }
 
         /// <summary>
-        /// Advances the parser and interprets whatever was encountered as a double.
+        /// Reads a 8-byte floating point value from the current stream and advances the current position
+        /// of the stream a variable amount depending on the string representation of the floating point
         /// </summary>
-        /// <returns>Double associated with the next series of bytes in the parser</returns>
+        /// <returns>An 8-byte floating point value read from the current stream.</returns>
         public double ReadDouble()
         {
             double result;
             if (double.TryParse(this.ReadString(), SignedFloatingStyle, CultureInfo.InvariantCulture, out result))
                 return result;
-            throw new FormatException(string.Format(CultureInfo.InvariantCulture, "{0} is not a correct Double", this.currentString));
+            throw new FormatException(string.Format("{0} is not a correct Double", this.currentString));
         }
 
         /// <summary>
-        /// Advances the parser and interprets whatever was encountered as a Float.
+        /// Reads a 4-byte floating point value from the current stream and advances the current position
+        /// of the stream a variable amount depending on the string representation of the floating point
         /// </summary>
-        /// <returns>Float associated with the next series of bytes in the parser</returns>
+        /// <returns>An 4-byte floating point value read from the current stream.</returns>
         public float ReadFloat()
         {
             float result;
             if (float.TryParse(this.ReadString(), SignedFloatingStyle, CultureInfo.InvariantCulture, out result))
                 return result;
-            throw new FormatException(string.Format(CultureInfo.InvariantCulture, "{0} is not a correct Float", this.currentString));
+            throw new FormatException(string.Format("{0} is not a correct Float", this.currentString));
         }
 
         /// <summary>
-        /// Advances the parser and interprets whatever was encountered as a DateTime
+        /// Reads a <see cref="DateTime"/> from the current stream and advances the current position
+        /// of the stream a variable amount depending on the string representation of the date and time.
         /// </summary>
-        /// <returns>System.DateTime associated with next series of bytes in the parser</returns>
+        /// <returns><see cref="DateTime"/> read from the current stream</returns>
         public DateTime ReadDateTime()
         {
             DateTime result;
             if (TryParseDate(this.ReadString(), out result))
                 return result;
-            throw new FormatException(string.Format(CultureInfo.InvariantCulture, "{0} is not a correct DateTime", this.currentString));
+            throw new FormatException(string.Format("{0} is not a correct DateTime", this.currentString));
         }
 
         /// <summary>
@@ -415,8 +432,7 @@ namespace Pdoxcl2Sharp
         }
 
         /// <summary>
-        /// Returns the associated LexerToken with a given byte.  Compares the byte with 
-        /// known ASCII values of the tokens
+        /// Returns the <see cref="LexerToken"/> representation of the parameter
         /// </summary>
         /// <param name="c">Character to be converted to associated token</param>
         /// <returns>The token associated with parameter</returns>
@@ -499,10 +515,10 @@ namespace Pdoxcl2Sharp
         /// Since the action doesn't advance the stream it is guaranteed that current
         /// iteration's this.currentToken is the same value as the previous iteration's
         /// <see cref="PeekToken"/> and <see cref="PeekToken"/> token could not have been
-        /// a right curly.  Therefore if the action doesn't advance the stream,
-        /// this.currentToken will never be a right curly and <see cref="PeekToken"/> will
-        /// always be invoked. <see cref="PeekToken"/> advances the stream.
-        /// Infinite loop impossible
+        /// a right curly.  Therefore, if the action doesn't advance the stream,
+        /// the current token will never be a right curly and <see cref="PeekToken"/> will
+        /// always be invoked. In short, <see cref="PeekToken"/> advances the stream, so
+        /// an infinite loop is impossible
         /// </remarks>
         /// <param name="act">The action that will be repeatedly performed while there is data left in the brackets</param>
         private void DoWhileBracket(Action act)
@@ -527,7 +543,7 @@ namespace Pdoxcl2Sharp
         /// <summary>
         /// Sets the current token to the token associated with the parameter
         /// </summary>
-        /// <param name="c">Byte that will be evaluated for equivalent token</param>
+        /// <param name="c">Char that will be evaluated for equivalent token</param>
         /// <returns>Current token</returns>
         private LexerToken SetcurrentToken(char c)
         {
@@ -572,7 +588,6 @@ namespace Pdoxcl2Sharp
         /// Retrieves the next token, so that a subsequent call to <see cref="GetNextToken"/>
         /// will return the same token.  If multiple peekTokens are invoked then it is the last
         /// token encountered that <see cref="GetNextToken"/> will also return.
-        /// <para/>
         /// <remarks>
         ///     This function is a misnomer in the traditional sense the peek does not affect the underlying
         ///     stream.  Though this function is prefixed with "peek", it advances the underlying stream.
@@ -587,11 +602,10 @@ namespace Pdoxcl2Sharp
         }
 
         /// <summary>
-        /// Retrieves the next char in the buffer, reading from the
-        /// stream if necessary.  Since this is a raw char, if a number
-        /// is expected, better to use <see cref="ReadInt32"/>
+        /// Retrieves the next char in the buffer, reading from the stream if necessary.  
+        /// If the end of the stream was reached, the flag denoting it will be set.
         /// </summary>
-        /// <returns>The next raw byte in the buffer or 0 if the end of the file was reached</returns>
+        /// <returns>The next character in the buffer or '\0' if the end of the stream was reached</returns>
         private char ReadNext()
         {
             if (this.currentPosition == this.bufferSize)
