@@ -2,8 +2,8 @@
 
 Pdoxcl2Sharp is a general parser for files related to Paradox Interactive.
 While the parser is aimed towards Paradox Interactive, it is not exclusive,
-meaning that any file or configuration written in a similar style can be parsed
-without problems.
+meaning that any file or configuration written in a similar
+[style](#style-of-file) can be parsed without problems.
 
 ## Motivation
 
@@ -102,6 +102,55 @@ Let me first say that if you have any troubles, file an issue.
 - Push changes to your repo
 - Submit a pull request and I'll review it!
     
+## Style of File 
+
+This section describes in more detail how the styles of files that can be
+parsed.
+
+The most important characters to the parser are `=`, `"`, `}`, `{`, `#`, `,`, and
+whitespace.  Let's call this set lexemes.  The complement of lexemes is the
+untyped.  Lexemes delimit tokens, which are composed of untyped characters.
+The parsing process goes as such:
+
+- Read a character and test to see if it is a lexeme.
+    - If a command peeked at the next lexeme, return that
+    - else advance through whitespace until a lexeme
+        - If that lexeme is a comment, advance until newline and go back to step 1
+        - else if `{` increase indent by one
+        - else if `}` decrease indent by one
+        - return encountered lexeme
+- If lexeme is a quote, advance until closing quote
+    - Everything enclosed in the quotes excluding the quotes is a token
+    - Lexemes are considered untyped wrapped in quotes
+- else if any other lexeme go back to step 1
+- else if the character read was untyped
+    - All characters until whitespace or a lexeme is considered a token
+- Return token
+
+This is probably, at best, hard to follow.  Hopefully, a couple of examples
+will clear some of the confusion.
+
+    player = "AAA"
+      player= =  "AAA"
+
+Both are parsed (ie, the tokens returned to the client) the same way `player`
+and then `AAA`.  An explanation of this is that all whitespace is skipped until
+something interesting is encountered.  Then `player` is grabbed.  From there,
+the next token starts at the quotes.  Remember that tokens are composed
+strictly of untyped characters, hence the second equals is completely ignored.
+
+This leads to an interesting example showcasing the parser's flexibility.
+
+    ids = { 1 2 3 4 }
+    ids={1 2 3 4 }
+    ids = { 
+        1, 2, 
+        3, 4,
+    }
+
+All three snippets will return `ids`, `1`, `2`, `3`, and `4` as tokens.  The
+extra comma at the end of the '4' is even on purpose.
+
 ## License
 
 Pdoxcl2Sharp is licensed under MIT, so feel free to do whatever you want, as
