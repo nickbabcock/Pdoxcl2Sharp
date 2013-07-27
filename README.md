@@ -30,45 +30,47 @@ Say you want to parse this file:
 
 Here's how:
 
-    public class TheoreticalFile : IParadoxRead, IParadoxWrite
+```csharp
+public class TheoreticalFile : IParadoxRead, IParadoxWrite
+{
+    IList<string> theories = new List<string>();
+    public void TokenCallback(ParadoxParser parser, string token)
     {
-        IList<string> theories = new List<string>();
-        public void TokenCallback(ParadoxParser parser, string token)
+        if (token == "theoretical") 
         {
-            if (token == "theoretical") 
-            {
-                theories = parser.ReadStringList();
-            }
-        }
-
-        public void Write(ParadoxSaver writer)
-        {
-            saver.WriteComment("Hey, I'm a new comment");
-            saver.WriteLine("theoretical = {")
-            foreach (var theory in theoryFile.theories)
-            {
-                saver.WriteLine(theory, ValueWrite.LeadingTab)
-            }
-            saver.WriteLine("}");
+            theories = parser.ReadStringList();
         }
     }
 
-    public static int Main()
+    public void Write(ParadoxSaver writer)
     {
-        TheoreticalFile theoryFile;
-
-        using (FileStream fs = new FileStream("theories.txt"))
+        saver.WriteComment("Hey, I'm a new comment");
+        saver.WriteLine("theoretical = {")
+        foreach (var theory in theoryFile.theories)
         {
-            theoryFile = ParadoxParser.Parse(fs, new TheoryFile());
+            saver.WriteLine(theory, ValueWrite.LeadingTab)
         }
-
-        //Save the information into RAM
-        using (FileStream fs = new FileStream("theories.new.txt"))
-        using (ParadoxSaver saver = new ParadoxSaver(ms))
-        {
-            theoryFile.Write(saver);
-        }
+        saver.WriteLine("}");
     }
+}
+
+public static int Main()
+{
+    TheoreticalFile theoryFile;
+
+    using (FileStream fs = new FileStream("theories.txt"))
+    {
+        theoryFile = ParadoxParser.Parse(fs, new TheoryFile());
+    }
+
+    //Save the information into RAM
+    using (FileStream fs = new FileStream("theories.new.txt"))
+    using (ParadoxSaver saver = new ParadoxSaver(ms))
+    {
+        theoryFile.Write(saver);
+    }
+}
+```
 
 ## Advanced Examples
 
