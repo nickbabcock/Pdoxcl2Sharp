@@ -84,7 +84,7 @@ found will never be a comment, an equal sign, brackets, empty, null or a string
 that has quotes (the quotes are stripped).  ReadString has the exact same
 behavior
 
-If there are child structures that are being parsed (deliminted by squirrely
+If there are child structures that are being parsed (delimited by squirrely
 brackets `{}`) and the parent and the children share the same tokens such as
 "name" and "id", these can be differentiated by querying `CurrentIndent`.  The
 children will be at a higher indent than the parents.  Perhaps a better
@@ -106,8 +106,7 @@ Let me first say that if you have any troubles, file an issue.
     
 ## Style of File 
 
-This section describes in more detail how the styles of files that can be
-parsed.
+This section describes in more detail the style of files that can be parsed.
 
 The most important characters to the parser are `=`, `"`, `}`, `{`, `#`, `,`, and
 whitespace.  Let's call this set lexemes.  The complement of lexemes is the
