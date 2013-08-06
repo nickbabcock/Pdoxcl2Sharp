@@ -45,10 +45,10 @@ public class TheoreticalFile : IParadoxRead, IParadoxWrite
     public void Write(ParadoxStreamWriter writer)
     {
         saver.WriteComment("Hey, I'm a new comment");
-        saver.WriteLine("theoretical = {")
+        saver.WriteLine("theoretical = {");
         foreach (var theory in theoryFile.theories)
         {
-            saver.WriteLine(theory, ValueWrite.LeadingTab)
+            saver.WriteLine(theory, ValueWrite.LeadingTabs);
         }
         saver.WriteLine("}");
     }
