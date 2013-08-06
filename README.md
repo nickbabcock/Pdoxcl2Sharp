@@ -58,13 +58,13 @@ public static int Main()
 {
     TheoreticalFile theoryFile;
 
-    using (FileStream fs = new FileStream("theories.txt"))
+    using (FileStream fs = new FileStream("theories.txt", FileMode.Open))
     {
         theoryFile = ParadoxParser.Parse(fs, new TheoreticalFile());
     }
 
     //Save the information into RAM
-    using (FileStream fs = new FileStream("theories.new.txt"))
+    using (FileStream fs = new FileStream("theories.new.txt", FileMode.Create))
     using (ParadoxSaver saver = new ParadoxSaver(fs))
     {
         theoryFile.Write(saver);
