@@ -6,12 +6,33 @@ using System.Text;
 
 namespace Pdoxcl2Sharp
 {
+    /// <summary>
+    /// Options to control how something is written to a stream.  Different
+    /// combinations of options can be created using bitwise operations. The
+    /// exception is the None option.  
+    /// </summary>
     [Flags]
     public enum ValueWrite
     {
+        /// <summary>
+        /// Value is written to stream without any modification
+        /// </summary>
         None = 0,
+
+        /// <summary>
+        /// Wrap the value to be written to the stream in quotes
+        /// </summary>
         Quoted = 1 << 0,
+
+        /// <summary>
+        /// After writing the value to stream, append a newline
+        /// </summary>
         NewLine = 1 << 1,
+
+        /// <summary>
+        /// Before writing the value to stream, prepend tabs such that the value
+        /// written to stream matches the indent of surrounding values
+        /// </summary>
         LeadingTabs = 1 << 2
     }
 
@@ -45,11 +66,50 @@ namespace Pdoxcl2Sharp
 
         protected TextWriter Writer { get; set; }
 
+        /// <summary>
+        /// Writes a key-value pair to the stream with formatting specified by <paramref name="valuetype"/>.
+        /// It is assumed that the key will be indented and that the value will not be.
+        /// </summary>
+        /// <param name="key">Key that identifies the value</param>
+        /// <param name="value">Value to be written to the stream</param>
+        /// <param name="valuetype">Dictates how the value should be written to the stream.</param>
         public abstract void Write(string key, string value, ValueWrite valuetype);
+
+        /// <summary>
+        /// Writes a string in the format of <paramref name="valuetype"/> followed by a line terminator.
+        /// </summary>
+        /// <param name="value">The string to be written to the text stream</param>
+        /// <param name="valuetype">The format of how the string should be written</param>
         public abstract void WriteLine(string value, ValueWrite valuetype);
+
+        /// <summary>
+        /// Writes a key-value pair followed by a line terminator to the stream with formatting specified by <paramref name="valuetype"/>.
+        /// It is assumed that the key will be indented and that the value will not be.
+        /// </summary>
+        /// <param name="key">Key that identifies the value</param>
+        /// <param name="value">Value to be written to the stream</param>
+        /// <param name="valuetype">Dictates how the value should be written to the stream</param>
         public abstract void WriteLine(string key, string value, ValueWrite valuetype);
+
+        /// <summary>
+        /// Writes a date and time that is identified by a key.
+        /// The date is written in a way to conform with how Paradox writes dates
+        /// </summary>
+        /// <param name="key">Key to be written</param>
+        /// <param name="date">Date to be written</param>
         public abstract void WriteLine(string key, DateTime date);
+
+        /// <summary>
+        /// Writes a string followed by a line terminator that will be ignored by a paradox parser
+        /// </summary>
+        /// <param name="comment">The string to be written to the file but ignored on parse</param>
         public abstract void WriteComment(string comment);
+
+        /// <summary>
+        /// Writes a structure that is identified by a header
+        /// </summary>
+        /// <param name="header">The string that will identify the following structure</param>
+        /// <param name="obj">The <see cref="IParadoxWrite"/> that dictates how the structure will be written</param>
         public abstract void Write(string header, IParadoxWrite obj);
 
         /// <summary>

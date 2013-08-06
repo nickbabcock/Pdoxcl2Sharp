@@ -60,6 +60,12 @@ namespace Pdoxcl2Sharp
             return this.StripLeadingTabs(this.NoNewLineIfQuoted(val));
         }
 
+        /// <summary>
+        /// If a value being written is quoted, then there is no need to insert
+        /// a newline because quotes are used as delimiters
+        /// </summary>
+        /// <param name="val"><see cref="ValueWrite"/> to test against</param>
+        /// <returns>A new <see cref="ValueWrite"/> that ensures delimitation</returns>
         private ValueWrite NoNewLineIfQuoted(ValueWrite val)
         {
             return val.HasFlag(ValueWrite.Quoted) ? val & ~ValueWrite.NewLine : val;
