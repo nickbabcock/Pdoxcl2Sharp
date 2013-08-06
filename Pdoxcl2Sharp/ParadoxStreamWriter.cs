@@ -32,7 +32,7 @@ namespace Pdoxcl2Sharp
 
         private int currentIndent;
 
-        public ParadoxStreamWriter(Stream output)
+        protected ParadoxStreamWriter(Stream output)
         {
             if (output == null)
             {
