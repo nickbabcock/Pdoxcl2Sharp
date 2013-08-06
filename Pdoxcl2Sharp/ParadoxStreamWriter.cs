@@ -9,10 +9,10 @@ namespace Pdoxcl2Sharp
     [Flags]
     public enum ValueWrite
     {
-        None = 1,
-        Quoted = 1 << 1,
-        NewLine = 1 << 2,
-        LeadingTabs = 1 << 3
+        None = 0,
+        Quoted = 1 << 0,
+        NewLine = 1 << 1,
+        LeadingTabs = 1 << 2
     }
 
     public abstract class ParadoxStreamWriter : IDisposable
