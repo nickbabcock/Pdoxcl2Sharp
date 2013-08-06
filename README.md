@@ -44,13 +44,13 @@ public class TheoreticalFile : IParadoxRead, IParadoxWrite
 
     public void Write(ParadoxStreamWriter writer)
     {
-        saver.WriteComment("Hey, I'm a new comment");
-        saver.WriteLine("theoretical = {");
+        writer.WriteComment("Hey, I'm a new comment");
+        writer.WriteLine("theoretical = {");
         foreach (var theory in theoryFile.theories)
         {
-            saver.WriteLine(theory, ValueWrite.LeadingTabs);
+            writer.WriteLine(theory, ValueWrite.LeadingTabs);
         }
-        saver.WriteLine("}");
+        writer.WriteLine("}");
     }
 }
 
@@ -60,12 +60,12 @@ public static int Main()
 
     using (FileStream fs = new FileStream("theories.txt"))
     {
-        theoryFile = ParadoxParser.Parse(fs, new TheoryFile());
+        theoryFile = ParadoxParser.Parse(fs, new TheoreticalFile());
     }
 
     //Save the information into RAM
     using (FileStream fs = new FileStream("theories.new.txt"))
-    using (ParadoxSaver saver = new ParadoxSaver(ms))
+    using (ParadoxSaver saver = new ParadoxSaver(fs))
     {
         theoryFile.Write(saver);
     }
