@@ -42,7 +42,7 @@ public class TheoreticalFile : IParadoxRead, IParadoxWrite
         }
     }
 
-    public void Write(ParadoxSaver writer)
+    public void Write(ParadoxStreamWriter writer)
     {
         saver.WriteComment("Hey, I'm a new comment");
         saver.WriteLine("theoretical = {")
