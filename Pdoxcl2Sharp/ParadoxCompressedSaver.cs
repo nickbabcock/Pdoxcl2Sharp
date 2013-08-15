@@ -38,7 +38,7 @@ namespace Pdoxcl2Sharp
 
         public override void WriteLine(string key, DateTime date)
         {
-            this.Write(key, date.ToString("yyyy.M.d"), ValueWrite.Quoted);
+            this.Write(key, string.Format("{0}.{1}.{2}", date.Year, date.Month, date.Day), ValueWrite.Quoted);
         }
 
         public override void WriteComment(string comment)

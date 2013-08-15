@@ -51,6 +51,19 @@ namespace Pdoxcl2Sharp.Test
         }
 
         [Test]
+        public void SaveDate()
+        {
+            using (MemoryStream ms = new MemoryStream())
+            {
+                using (ParadoxSaver saver = new ParadoxSaver(ms))
+                {
+                    saver.WriteLine("date", new DateTime(1, 1, 1));
+                }
+                Assert.AreEqual("date=\"1.1.1\"\r\n", Globals.ParadoxEncoding.GetString(ms.ToArray()));
+            }
+        }
+
+        [Test]
         public void SaveNonUtf8Characters()
         {
             string actual;
