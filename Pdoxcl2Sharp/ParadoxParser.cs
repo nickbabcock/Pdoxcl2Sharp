@@ -295,6 +295,17 @@ namespace Pdoxcl2Sharp
         }
 
         /// <summary>
+        /// Reads a boolean from the current stream and advances the current position
+        /// of the stream a variable amount depending on the string representation
+        /// of the boolean
+        /// </summary>
+        /// <returns>A boolean read from the current stream</returns>
+        public bool ReadBool()
+        {
+            return this.ReadString() == "yes";
+        }
+
+        /// <summary>
         /// Reads a 8-byte floating point value from the current stream and advances the current position
         /// of the stream a variable amount depending on the string representation of the floating point
         /// </summary>

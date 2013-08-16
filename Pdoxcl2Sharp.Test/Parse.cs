@@ -142,6 +142,15 @@ namespace Pdoxcl2Sharp.Test
         }
 
         [Test]
+        public void BooleanParse()
+        {
+            var data = "cool=yes".ToStream();
+            bool isCool = false;
+            ParadoxParser.Parse(data, (p, s) => isCool = p.ReadBool());
+            Assert.AreEqual(true, isCool);
+        }
+
+        [Test]
         public void TrickyNewLine()
         {
             var data = "tag=tagger\ntype=typer".ToStream();

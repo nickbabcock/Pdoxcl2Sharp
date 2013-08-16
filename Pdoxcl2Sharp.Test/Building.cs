@@ -28,7 +28,7 @@ namespace Pdoxcl2Sharp.Test
                 {"completion_size", x => completionSize = x.ReadFloat()},
                 {"cost", x => cost = x.ReadByte()},
                 {"time", x => time = x.ReadUInt16()},
-                {"onmap", x => onMap = x.ReadString() == "yes"},
+                {"onmap", x => onMap = x.ReadBool()},
                 {"max_level", x => maxLevel = x.ReadByte()}
             };
             otherFields = new Dictionary<string, string>();
