@@ -5,5 +5,8 @@
 # to native line endings on checkout.
 *.cs text
 
+Pdoxcl2Sharp.Test/FileTextCompressed.txt text eol=lf
+Pdoxcl2Sharp.Test/FileTest.txt eol=crlf
+
 # Declare files that will always have CRLF line endings on checkout.
 *.sln text eol=crlf
