@@ -45,12 +45,12 @@ namespace Pdoxcl2Sharp
             this.WriteLine('#' + comment, ValueWrite.LeadingTabs);
         }
 
-        public override void Write(string header, IParadoxWrite obj)
+        public override void Write(string header, Action<ParadoxStreamWriter> objWriter)
         {
             this.Write(header, ValueWrite.LeadingTabs);
             this.WriteLine("=");
             this.WriteLine("{", ValueWrite.LeadingTabs);
-            obj.Write(this);
+            objWriter(this);
             this.WriteLine("}", ValueWrite.LeadingTabs);
         }
     }

@@ -110,7 +110,20 @@ namespace Pdoxcl2Sharp
         /// </summary>
         /// <param name="header">The string that will identify the following structure</param>
         /// <param name="obj">The <see cref="IParadoxWrite"/> that dictates how the structure will be written</param>
-        public abstract void Write(string header, IParadoxWrite obj);
+        public void Write(string header, IParadoxWrite obj)
+        {
+            this.Write(header, obj.Write);
+        }
+
+        /// <summary>
+        /// Writes a structure that is identified by a header
+        /// </summary>
+        /// <param name="header">The string that will identify the following structure</param>
+        /// <param name="objWriter">
+        /// A function that accepts a <see cref="ParadoxStreamWriter"/> 
+        /// and dictates how the structure will be written
+        /// </param>
+        public abstract void Write(string header, Action<ParadoxStreamWriter> objWriter);
 
         /// <summary>
         /// Writes a string
