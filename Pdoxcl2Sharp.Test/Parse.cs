@@ -260,6 +260,16 @@ namespace Pdoxcl2Sharp.Test
         }
 
         [Test]
+        public void NoEmptyStringStatic()
+        {
+            var data = "A B C D ".ToStream();
+            var expected = new[] { "A", "B", "C", "D" };
+            List<string> actual = new List<string>();
+            ParadoxParser.Parse(data, (p, s) => actual.Add(s));
+            CollectionAssert.AreEqual(expected, actual);
+        }
+
+        [Test]
         public void WhenChristWasBorn()
         {
             string input = "date=1.1.1";

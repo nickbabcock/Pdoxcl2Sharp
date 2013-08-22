@@ -133,7 +133,12 @@ namespace Pdoxcl2Sharp
             {
                 while (!parser.EndOfStream)
                 {
-                    parseStrategy(parser, parser.ReadString());
+                    string val = parser.ReadString();
+
+                    // if val is the null string then nothing of importance
+                    // was found between the last token and the end of the stream 
+                    if (val != "\0")
+                        parseStrategy(parser, val);
                 }
             }
         }
