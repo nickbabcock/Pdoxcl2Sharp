@@ -46,6 +46,7 @@
     <Compile Include="..\SharedAssemblyVersion.cs">
       <Link>Properties\SharedAssemblyVersion.cs</Link>
     </Compile>
+    <Compile Include="Deserializer.cs" />
     <Compile Include="Globals.cs" />
     <Compile Include="IParadoxRead.cs" />
     <Compile Include="IParadoxWrite.cs" />

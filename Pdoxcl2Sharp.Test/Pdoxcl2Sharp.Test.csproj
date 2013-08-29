@@ -51,6 +51,7 @@
     </Compile>
     <Compile Include="Bracket.cs" />
     <Compile Include="Building.cs" />
+    <Compile Include="DeserializerTests.cs" />
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="FileSave.cs" />
     <Compile Include="ListRead.cs" />

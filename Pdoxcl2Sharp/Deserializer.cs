@@ -1,0 +1,99 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+
+namespace Pdoxcl2Sharp
+{
+    public static class Deserializer
+    {
+        public static T Deserialize<T>(Stream data) where T : new()
+        {
+            var result = new T();
+            return Deserialize(data, result);
+        }
+
+        public static T Deserialize<T>(Stream data, T entity)
+        {
+            Type type = typeof(T);
+
+            var actions = new Dictionary<string, Action<ParadoxParser>>();
+            foreach (var property in type.GetProperties())
+            {
+                Type workType = property.PropertyType;
+                TypeCode code = Type.GetTypeCode(workType);
+
+                switch (code)
+                {
+                    case TypeCode.String:
+                        actions.Add(property.Name, (x) => property.SetValue(entity, x.ReadString(), null));
+                        break;
+                    case TypeCode.Int16:
+                    case TypeCode.Int32:
+                    case TypeCode.Int64:
+                    case TypeCode.SByte:
+                        actions.Add(property.Name, (x) => property.SetValue(entity, x.ReadInt32(), null));
+                        break;
+                    case TypeCode.UInt16:
+                    case TypeCode.UInt32:
+                    case TypeCode.UInt64:
+                    case TypeCode.Byte:
+                        actions.Add(property.Name, (x) => property.SetValue(entity, x.ReadUInt32(), null));
+                        break;
+                    case TypeCode.Boolean:
+                        actions.Add(property.Name, (x) => property.SetValue(entity, x.ReadBool(), null));
+                        break;
+                    case TypeCode.DateTime:
+                        actions.Add(property.Name, (x) => property.SetValue(entity, x.ReadDateTime(), null));
+                        break;
+                    case TypeCode.Single:
+                    case TypeCode.Double:
+                        actions.Add(property.Name, (x) => property.SetValue(entity, x.ReadDouble(), null));
+                        break;
+                    case TypeCode.Object:
+                        if (workType.IsGenericType && workType.GetGenericTypeDefinition() == typeof(IEnumerable<>)) 
+                        {
+                            //var listType = property.PropertyType.generic
+                            code = Type.GetTypeCode(workType.GetGenericArguments()[0]);
+                            switch (code)
+                            {
+                                case TypeCode.DateTime:
+                                    actions.Add(property.Name, (x) => property.SetValue(entity, x.ReadDateTimeList(), null));
+                                    break;
+                                case TypeCode.Double:
+                                    actions.Add(property.Name, (x) => property.SetValue(entity, x.ReadDoubleList(), null));
+                                    break;
+                                case TypeCode.String:
+                                    actions.Add(property.Name, (x) => property.SetValue(entity, x.ReadStringList(), null));
+                                    break;
+                                case TypeCode.Int32:
+                                    actions.Add(property.Name, (x) => property.SetValue(entity, x.ReadInt32(), null));
+                                    break;
+                                default:
+                                    throw new ArgumentException(string.Format("{0} is not a valid list type", property.Name));
+                            }
+                        }
+                        break;
+                    case TypeCode.Char:
+                    case TypeCode.DBNull:
+                    case TypeCode.Empty:
+                    default:
+                        break;
+                }
+            }
+
+            ParadoxParser.Parse(data, (p, s) =>
+                {
+                    Action<ParadoxParser> act;
+
+                    if (actions.TryGetValue(s, out act))
+                    {
+                        act(p);
+                    }
+                });
+
+            return entity;
+        }
+    }
+}
