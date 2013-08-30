@@ -28,6 +28,20 @@ namespace Pdoxcl2Sharp.Test
         public IEnumerable<double> DoubleList { get; set; }
     }
 
+    public class Collections
+    {
+        public ICollection<string> Collection { get; set; }
+        public string[] Array { get; set; }
+        public List<string> List { get; set; }
+        public LinkedList<string> LinkedList { get; set; }
+    }
+
+    public class SimpleAlias
+    {
+        [ParadoxAlias("unit")]
+        public string Unit { get; set; }
+    }
+
     [TestFixture]
     public class DeserializerTests
     {
@@ -72,6 +86,29 @@ DoubleList={3.000}".ToStream();
             CollectionAssert.AreEqual(new[] { "A", "B", "C" }, actual.StringList);
             CollectionAssert.AreEqual(new[] { new DateTime(1993, 2, 19) }, actual.DateList);
             CollectionAssert.AreEqual(new[] { 3.000 }, actual.DoubleList);
+        }
+
+        [Test]
+        public void DeserializeWithAlias()
+        {
+            var data = "unit=infantry".ToStream();
+            var actual = ParadoxParser.Deserialize<SimpleAlias>(data);
+            Assert.AreEqual("infantry", actual.Unit);
+        }
+
+        [Test]
+        public void DeserializeCollections()
+        {
+            var data = @"Collection={ A B C}
+Array={D E F }
+List = {H I J}
+LinkedList = { K 11 12 }".ToStream();
+
+            var actual = ParadoxParser.Deserialize<Collections>(data);
+            CollectionAssert.AreEqual(new[] { "A", "B", "C" }, actual.Collection);
+            CollectionAssert.AreEqual(new[] { "D", "E", "F" }, actual.Array);
+            CollectionAssert.AreEqual(new[] { "H", "I", "J" }, actual.List);
+            CollectionAssert.AreEqual(new[] { "K", "11", "12" }, actual.LinkedList);
         }
     }
 }

@@ -50,6 +50,7 @@
     <Compile Include="Globals.cs" />
     <Compile Include="IParadoxRead.cs" />
     <Compile Include="IParadoxWrite.cs" />
+    <Compile Include="ParadoxAliasAttribute.cs" />
     <Compile Include="ParadoxCompressedSaver.cs" />
     <Compile Include="ParadoxParser.cs" />
     <Compile Include="ParadoxSaver.cs" />
