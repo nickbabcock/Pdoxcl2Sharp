@@ -6,15 +6,39 @@ using System.Text;
 
 namespace Pdoxcl2Sharp
 {
-    public static class Deserializer
+    public class Deserializer
     {
-        public static T Deserialize<T>(Stream data) where T : new()
+        private readonly INamingConvention namingConvention;
+
+        public Deserializer()
         {
-            var result = new T();
-            return Deserialize(data, result);
+            this.namingConvention = new NullNamingConvention();
         }
 
-        public static T Deserialize<T>(Stream data, T entity)
+        public Deserializer(INamingConvention namingConvention)
+        {
+            this.namingConvention = namingConvention ?? new NullNamingConvention();
+        }
+
+        public static T Run<T>(Stream data, INamingConvention convention) where T : new()
+        {
+            var deserializer = new Deserializer(convention);
+            return deserializer.Deserialize<T>(data);
+        }
+
+        public static T Run<T>(Stream data) where T : new()
+        {
+            var deserializer = new Deserializer();
+            return deserializer.Deserialize<T>(data);
+        }
+
+        public T Deserialize<T>(Stream data) where T : new()
+        {
+            var result = new T();
+            return this.Deserialize(data, result);
+        }
+
+        public T Deserialize<T>(Stream data, T entity)
         {
             Type type = typeof(T);
 
@@ -28,7 +52,7 @@ namespace Pdoxcl2Sharp
                     .OfType<ParadoxAliasAttribute>()
                     .FirstOrDefault();
 
-                string name = alias != null ? alias.Alias : property.Name;
+                string name = alias != null ? alias.Alias : this.namingConvention.Apply(property.Name);
 
                 switch (code)
                 {

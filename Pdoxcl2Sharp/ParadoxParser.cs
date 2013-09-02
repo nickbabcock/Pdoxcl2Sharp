@@ -122,11 +122,6 @@ namespace Pdoxcl2Sharp
             return c == ' ' || (c >= '\t' && c <= '\r');
         }
 
-        public static T Deserialize<T>(Stream data) where T : new()
-        {
-            return Deserializer.Deserialize<T>(data);
-        }
-
         /// <summary>
         /// Parses a given stream and applies an action to each token found
         /// </summary>

@@ -48,13 +48,16 @@
     </Compile>
     <Compile Include="Deserializer.cs" />
     <Compile Include="Globals.cs" />
+    <Compile Include="INamingConvention.cs" />
     <Compile Include="IParadoxRead.cs" />
     <Compile Include="IParadoxWrite.cs" />
+    <Compile Include="NullNamingConvention.cs" />
     <Compile Include="ParadoxAliasAttribute.cs" />
     <Compile Include="ParadoxCompressedSaver.cs" />
     <Compile Include="ParadoxParser.cs" />
     <Compile Include="ParadoxSaver.cs" />
     <Compile Include="ParadoxStreamWriter.cs" />
+    <Compile Include="UnderscoreNamingConvention.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config">
