@@ -114,19 +114,19 @@ DoubleList={3.000}".ToStream();
             Assert.AreEqual("infantry", actual.Unit);
         }
 
-//        [Test]
-//        public void DeserializeCollections()
-//        {
-//            var data = @"Collection={ A B C}
-//Array={D E F }
-//List = {H I J}
-//LinkedList = { K 11 12 }".ToStream();
+        [Test]
+        public void DeserializeCollections()
+        {
+            var data = @"Collection={ A B C}
+Array={D E F }
+List = {H I J}
+LinkedList = { K 11 12 }".ToStream();
 
-//            var actual = ParadoxParser.Deserialize<Collections>(data);
-//            CollectionAssert.AreEqual(new[] { "A", "B", "C" }, actual.Collection);
-//            CollectionAssert.AreEqual(new[] { "D", "E", "F" }, actual.Array);
-//            CollectionAssert.AreEqual(new[] { "H", "I", "J" }, actual.List);
-//            CollectionAssert.AreEqual(new[] { "K", "11", "12" }, actual.LinkedList);
-//        }
+            var actual = Deserializer.Run<Collections>(data);
+            CollectionAssert.AreEqual(new[] { "A", "B", "C" }, actual.Collection);
+            CollectionAssert.AreEqual(new[] { "D", "E", "F" }, actual.Array);
+            CollectionAssert.AreEqual(new[] { "H", "I", "J" }, actual.List);
+            CollectionAssert.AreEqual(new[] { "K", "11", "12" }, actual.LinkedList);
+        }
     }
 }

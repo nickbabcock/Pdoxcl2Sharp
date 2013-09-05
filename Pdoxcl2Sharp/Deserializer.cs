@@ -82,29 +82,22 @@ namespace Pdoxcl2Sharp
                         actions.Add(name, (x) => property.SetValue(entity, x.ReadDouble(), null));
                         break;
                     case TypeCode.Object:
-                        if (!workType.IsGenericType)
+                        if (workType.GenericTypeImplementation(typeof(IEnumerable<>)) != null)
                         {
-                            break;
-                        }
-
-                        Type iter = typeof(IEnumerable<>);
-                        iter = iter.MakeGenericType(workType.GetGenericArguments()[0]);
-                        if (workType.IsAssignableFrom(iter) || workType.GetInterfaces().Any(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
-                        {
-                            code = Type.GetTypeCode(workType.GetGenericArguments()[0]);
+                            code = Type.GetTypeCode(workType.HasElementType ? workType.GetElementType() : workType.GetGenericArguments()[0]);
                             switch (code)
                             {
                                 case TypeCode.DateTime:
-                                    actions.Add(name, (x) => property.SetValue(entity, x.ReadDateTimeList(), null));
+                                    actions.Add(name, (x) => property.SetValue(entity, this.Encap(x.ReadDateTimeList(), workType), null));
                                     break;
                                 case TypeCode.Double:
-                                    actions.Add(name, (x) => property.SetValue(entity, x.ReadDoubleList(), null));
+                                    actions.Add(name, (x) => property.SetValue(entity, this.Encap(x.ReadDoubleList(), workType), null));
                                     break;
                                 case TypeCode.String:
-                                    actions.Add(name, (x) => property.SetValue(entity, x.ReadStringList(), null));
+                                    actions.Add(name, (x) => property.SetValue(entity, this.Encap(x.ReadStringList(), workType), null));
                                     break;
                                 case TypeCode.Int32:
-                                    actions.Add(name, (x) => property.SetValue(entity, x.ReadIntList(), null));
+                                    actions.Add(name, (x) => property.SetValue(entity, this.Encap(x.ReadIntList(), workType), null));
                                     break;
                                 default:
                                     throw new ArgumentException(string.Format("{0} is not a valid list type", property.Name));
@@ -133,6 +126,57 @@ namespace Pdoxcl2Sharp
                 });
 
             return entity;
+        }
+
+        private object Encap<T>(IEnumerable<T> vals, Type endType)
+        {
+            if (endType.IsArray)
+            {
+                return vals.ToArray();
+            }
+
+            var implementationType = endType.GenericTypeImplementation(typeof(ICollection<>));
+            if (implementationType == null)
+            {
+                implementationType = endType.GenericTypeImplementation(typeof(IEnumerable<>));
+                if (implementationType != null)
+                {
+                    return vals;
+                }
+                return null;
+            }
+
+            var result = ((endType.IsInterface) ? this.Create(implementationType) : Activator.CreateInstance(endType)) as ICollection<T>;
+
+            foreach (var val in vals)
+            {
+                result.Add(val);
+            }
+
+            return result;
+        }
+
+        private object Create(Type type)
+        {
+            Type createType = type;
+            if (type.IsInterface)
+            {
+                Type typeDefinition = type.GetGenericTypeDefinition();
+                if (typeDefinition == typeof(IEnumerable<>)
+                    || typeDefinition == typeof(ICollection<>)
+                    || typeDefinition == typeof(IList<>))
+                {
+                    createType = typeof(List<>);
+                }
+                else if (typeDefinition == typeof(IDictionary<,>))
+                {
+                    createType = typeof(IDictionary<,>);
+                }
+
+                createType = createType.MakeGenericType(type.GetGenericArguments());
+            }
+
+            return Activator.CreateInstance(createType);
         }
     }
 }
