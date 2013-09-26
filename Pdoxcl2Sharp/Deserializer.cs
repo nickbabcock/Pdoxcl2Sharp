@@ -41,33 +41,24 @@ namespace Pdoxcl2Sharp
         public T Deserialize<T>(Stream data, T entity)
         {
             var actions = this.GetDeserializationDictionary(entity);
-            ParadoxParser.Parse(
-                data, 
-                (p, s) =>
-                { 
-                    Action<ParadoxParser> act;
-
-                    if (actions.TryGetValue(s, out act))
-                    {
-                        act(p);
-                    }
-                });
-
+            ParadoxParser.Parse(data, (p, s) => this.RunDictionary(p, s, actions));
             return entity;
         }
 
         private T DeserializeInner<T>(ParadoxParser parser, T entity)
         {
             var getDict = this.GetDeserializationDictionary(entity);
-            parser.Parse((ip, s) =>
-                {
-                    Action<ParadoxParser> act;
-                    if (getDict.TryGetValue(s, out act))
-                    {
-                        act(ip);
-                    }
-                });
+            parser.Parse((ip, s) => this.RunDictionary(ip, s, getDict));
             return entity;
+        }
+
+        private void RunDictionary(ParadoxParser p, string token, IDictionary<string, Action<ParadoxParser>> dict)
+        {
+            Action<ParadoxParser> act;
+            if (dict.TryGetValue(token, out act))
+            {
+                act(p);
+            }
         }
 
         private IDictionary<string, Action<ParadoxParser>> GetDeserializationDictionary(object entity)
