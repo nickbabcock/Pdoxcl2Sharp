@@ -42,6 +42,12 @@ namespace Pdoxcl2Sharp.Test
         public string Unit { get; set; }
     }
 
+    public class Nested
+    {
+        public SimpleString SimpleString { get; set; }
+        public string Afterwards { get; set; }
+    }
+
     [TestFixture]
     public class DeserializerTests
     {
@@ -127,6 +133,15 @@ LinkedList = { K 11 12 }".ToStream();
             CollectionAssert.AreEqual(new[] { "D", "E", "F" }, actual.Array);
             CollectionAssert.AreEqual(new[] { "H", "I", "J" }, actual.List);
             CollectionAssert.AreEqual(new[] { "K", "11", "12" }, actual.LinkedList);
+        }
+
+        [Test]
+        public void DeserializeNested()
+        {
+            var data = "SimpleString = { Unit = blah } \r\n Afterwards = bloo".ToStream();
+            var actual = Deserializer.Run<Nested>(data);
+            Assert.AreEqual(actual.SimpleString.Unit, "blah");
+            Assert.AreEqual(actual.Afterwards, "bloo");
         }
     }
 }

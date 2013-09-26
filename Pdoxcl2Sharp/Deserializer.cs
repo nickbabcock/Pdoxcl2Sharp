@@ -40,7 +40,39 @@ namespace Pdoxcl2Sharp
 
         public T Deserialize<T>(Stream data, T entity)
         {
-            Type type = typeof(T);
+            var actions = this.GetDeserializationDictionary(entity);
+            ParadoxParser.Parse(
+                data, 
+                (p, s) =>
+                { 
+                    Action<ParadoxParser> act;
+
+                    if (actions.TryGetValue(s, out act))
+                    {
+                        act(p);
+                    }
+                });
+
+            return entity;
+        }
+
+        private T DeserializeInner<T>(ParadoxParser parser, T entity)
+        {
+            var getDict = this.GetDeserializationDictionary(entity);
+            parser.Parse((ip, s) =>
+                {
+                    Action<ParadoxParser> act;
+                    if (getDict.TryGetValue(s, out act))
+                    {
+                        act(ip);
+                    }
+                });
+            return entity;
+        }
+
+        private IDictionary<string, Action<ParadoxParser>> GetDeserializationDictionary(object entity)
+        {
+            Type type = entity.GetType();
 
             var actions = new Dictionary<string, Action<ParadoxParser>>();
             foreach (var property in type.GetProperties())
@@ -103,6 +135,10 @@ namespace Pdoxcl2Sharp
                                     throw new ArgumentException(string.Format("{0} is not a valid list type", property.Name));
                             }
                         }
+                        else
+                        {
+                            actions.Add(name, (x) => property.SetValue(entity, DeserializeInner(x, Activator.CreateInstance(workType)), null));
+                        }
 
                         break;
                     case TypeCode.Char:
@@ -113,19 +149,7 @@ namespace Pdoxcl2Sharp
                 }
             }
 
-            ParadoxParser.Parse(
-                data, 
-                (p, s) =>
-                {
-                    Action<ParadoxParser> act;
-
-                    if (actions.TryGetValue(s, out act))
-                    {
-                        act(p);
-                    }
-                });
-
-            return entity;
+            return actions;
         }
 
         private object Encap<T>(IEnumerable<T> vals, Type endType)
@@ -143,10 +167,11 @@ namespace Pdoxcl2Sharp
                 {
                     return vals;
                 }
+                
                 return null;
             }
 
-            var result = ((endType.IsInterface) ? this.Create(implementationType) : Activator.CreateInstance(endType)) as ICollection<T>;
+            var result = (endType.IsInterface ? this.Create(implementationType) : Activator.CreateInstance(endType)) as ICollection<T>;
 
             foreach (var val in vals)
             {
