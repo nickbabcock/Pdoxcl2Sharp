@@ -24,10 +24,8 @@ namespace Pdoxcl2Sharp.Test
         {
             var data = "   michigan    ".ToStream();
             string actual = string.Empty;
-            using (ParadoxParser parser = new ParadoxParser(data))
-            {
-                actual = parser.ReadString();
-            }
+            Action<ParadoxParser, string> action = (x, s) => actual = s;
+            ParadoxParser.Parse(data, action);
             Assert.AreEqual("michigan", actual);
         }
 

@@ -64,7 +64,7 @@ namespace Pdoxcl2Sharp
         /// </summary>
         /// <param name="data">Stream to be parsed</param>
         /// <exception cref="ArgumentNullException">If <paramref name="data"/> is null</exception>
-        public ParadoxParser(Stream data)
+        private ParadoxParser(Stream data)
         {
             if (data == null)
                 throw new ArgumentNullException("data");
