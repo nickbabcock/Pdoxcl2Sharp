@@ -23,8 +23,27 @@ namespace Pdoxcl2Sharp
     public class ParadoxParser : IDisposable
     {
         private const int MaxTokenSize = 256;
-        private const int BufferSize = 0x8000;
+
         private const NumberStyles SignedFloatingStyle = NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign;
+
+        /// <summary>
+        /// The number of bytes that is desired to read at a time from the
+        /// stream. 64 KB was chosen due to the paper: "Sequential File
+        /// Programming Patterns and Performance with .NET" stating "A rule of
+        /// thumb is that the minimum recommended transfer size is 64 KB and
+        /// that bigger transfers are generally better." A bigger buffer wasn't
+        /// chosen because performance boosts dropped dramatically after 64 KB.
+        /// </summary>
+        private const int MaxByteBuffer = 1024 * 64;
+
+        private static readonly Encoding FileEncoding = Encoding.GetEncoding(Globals.WindowsCodePage);
+
+        /// <summary>
+        /// The number of characters that will be processed at a time. This is
+        /// capped at encoding level as there could be a possibility of the
+        /// char buffer being bigger than the byte buffer (byte-wise).
+        /// </summary>
+        private static readonly int BufferSize = FileEncoding.GetMaxCharCount(MaxByteBuffer);
 
         private int currentIndent;
         private LexerToken currentToken;
@@ -50,7 +69,7 @@ namespace Pdoxcl2Sharp
             if (data == null)
                 throw new ArgumentNullException("data");
 
-            this.reader = new StreamReader(data, Encoding.GetEncoding(Globals.WindowsCodePage), false, BufferSize);
+            this.reader = new StreamReader(data, FileEncoding, false, MaxByteBuffer);
         }
 
         /// <summary>
