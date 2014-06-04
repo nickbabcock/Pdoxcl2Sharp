@@ -35,7 +35,7 @@ namespace Pdoxcl2Sharp
         private char[] buffer = new char[BufferSize];
         private char[] stringBuffer = new char[MaxTokenSize];
         private int stringBufferCount = 0;
-        private StreamReader reader;
+        private TextReader reader;
         private bool eof = false;
         private string currentString;
 
