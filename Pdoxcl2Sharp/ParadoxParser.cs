@@ -20,7 +20,7 @@ namespace Pdoxcl2Sharp
         Untyped
     }
 
-    public class ParadoxParser : IDisposable
+    public class ParadoxParser
     {
         private const int MaxTokenSize = 256;
 
@@ -64,12 +64,9 @@ namespace Pdoxcl2Sharp
         /// </summary>
         /// <param name="data">Stream to be parsed</param>
         /// <exception cref="ArgumentNullException">If <paramref name="data"/> is null</exception>
-        private ParadoxParser(Stream data)
+        private ParadoxParser(TextReader data)
         {
-            if (data == null)
-                throw new ArgumentNullException("data");
-
-            this.reader = new StreamReader(data, FileEncoding, false, MaxByteBuffer);
+            this.reader = data;
         }
 
         /// <summary>
@@ -148,8 +145,12 @@ namespace Pdoxcl2Sharp
         /// <param name="parseStrategy">Action to be performed on found tokens</param>
         public static void Parse(Stream data, Action<ParadoxParser, string> parseStrategy)
         {
-            using (ParadoxParser parser = new ParadoxParser(data))
+            if (data == null)
+                throw new ArgumentNullException("data");
+
+            using (var reader =  new StreamReader(data, FileEncoding, false, MaxByteBuffer))
             {
+                ParadoxParser parser = new ParadoxParser(reader);
                 while (!parser.EndOfStream)
                 {
                     string val = parser.ReadString();
@@ -444,26 +445,6 @@ namespace Pdoxcl2Sharp
             if (action == null)
                 throw new ArgumentNullException("action", "Action for reading bracket content must not be null");
             this.DoWhileBracket(() => action(this));
-        }
-
-        /// <summary>
-        /// Releases all resources held by the writer
-        /// </summary>
-        public void Dispose()
-        {
-            this.Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                if (this.reader != null)
-                {
-                    this.reader.Dispose();
-                }
-            }
         }
 
         /// <summary>
