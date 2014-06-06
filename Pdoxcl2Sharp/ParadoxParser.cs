@@ -499,7 +499,7 @@ namespace Pdoxcl2Sharp
         }
 
         /// <summary>
-        /// Parses the date between curly brackets in a manner dictated by the function parameter
+        /// Parses the data between curly brackets in a manner dictated by the function parameter
         /// </summary>
         /// <typeparam name="T">Type that the data will be interpreted as</typeparam>
         /// <param name="func">Function that will extract the data</param>
