@@ -36,14 +36,12 @@ namespace Pdoxcl2Sharp
         /// </summary>
         private const int MaxByteBuffer = 1024 * 64;
 
-        private static readonly Encoding FileEncoding = Encoding.GetEncoding(Globals.WindowsCodePage);
-
         /// <summary>
         /// The number of characters that will be processed at a time. This is
         /// capped at encoding level as there could be a possibility of the
         /// char buffer being bigger than the byte buffer (byte-wise).
         /// </summary>
-        private static readonly int BufferSize = FileEncoding.GetMaxCharCount(MaxByteBuffer);
+        private static readonly int BufferSize = Globals.ParadoxEncoding.GetMaxCharCount(MaxByteBuffer);
 
         private int currentIndent;
         private LexerToken currentToken;
@@ -148,7 +146,7 @@ namespace Pdoxcl2Sharp
             if (data == null)
                 throw new ArgumentNullException("data");
 
-            using (var reader =  new StreamReader(data, FileEncoding, false, MaxByteBuffer))
+            using (var reader =  new StreamReader(data, Globals.ParadoxEncoding, false, MaxByteBuffer))
             {
                 ParadoxParser parser = new ParadoxParser(reader);
                 while (!parser.EndOfStream)
