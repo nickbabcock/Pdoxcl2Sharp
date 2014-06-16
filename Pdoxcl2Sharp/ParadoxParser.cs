@@ -46,7 +46,7 @@ namespace Pdoxcl2Sharp
         private int currentIndent;
         private LexerToken currentToken;
         private LexerToken? nextToken;
-        private char currentByte;
+        private char currentChar;
         private int currentPosition;
         private int bufferSize;
         private char[] buffer = new char[BufferSize];
@@ -109,21 +109,31 @@ namespace Pdoxcl2Sharp
         {
             result = DateTime.MinValue;
             string[] splitted = dateTime.Split('.');
-            if (splitted.Length != 3 && splitted.Length != 4)
-                return false;
-
-            int[] dateUnits = new int[Math.Max(splitted.Length, 4)];
+            int?[] date = new int?[6];
+            int t;
             for (int i = 0; i < splitted.Length; i++)
             {
-                if (!int.TryParse(splitted[i], NumberStyles.None, CultureInfo.InvariantCulture, out dateUnits[i]))
+                if (!int.TryParse(splitted[i], NumberStyles.None, CultureInfo.InvariantCulture, out t))
                     return false;
+                date[i] = t;
             }
 
-            int year = dateUnits[0], month = dateUnits[1], day = dateUnits[2], hour = dateUnits[3];
-            if ((year < 1 || year > 9999) || (month < 1 || month > 12) || (day < 1 || day > DateTime.DaysInMonth(year, month)) || (hour < 0 || hour > 23))
+            int y = date[0] ?? 1, m = date[1] ?? 1, d = date[2] ?? 1,
+                hh = date[3] ?? 0, mm = date[4] ?? 0, s = date[5] ?? 0;
+            if ((y < 1 || y > 9999) || (m < 1 || m > 12) || 
+                (d < 1 || d > DateTime.DaysInMonth(y, m)) || (hh < 0 || hh > 23) ||
+                (mm < 0 || mm > 59) || (s < 0 || s > 59))
                 return false;
-            result = new DateTime(year, month, day, hour, 0, 0);
+            result = new DateTime(y, m, d, hh, mm, s);
             return true;
+        }
+
+        public static DateTime ParseDate(string datetime)
+        {
+            DateTime result;
+            if (TryParseDate(datetime, out result))
+                return result;
+            throw new FormatException(string.Format("{0} is not a correct DateTime", datetime));
         }
 
         /// <summary>
@@ -137,6 +147,26 @@ namespace Pdoxcl2Sharp
         }
 
         /// <summary>
+        /// Given a stream, the function will deserialize it into a
+        /// specific type. 
+        /// </summary>
+        /// <typeparam name="T">The type to deserialize</typeparam>
+        /// <param name="data">The stream to extract the object</param>
+        /// <returns>The object deserialized from the stream</returns>
+        public static T Deserialize<T>(Stream data)
+        {
+            if (data == null)
+                throw new ArgumentNullException("data");
+            
+            using (var reader = new StreamReader(data, Globals.ParadoxEncoding, false, MaxByteBuffer))
+            {
+                FnPtr ptr = Deserializer.Parse(typeof(T));
+                ParadoxParser parser = new ParadoxParser(reader);
+                return (T)ptr(parser);
+            }
+        }
+
+        /// <summary>
         /// Parses a given stream and applies an action to each token found
         /// </summary>
         /// <param name="data">Stream to parse</param>
@@ -146,7 +176,7 @@ namespace Pdoxcl2Sharp
             if (data == null)
                 throw new ArgumentNullException("data");
 
-            using (var reader =  new StreamReader(data, Globals.ParadoxEncoding, false, MaxByteBuffer))
+            using (var reader = new StreamReader(data, Globals.ParadoxEncoding, false, MaxByteBuffer))
             {
                 ParadoxParser parser = new ParadoxParser(reader);
                 while (!parser.EndOfStream)
@@ -210,13 +240,14 @@ namespace Pdoxcl2Sharp
             {
                 do
                 {
-                    this.stringBuffer[this.stringBufferCount++] = this.currentByte;
-                } while (!IsSpace(this.currentByte = this.ReadNext()) && this.SetcurrentToken(this.currentByte) == LexerToken.Untyped && !this.eof);
+                    this.stringBuffer[this.stringBufferCount++] = this.currentChar;
+                } while (!IsSpace(this.currentChar = this.ReadNext()) && 
+                    this.SetcurrentToken(this.currentChar) == LexerToken.Untyped && !this.eof);
             }
             else if (this.currentToken == LexerToken.Quote)
             {
-                while ((this.currentByte = this.ReadNext()) != '"' && !this.eof)
-                    this.stringBuffer[this.stringBufferCount++] = this.currentByte;
+                while ((this.currentChar = this.ReadNext()) != '"' && !this.eof)
+                    this.stringBuffer[this.stringBufferCount++] = this.currentChar;
             }
             else
             {
@@ -246,11 +277,12 @@ namespace Pdoxcl2Sharp
 
             do
             {
-                if (this.currentByte >= '0' && this.currentByte <= '9')
-                    result = (10 * result) + (this.currentByte - '0');
-                else if (this.currentByte == '-')
+                if (this.currentChar >= '0' && this.currentChar <= '9')
+                    result = (10 * result) + (this.currentChar - '0');
+                else if (this.currentChar == '-')
                     negative = true;
-            } while (!IsSpace(this.currentByte = this.ReadNext()) && this.SetcurrentToken(this.currentByte) == LexerToken.Untyped && !this.eof);
+            } while (!IsSpace(this.currentChar = this.ReadNext()) &&
+                this.SetcurrentToken(this.currentChar) == LexerToken.Untyped && !this.eof);
 
             return negative ? -result : result;
         }
@@ -292,8 +324,9 @@ namespace Pdoxcl2Sharp
 
             do
             {
-                result = (uint)((10 * result) + (this.currentByte - '0'));
-            } while (!IsSpace(this.currentByte = this.ReadNext()) && this.SetcurrentToken(this.currentByte) == LexerToken.Untyped && !this.eof);
+                result = (uint)((10 * result) + (this.currentChar - '0'));
+            } while (!IsSpace(this.currentChar = this.ReadNext()) &&
+                this.SetcurrentToken(this.currentChar) == LexerToken.Untyped && !this.eof);
             return result;
         }
 
@@ -361,10 +394,7 @@ namespace Pdoxcl2Sharp
         /// <returns><see cref="DateTime"/> read from the current stream</returns>
         public DateTime ReadDateTime()
         {
-            DateTime result;
-            if (TryParseDate(this.ReadString(), out result))
-                return result;
-            throw new FormatException(string.Format("{0} is not a correct DateTime", this.currentString));
+            return ParseDate(this.ReadString());
         }
 
         /// <summary>
@@ -420,7 +450,9 @@ namespace Pdoxcl2Sharp
         /// <param name="keyFunc">Function that when given the parser will extract a key</param>
         /// <param name="valueFunc">Function that when given the parser will extract a value</param>
         /// <returns>A dictionary that is populated from the data within brackets with the provided functions</returns>
-        public IDictionary<TKey, TValue> ReadDictionary<TKey, TValue>(Func<ParadoxParser, TKey> keyFunc, Func<ParadoxParser, TValue> valueFunc)
+        public IDictionary<TKey, TValue> ReadDictionary<TKey, TValue>(
+            Func<ParadoxParser, TKey> keyFunc,
+            Func<ParadoxParser, TValue> valueFunc)
         {
             if (keyFunc == null)
                 throw new ArgumentNullException("keyFunc", "Function for extracting keys must not be null");
@@ -443,6 +475,19 @@ namespace Pdoxcl2Sharp
             if (action == null)
                 throw new ArgumentNullException("action", "Action for reading bracket content must not be null");
             this.DoWhileBracket(() => action(this));
+        }
+
+        /// <summary>
+        /// Parses the data between curly brackets in a manner dictated by the function parameter
+        /// </summary>
+        /// <typeparam name="T">Type that the data will be interpreted as</typeparam>
+        /// <param name="func">Function that will extract the data</param>
+        /// <returns>Data between curly brackets constructed as a list.</returns>
+        internal IList<T> ReadList<T>(Func<T> func)
+        {
+            List<T> result = new List<T>();
+            this.DoWhileBracket(() => result.Add(func()));
+            return result;
         }
 
         /// <summary>
@@ -475,19 +520,6 @@ namespace Pdoxcl2Sharp
                 default:
                     return LexerToken.Untyped;
             }
-        }
-
-        /// <summary>
-        /// Parses the data between curly brackets in a manner dictated by the function parameter
-        /// </summary>
-        /// <typeparam name="T">Type that the data will be interpreted as</typeparam>
-        /// <param name="func">Function that will extract the data</param>
-        /// <returns>Data between curly brackets constructed as a list.</returns>
-        private IList<T> ReadList<T>(Func<T> func)
-        {
-            List<T> result = new List<T>();
-            this.DoWhileBracket(() => result.Add(func()));
-            return result;
         }
 
         /// <summary>
@@ -538,19 +570,24 @@ namespace Pdoxcl2Sharp
         private void DoWhileBracket(Action act)
         {
             int startingIndent = this.currentIndent;
-            this.EnsureLeftCurly();
+
+            if (this.currentString != null)
+                this.EnsureLeftCurly();
 
             do
             {
-                if (this.currentToken == LexerToken.RightCurly || this.PeekToken() == LexerToken.RightCurly)
+                if (this.currentToken == LexerToken.RightCurly 
+                    || this.PeekToken() == LexerToken.RightCurly)
                 {
-                    while (startingIndent != this.currentIndent && this.PeekToken() == LexerToken.RightCurly && !this.eof)
+                    while (startingIndent != this.currentIndent 
+                        && this.PeekToken() == LexerToken.RightCurly && !this.eof)
                         ;
                     if (startingIndent == this.currentIndent)
                         break;
                 }
 
-                act();
+                if (this.stringBufferCount != 0 || this.currentChar != '\0')
+                    act();
             } while (!this.eof);
         }
 
@@ -585,12 +622,12 @@ namespace Pdoxcl2Sharp
                 return temp;
             }
 
-            while (IsSpace(this.currentByte = this.ReadNext()) && !this.eof)
+            while (IsSpace(this.currentChar = this.ReadNext()) && !this.eof)
                 ;
 
-            if (this.SetcurrentToken(this.currentByte) == LexerToken.Comment)
+            if (this.SetcurrentToken(this.currentChar) == LexerToken.Comment)
             {
-                while ((this.currentByte = this.ReadNext()) != '\n' && !this.eof)
+                while ((this.currentChar = this.ReadNext()) != '\n' && !this.eof)
                     ;
                 return this.GetNextToken();
             }
@@ -603,8 +640,9 @@ namespace Pdoxcl2Sharp
         /// will return the same token.  If multiple peekTokens are invoked then it is the last
         /// token encountered that <see cref="GetNextToken"/> will also return.
         /// <remarks>
-        ///     This function is a misnomer in the traditional sense the peek does not affect the underlying
-        ///     stream.  Though this function is prefixed with "peek", it advances the underlying stream.
+        ///     This function is a misnomer in the traditional sense the peek
+        ///     does not affect the underlying stream.  Though this function is
+        ///     prefixed with "peek", it advances the underlying stream.
         /// </remarks>
         /// </summary>
         /// <returns>The next token in the stream</returns>
