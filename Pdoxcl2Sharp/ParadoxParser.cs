@@ -128,14 +128,6 @@ namespace Pdoxcl2Sharp
             return true;
         }
 
-        public static DateTime ParseDate(string datetime)
-        {
-            DateTime result;
-            if (TryParseDate(datetime, out result))
-                return result;
-            throw new FormatException(string.Format("{0} is not a correct DateTime", datetime));
-        }
-
         /// <summary>
         /// Checks to see whether a given character is considered whitespace.
         /// </summary>
@@ -394,7 +386,10 @@ namespace Pdoxcl2Sharp
         /// <returns><see cref="DateTime"/> read from the current stream</returns>
         public DateTime ReadDateTime()
         {
-            return ParseDate(this.ReadString());
+            DateTime result;
+            if (TryParseDate(this.ReadString(), out result))
+                return result;
+            throw new FormatException(string.Format("{0} is not a correct DateTime", this.currentString));
         }
 
         /// <summary>
