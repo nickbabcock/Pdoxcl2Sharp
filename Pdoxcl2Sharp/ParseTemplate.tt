@@ -1,0 +1,73 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+using System;
+using Pdoxcl2Sharp;
+<#
+
+// Here is where you add any classes to be deserialized. Here is a tiny sample
+// to get you started.
+
+var classes = new[] {
+	new {
+		Name = "Foo",
+		Props = new[] {
+			new { Type = "int", Name = "value" },
+			new { Type = "string", Name = "you" }
+		}
+	}
+};
+
+// end add
+
+var dict = new Dictionary<string, string>()
+{
+	{ "int", "parser.ReadInt32();" },
+	{ "string", "parser.ReadString();" },
+	{ "bool", "parser.ReadBool();" },
+	{ "byte", "parser.ReadByte();" },
+	{ "DateTime", "parser.ReadDateTime();" },
+	{ "double", "parser.ReadDouble();" },
+	{ "short", "parser.ReadInt16();" },
+	{ "sbyte", "parser.ReadSByte();" },
+	{ "float", "parser.ReadFloat();" },
+	{ "ushort", "parser.ReadUInt16();" },
+	{ "uint", "parser.ReadUint32();" },
+};
+
+foreach (var clazz in classes) { #>
+public partial class <#= clazz.Name #> : IParadoxRead
+{
+<# foreach (var prop in clazz.Props) { #>
+	public <#= prop.Type #> <#= prop.Name #> { get; set; }
+<# } #>
+
+	public void TokenCallback(ParadoxParser parser, string token)
+	{
+		switch (token)
+		{
+		<#
+		ClearIndent();
+		PushIndent("		"); 
+		foreach (var prop in clazz.Props) {
+			Write("case " + '"');
+			Write(prop.Name);
+			Write("\": ");
+			Write(prop.Name + " = ");
+			
+			string res;
+			string fallback = "ParadoxParser.Deserialize<" + prop.Type + ">();";
+			Write(dict.TryGetValue(prop.Type, out res) ? res : fallback);
+			WriteLine(" break;");
+		}
+		
+		WriteLine("}");
+		ClearIndent();
+		 #>
+	}
+}
+
+<# } #>
