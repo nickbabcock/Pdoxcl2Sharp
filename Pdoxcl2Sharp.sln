@@ -1,6 +1,8 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30501.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pdoxcl2Sharp", "Pdoxcl2Sharp\Pdoxcl2Sharp.csproj", "{7E6B9A32-3D38-49EE-B95F-F7FB4961CF0F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pdoxcl2Sharp.Test", "Pdoxcl2Sharp.Test\Pdoxcl2Sharp.Test.csproj", "{3F8EB42C-4931-4192-9537-90BDED47B496}"
