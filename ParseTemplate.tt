@@ -37,7 +37,23 @@ var dict = new Dictionary<string, string>()
 	{ "sbyte", "parser.ReadSByte();" },
 	{ "float", "parser.ReadFloat();" },
 	{ "ushort", "parser.ReadUInt16();" },
-	{ "uint", "parser.ReadUint32();" },
+	{ "uint", "parser.ReadUInt32();" },
+	{ "[ConsecutiveElements] IEnumerable<string>", "parser.ReadStringList();" },
+	{ "[ConsecutiveElements] ICollection<string>", "parser.ReadStringList();" },
+	{ "[ConsecutiveElements] IList<string>", "parser.ReadStringList();" },
+	{ "[ConsecutiveElements] List<string>", "parser.ReadStringList();" },
+	{ "[ConsecutiveElements] IEnumerable<int>", "parser.ReadIntList();" },
+	{ "[ConsecutiveElements] ICollection<int>", "parser.ReadIntList();" },
+	{ "[ConsecutiveElements] IList<int>", "parser.ReadIntList();" },
+	{ "[ConsecutiveElements] List<int>", "parser.ReadIntList();" },
+	{ "[ConsecutiveElements] IEnumerable<double>", "parser.ReadDoubleList();" },
+	{ "[ConsecutiveElements] ICollection<double>", "parser.ReadDoubleList();" },
+	{ "[ConsecutiveElements] IList<double>", "parser.ReadDoubleList();" },
+	{ "[ConsecutiveElements] List<double>", "parser.ReadDoubleList();" },
+	{ "[ConsecutiveElements] IEnumerable<DateTime>", "parser.ReadDateTimeList();" },
+	{ "[ConsecutiveElements] ICollection<DateTime>", "parser.ReadDateTimeList();" },
+	{ "[ConsecutiveElements] IList<DateTime>", "parser.ReadDateTimeList();" },
+	{ "[ConsecutiveElements] List<DateTime>", "parser.ReadDateTimeList();" }
 };
 
 foreach (var clazz in classes) { #>
@@ -46,6 +62,22 @@ public partial class <#= clazz.Name #> : IParadoxRead
 <# foreach (var prop in clazz.Props) { #>
 	public <#= prop.Type #> <#= prop.Name #> { get; set; }
 <# } #>
+
+	public <#= clazz.Name #>
+	{
+<#	var lists = clazz.Props.Where(x =>
+					(x.Type.Contains("ICollection<") ||
+					x.Type.Contains("IList<") ||
+					x.Type.Contains("List<")) &&
+					!x.Type.Contains("[ConsecutiveElements]"));
+	foreach (var list in lists)
+	{
+		var str = list.Type;
+		str = str.Substring(str.IndexOf('<') + 1);
+		str = str.Remove(str.LastIndexOf('>'));
+		WriteLine(list.Name + " = new List<" + str + ">();");
+	}#>
+	}
 
 	public void TokenCallback(ParadoxParser parser, string token)
 	{
@@ -56,13 +88,29 @@ public partial class <#= clazz.Name #> : IParadoxRead
 		PushIndent("		"); 
 		foreach (var prop in clazz.Props) {
 			Write("case " + '"');
-			Write(string.IsNullOrEmpty(prop.Alias) ? naming.Apply(prop.Name) : prop.Alias);
+			Write(!string.IsNullOrEmpty(prop.Alias) ? prop.Alias :
+				naming.Apply(prop.Name).Singularize(Plurality.CouldBeEither));
 			Write("\": ");
-			Write(prop.Name + " = ");
 			
 			string res;
 			string fallback = "ParadoxParser.Deserialize<" + prop.Type + ">();";
-			Write(dict.TryGetValue(prop.Type, out res) ? res : fallback);
+			if (dict.TryGetValue(prop.Type, out res))
+				Write(prop.Name + " = " + res);
+			else if (prop.Type.Contains("ICollection<") ||
+					prop.Type.Contains("IList<") ||
+					prop.Type.Contains("List<")) &&
+					!prop.Type.Contains("[ConsecutiveElements]"))
+			{
+				var str = prop.Type;
+				str = str.Substring(str.IndexOf('<') + 1);
+				str = str.Remove(str.LastIndexOf('>'));
+				fallback = "ParadoxParser.Deserialize<" + str + ">();";
+				Write(prop.Name + ".Add(" + (dict.TryGetValue(prop.Type, out res)
+					? res : fallback) + ");");
+			}
+			else
+				Write(prop.Name + " = " + fallback);
+			Write( ? res : fallback);
 			WriteLine(" break;");
 		}
 		
