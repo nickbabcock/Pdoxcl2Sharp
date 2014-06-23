@@ -167,5 +167,18 @@ namespace Pdoxcl2Sharp.Test
             var actual = ParadoxParser.Deserialize<FooAlias>(data.ToStream());
             Assert.AreEqual("You", actual.Name);
         }
+
+        public class FooNamingConvention
+        {
+            public double PapalInfluence { get; set; }
+        }
+
+        [Test]
+        public void DeserializeNamingConvention()
+        {
+            var data = "{papal_influence=2.500}";
+            var actual = ParadoxParser.Deserialize<FooNamingConvention>(data.ToStream());
+            Assert.AreEqual(2.500, actual.PapalInfluence);
+        }
     }
 }

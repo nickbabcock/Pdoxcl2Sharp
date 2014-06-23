@@ -10,6 +10,8 @@ namespace Pdoxcl2Sharp
 
     internal class Deserializer
     {
+        private static readonly INamingConvention naming = new ParadoxNamingConvention();
+
         private static ConcurrentDictionary<Type, FnPtr> cache =
             new ConcurrentDictionary<Type, FnPtr>();
 
@@ -148,7 +150,8 @@ namespace Pdoxcl2Sharp
                     .ToDictionary<PropertyInfo, string, Action<ParadoxParser>>(
                         x => Attribute.GetCustomAttributes(x)
                                 .OfType<ParadoxAliasAttribute>()
-                                .Select(y => y.Alias).FirstOrDefault() ?? x.Name, 
+                                .Select(y => y.Alias).FirstOrDefault() ??
+                                Deserializer.naming.Apply(x.Name), 
                         x => (p2) =>
                         x.SetValue(obj, Deserializer.Parse(x.PropertyType)(p2), null));
 

@@ -23,6 +23,8 @@ var classes = new[] {
 
 // end add
 
+INamingConvention naming = new ParadoxNamingConvention();
+
 var dict = new Dictionary<string, string>()
 {
 	{ "int", "parser.ReadInt32();" },
@@ -54,7 +56,7 @@ public partial class <#= clazz.Name #> : IParadoxRead
 		PushIndent("		"); 
 		foreach (var prop in clazz.Props) {
 			Write("case " + '"');
-			Write(string.IsNullOrEmpty(prop.Alias) ? prop.Name : prop.Alias);
+			Write(string.IsNullOrEmpty(prop.Alias) ? naming.Apply(prop.Name) : prop.Alias);
 			Write("\": ");
 			Write(prop.Name + " = ");
 			
