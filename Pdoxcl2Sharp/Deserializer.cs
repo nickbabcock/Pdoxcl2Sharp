@@ -146,7 +146,9 @@ namespace Pdoxcl2Sharp
                 T obj = new T();
                 var props = typeof(T).GetProperties()
                     .ToDictionary<PropertyInfo, string, Action<ParadoxParser>>(
-                        x => x.Name, 
+                        x => Attribute.GetCustomAttributes(x)
+                                .OfType<ParadoxAliasAttribute>()
+                                .Select(y => y.Alias).FirstOrDefault() ?? x.Name, 
                         x => (p2) =>
                         x.SetValue(obj, Deserializer.Parse(x.PropertyType)(p2), null));
 

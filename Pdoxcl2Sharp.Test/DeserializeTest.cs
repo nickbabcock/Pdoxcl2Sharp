@@ -153,5 +153,19 @@ namespace Pdoxcl2Sharp.Test
             var actual = ParadoxParser.Deserialize<Foo2>(data.ToStream());
             Assert.AreEqual(6, actual.value);
         }
+
+        public class FooAlias
+        {
+            [ParadoxAlias("Bar")]
+            public string Name { get; set; }
+        }
+
+        [Test]
+        public void DeserializeAliases()
+        {
+            var data = "{Bar=You}";
+            var actual = ParadoxParser.Deserialize<FooAlias>(data.ToStream());
+            Assert.AreEqual("You", actual.Name);
+        }
     }
 }
