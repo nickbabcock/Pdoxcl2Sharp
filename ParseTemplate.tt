@@ -1,11 +1,16 @@
 ﻿<#@ template debug="false" hostspecific="false" language="C#" #>
 <#@ assembly name="System.Core" #>
+<# // CHANGE ME: The next line should be something like:
+// $(SolutionDir)\vendor\Pdoxcl2Sharp.dll #>
+<#@ assembly name="$(SolutionDir)\Pdoxcl2Sharp\bin\Pdoxcl2Sharp.dll" #>
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="Pdoxcl2Sharp" #>  
 <#@ output extension=".cs" #>
 using System;
 using Pdoxcl2Sharp;
+using System.Collections.Generic;
 <#
 
 // Here is where you add any classes to be deserialized. Here is a tiny sample
@@ -13,10 +18,36 @@ using Pdoxcl2Sharp;
 
 var classes = new[] {
 	new {
-		Name = "Foo",
+		Name = "Province",
 		Props = new[] {
-			new { Type = "int", Name = "value", Alias = "" },
-			new { Type = "string", Name = "you", Alias = "Bar" }
+			new { Type = "string", Name = "Name", Alias = "" },
+			new { Type = "double", Name = "Tax", Alias = "" },
+			new { Type = "IList<string>", Name = "Cores", Alias = "add_core" },
+			new { Type = "[ConsecutiveElements] IList<string>", Name = "TopProvinces", Alias = ""},
+			new { Type = "IList<Army>", Name = "Armies", Alias = ""}
+		}
+	},
+	new {
+		Name = "Army",
+		Props = new[] {
+			new { Type = "string", Name = "Name", Alias = "" },
+			new { Type = "IList<Unit>", Name = "Units", Alias = "" },
+			new { Type = "Leader", Name = "Leader", Alias = "" }
+		}
+	},
+	new {
+		Name = "Unit",
+		Props = new[] {
+			new { Type = "string", Name = "Name", Alias = "" },
+			new { Type = "string", Name = "Type", Alias = "" },
+			new { Type = "double", Name = "Morale", Alias = "" },
+			new { Type = "double", Name = "Strength", Alias = "" }
+		}
+	},
+	new {
+		Name = "Leader",
+		Props = new[] {
+			new { Type = "int", Name = "Id", Alias = "" }
 		}
 	}
 };
@@ -27,43 +58,43 @@ INamingConvention naming = new ParadoxNamingConvention();
 
 var dict = new Dictionary<string, string>()
 {
-	{ "int", "parser.ReadInt32();" },
-	{ "string", "parser.ReadString();" },
-	{ "bool", "parser.ReadBool();" },
-	{ "byte", "parser.ReadByte();" },
-	{ "DateTime", "parser.ReadDateTime();" },
-	{ "double", "parser.ReadDouble();" },
-	{ "short", "parser.ReadInt16();" },
-	{ "sbyte", "parser.ReadSByte();" },
-	{ "float", "parser.ReadFloat();" },
-	{ "ushort", "parser.ReadUInt16();" },
-	{ "uint", "parser.ReadUInt32();" },
-	{ "[ConsecutiveElements] IEnumerable<string>", "parser.ReadStringList();" },
-	{ "[ConsecutiveElements] ICollection<string>", "parser.ReadStringList();" },
-	{ "[ConsecutiveElements] IList<string>", "parser.ReadStringList();" },
-	{ "[ConsecutiveElements] List<string>", "parser.ReadStringList();" },
-	{ "[ConsecutiveElements] IEnumerable<int>", "parser.ReadIntList();" },
-	{ "[ConsecutiveElements] ICollection<int>", "parser.ReadIntList();" },
-	{ "[ConsecutiveElements] IList<int>", "parser.ReadIntList();" },
-	{ "[ConsecutiveElements] List<int>", "parser.ReadIntList();" },
-	{ "[ConsecutiveElements] IEnumerable<double>", "parser.ReadDoubleList();" },
-	{ "[ConsecutiveElements] ICollection<double>", "parser.ReadDoubleList();" },
-	{ "[ConsecutiveElements] IList<double>", "parser.ReadDoubleList();" },
-	{ "[ConsecutiveElements] List<double>", "parser.ReadDoubleList();" },
-	{ "[ConsecutiveElements] IEnumerable<DateTime>", "parser.ReadDateTimeList();" },
-	{ "[ConsecutiveElements] ICollection<DateTime>", "parser.ReadDateTimeList();" },
-	{ "[ConsecutiveElements] IList<DateTime>", "parser.ReadDateTimeList();" },
-	{ "[ConsecutiveElements] List<DateTime>", "parser.ReadDateTimeList();" }
+	{ "int", "parser.ReadInt32()" },
+	{ "string", "parser.ReadString()" },
+	{ "bool", "parser.ReadBool()" },
+	{ "byte", "parser.ReadByte()" },
+	{ "DateTime", "parser.ReadDateTime()" },
+	{ "double", "parser.ReadDouble()" },
+	{ "short", "parser.ReadInt16()" },
+	{ "sbyte", "parser.ReadSByte()" },
+	{ "float", "parser.ReadFloat()" },
+	{ "ushort", "parser.ReadUInt16()" },
+	{ "uint", "parser.ReadUInt32()" },
+	{ "[ConsecutiveElements] IEnumerable<string>", "parser.ReadStringList()" },
+	{ "[ConsecutiveElements] ICollection<string>", "parser.ReadStringList()" },
+	{ "[ConsecutiveElements] IList<string>", "parser.ReadStringList()" },
+	{ "[ConsecutiveElements] List<string>", "parser.ReadStringList()" },
+	{ "[ConsecutiveElements] IEnumerable<int>", "parser.ReadIntList()" },
+	{ "[ConsecutiveElements] ICollection<int>", "parser.ReadIntList()" },
+	{ "[ConsecutiveElements] IList<int>", "parser.ReadIntList()" },
+	{ "[ConsecutiveElements] List<int>", "parser.ReadIntList()" },
+	{ "[ConsecutiveElements] IEnumerable<double>", "parser.ReadDoubleList()" },
+	{ "[ConsecutiveElements] ICollection<double>", "parser.ReadDoubleList()" },
+	{ "[ConsecutiveElements] IList<double>", "parser.ReadDoubleList()" },
+	{ "[ConsecutiveElements] List<double>", "parser.ReadDoubleList()" },
+	{ "[ConsecutiveElements] IEnumerable<DateTime>", "parser.ReadDateTimeList()" },
+	{ "[ConsecutiveElements] ICollection<DateTime>", "parser.ReadDateTimeList()" },
+	{ "[ConsecutiveElements] IList<DateTime>", "parser.ReadDateTimeList()" },
+	{ "[ConsecutiveElements] List<DateTime>", "parser.ReadDateTimeList()" }
 };
 
 foreach (var clazz in classes) { #>
 public partial class <#= clazz.Name #> : IParadoxRead
 {
 <# foreach (var prop in clazz.Props) { #>
-	public <#= prop.Type #> <#= prop.Name #> { get; set; }
+	public <#= prop.Type.Replace("[ConsecutiveElements] ", "") #> <#= prop.Name #> { get; set; }
 <# } #>
 
-	public <#= clazz.Name #>
+	public <#= clazz.Name #>()
 	{
 <#	var lists = clazz.Props.Where(x =>
 					(x.Type.Contains("ICollection<") ||
@@ -75,7 +106,7 @@ public partial class <#= clazz.Name #> : IParadoxRead
 		var str = list.Type;
 		str = str.Substring(str.IndexOf('<') + 1);
 		str = str.Remove(str.LastIndexOf('>'));
-		WriteLine(list.Name + " = new List<" + str + ">();");
+		WriteLine("        " + list.Name + " = new List<" + str + ">();");
 	}#>
 	}
 
@@ -88,15 +119,19 @@ public partial class <#= clazz.Name #> : IParadoxRead
 		PushIndent("		"); 
 		foreach (var prop in clazz.Props) {
 			Write("case " + '"');
-			Write(!string.IsNullOrEmpty(prop.Alias) ? prop.Alias :
-				naming.Apply(prop.Name).Singularize(Plurality.CouldBeEither));
+			if (!string.IsNullOrEmpty(prop.Alias))
+				Write(prop.Alias);
+			else if (prop.Type.Contains("[ConsecutiveElements]"))
+				Write(naming.Apply(prop.Name));
+			else
+				Write(naming.Apply(prop.Name).Singularize(Plurality.CouldBeEither));
 			Write("\": ");
 			
 			string res;
-			string fallback = "ParadoxParser.Deserialize<" + prop.Type + ">();";
+			string fallback = "parser.Parse(new " + prop.Type + "())";
 			if (dict.TryGetValue(prop.Type, out res))
 				Write(prop.Name + " = " + res);
-			else if (prop.Type.Contains("ICollection<") ||
+			else if ((prop.Type.Contains("ICollection<") ||
 					prop.Type.Contains("IList<") ||
 					prop.Type.Contains("List<")) &&
 					!prop.Type.Contains("[ConsecutiveElements]"))
@@ -104,14 +139,13 @@ public partial class <#= clazz.Name #> : IParadoxRead
 				var str = prop.Type;
 				str = str.Substring(str.IndexOf('<') + 1);
 				str = str.Remove(str.LastIndexOf('>'));
-				fallback = "ParadoxParser.Deserialize<" + str + ">();";
-				Write(prop.Name + ".Add(" + (dict.TryGetValue(prop.Type, out res)
-					? res : fallback) + ");");
+				fallback = "parser.Parse(new " + str + "())";
+				Write(prop.Name + ".Add(" + (dict.TryGetValue(str, out res)
+					? res : fallback) + ")");
 			}
 			else
 				Write(prop.Name + " = " + fallback);
-			Write( ? res : fallback);
-			WriteLine(" break;");
+			WriteLine("; break;");
 		}
 		
 		WriteLine("}");

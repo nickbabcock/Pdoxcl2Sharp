@@ -14,6 +14,23 @@ project aims to be 100% compatible with the parser Paradox uses.  The end
 result is to eliminate of all the boiler plate code and provide a "plug and
 parse" mechanism.
 
+## Install
+
+Since the demographics users are convceivably small, I've decided against a
+nuget package, so installation is a manual process. If a nuget package is
+wanted, please raise an issue.
+
+If you will be doing all the parsing manually, then all you need to do is grab
+the .dll from the from the [latest] release, and add the appropriate reference
+in your favorite IDE.
+
+[latest]: https://github.com/nickbabcock/Pdoxcl2Sharp/releases/latest
+
+If you want to use the parser generator ParseTemplate.tt, which I highly
+recommend, then you'll have to grab that file along with the .dll. Then modify
+the text in between the commented "add" section. Add a reference to the
+downloaded .dll in the generator.
+
 ## Example
 
 Say you want to parse this file:
@@ -74,7 +91,194 @@ public static int Main()
 
 ## Advanced Examples
 
-For a more advanced saving example see FileSave.cs and FileText.txt. 
+These are more advanced examples in the test project, but I'll copy a sample
+here for convienence.
+
+Let's say you want to parse the following file (it is slightly unrealistic, but
+it serves as a good example)
+
+```
+name = "My Prov"
+tax = 1.000
+add_core=MEE
+add_core=YOU
+add_core=THM
+top_provinces={ "BNG" "ORI" "PEG" }
+army={
+  name = "My first army"
+  leader = { id = 5 }
+  unit = {
+    name = "First infantry of Awesomeness"
+    type = ninjas
+    morale = 5.445
+    strength = 0.998
+  }
+  unit = {
+    name = "Second infantry of awesomeness"
+    type = ninjas
+    morale = 6.000
+    strength = 1.000
+  }
+}
+```
+
+You could manually code this up in an hour, or you could modify
+ParseTemplate.tt and in a few minutes and 35 lines of code you could have the
+same thing! Here are the relevant lines added to ParseTemplate.tt:
+
+```csharp
+var classes = new[] {
+  new {
+    Name = "Province",
+    Props = new[] {
+      new { Type = "string", Name = "Name", Alias = "" },
+      new { Type = "double", Name = "Tax", Alias = "" },
+      new { Type = "IList<string>", Name = "Cores", Alias = "add_core" },
+      new { Type = "[ConsecutiveElements] IList<string>", Name = "TopProvinces", Alias = ""},
+      new { Type = "IList<Army>", Name = "Armies", Alias = ""}
+    }
+  },
+  new {
+    Name = "Army",
+    Props = new[] {
+      new { Type = "string", Name = "Name", Alias = "" },
+      new { Type = "IList<Unit>", Name = "Units", Alias = "" },
+      new { Type = "Leader", Name = "Leader", Alias = "" }
+    }
+  },
+  new {
+    Name = "Unit",
+    Props = new[] {
+      new { Type = "string", Name = "Name", Alias = "" },
+      new { Type = "string", Name = "Type", Alias = "" },
+      new { Type = "double", Name = "Morale", Alias = "" },
+      new { Type = "double", Name = "Strength", Alias = "" }
+    }
+  },
+  new {
+    Name = "Leader",
+    Props = new[] {
+      new { Type = "int", Name = "Id", Alias = "" }
+    }
+  }
+};
+```
+
+Here's the generated auto-generated content:
+
+```csharp
+  
+using System;
+using Pdoxcl2Sharp;
+using System.Collections.Generic;
+public partial class Province : IParadoxRead
+{
+  public string Name { get; set; }
+  public double Tax { get; set; }
+  public IList<string> Cores { get; set; }
+  public IList<string> TopProvinces { get; set; }
+  public IList<Army> Armies { get; set; }
+
+  public Province()
+  {
+        Cores = new List<string>();
+        Armies = new List<Army>();
+  }
+
+  public void TokenCallback(ParadoxParser parser, string token)
+  {
+    switch (token)
+    {
+    case "name": Name = parser.ReadString(); break;
+    case "tax": Tax = parser.ReadDouble(); break;
+    case "add_core": Cores.Add(parser.ReadString()); break;
+    case "top_provinces": TopProvinces = parser.ReadStringList(); break;
+    case "army": Armies.Add(parser.Parse(new Army())); break;
+    }
+  }
+}
+
+public partial class Army : IParadoxRead
+{
+  public string Name { get; set; }
+  public IList<Unit> Units { get; set; }
+  public Leader Leader { get; set; }
+
+  public Army()
+  {
+        Units = new List<Unit>();
+  }
+
+  public void TokenCallback(ParadoxParser parser, string token)
+  {
+    switch (token)
+    {
+    case "name": Name = parser.ReadString(); break;
+    case "unit": Units.Add(parser.Parse(new Unit())); break;
+    case "leader": Leader = parser.Parse(new Leader()); break;
+    }
+  }
+}
+
+public partial class Unit : IParadoxRead
+{
+  public string Name { get; set; }
+  public string Type { get; set; }
+  public double Morale { get; set; }
+  public double Strength { get; set; }
+
+  public Unit()
+  {
+  }
+
+  public void TokenCallback(ParadoxParser parser, string token)
+  {
+    switch (token)
+    {
+    case "name": Name = parser.ReadString(); break;
+    case "type": Type = parser.ReadString(); break;
+    case "morale": Morale = parser.ReadDouble(); break;
+    case "strength": Strength = parser.ReadDouble(); break;
+    }
+  }
+}
+
+public partial class Leader : IParadoxRead
+{
+  public int Id { get; set; }
+
+  public Leader()
+  {
+  }
+
+  public void TokenCallback(ParadoxParser parser, string token)
+  {
+    switch (token)
+    {
+    case "id": Id = parser.ReadInt32(); break;
+    }
+  }
+}
+
+```
+
+## FAQ: What does ConsecutiveElements mean?
+
+If you do all the parsing by hand then there is no need to worry about this;
+however, if you are using the generator then there are a couple of ambiugous
+situations. Let's say you have a list of strings representing factories:
+
+    factories={Here There Everywhere}
+
+This is also valid
+
+    factory = Here
+    factory = There
+    factory = Everywhere
+
+It would prohibitively expensive to support both variations with a single list,
+hence the attribute must be appended lists that are in the format of the first
+factory example.
 
 ## TokenCallback and ReadString
 

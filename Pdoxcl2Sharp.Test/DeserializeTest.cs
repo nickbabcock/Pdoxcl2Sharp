@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -179,6 +180,31 @@ namespace Pdoxcl2Sharp.Test
             var data = "{papal_influence=2.500}";
             var actual = ParadoxParser.Deserialize<FooNamingConvention>(data.ToStream());
             Assert.AreEqual(2.500, actual.PapalInfluence);
+        }
+
+        [Test]
+        public void DeserializeParseTemplate()
+        {
+            var actual = ParadoxParser.Parse(
+                File.OpenRead("FileParseTemplate.txt"), new Province());
+            Assert.AreEqual("My Prov", actual.Name);
+            Assert.AreEqual(1.000, actual.Tax);
+            CollectionAssert.AreEqual(new[] { "MEE", "YOU", "THM" }, actual.Cores);
+            CollectionAssert.AreEqual(new[] { "BNG", "ORI", "PEG" }, actual.TopProvinces);
+            Assert.AreEqual(1, actual.Armies.Count);
+            var army = actual.Armies[0];
+            Assert.AreEqual("My first army", army.Name);
+            Assert.AreEqual(5, army.Leader.Id);
+            Assert.AreEqual(2, army.Units.Count);
+            Assert.AreEqual("First infantry of Awesomeness", army.Units[0].Name);
+            Assert.AreEqual("ninjas", army.Units[0].Type);
+            Assert.AreEqual(5.445, army.Units[0].Morale);
+            Assert.AreEqual(0.998, army.Units[0].Strength);
+
+            Assert.AreEqual("Second infantry of awesomeness", army.Units[1].Name);
+            Assert.AreEqual("ninjas", army.Units[1].Type);
+            Assert.AreEqual(6.000, army.Units[1].Morale);
+            Assert.AreEqual(1.000, army.Units[1].Strength);
         }
     }
 }

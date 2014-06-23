@@ -1,0 +1,22 @@
+name = "My Prov"
+tax = 1.000
+add_core=MEE
+add_core=YOU
+add_core=THM
+top_provinces={ "BNG" "ORI" "PEG" }
+army={
+	name = "My first army"
+	leader = { id = 5 }
+	unit = {
+		name = "First infantry of Awesomeness"
+		type = ninjas
+		morale = 5.445
+		strength = 0.998
+	}
+	unit = {
+		name = "Second infantry of awesomeness"
+		type = ninjas
+		morale = 6.000
+		strength = 1.000
+	}
+}

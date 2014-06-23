@@ -50,7 +50,9 @@
     <Compile Include="Deserializer.cs" />
     <Compile Include="Globals.cs" />
     <Compile Include="INamingConvention.cs" />
-    <Compile Include="InflectorExtensions.cs" />
+    <Compile Include="InflectorExtensions.cs" >
+        <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
+    </Compile>
     <Compile Include="IParadoxRead.cs" />
     <Compile Include="IParadoxWrite.cs" />
     <Compile Include="ParadoxAliasAttribute.cs" />
