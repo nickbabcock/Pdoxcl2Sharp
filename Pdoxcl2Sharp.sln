@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pdoxcl2Sharp.Test", "Pdoxcl
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E59A7514-0F4E-4AB6-A09F-971AF46F0B4B}"
 	ProjectSection(SolutionItems) = preProject
-		Pdoxcl2Sharp\ParseTemplate.tt = Pdoxcl2Sharp\ParseTemplate.tt
+		ParseTemplate.tt = ParseTemplate.tt
 		SharedAssemblyVersion.cs = SharedAssemblyVersion.cs
 	EndProjectSection
 EndProject
