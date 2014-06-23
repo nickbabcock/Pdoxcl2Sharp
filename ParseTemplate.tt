@@ -121,10 +121,13 @@ public partial class <#= clazz.Name #> : IParadoxRead
             Write("case " + '"');
             if (!string.IsNullOrEmpty(prop.Alias))
                 Write(prop.Alias);
-            else if (prop.Type.Contains("[ConsecutiveElements]"))
-                Write(naming.Apply(prop.Name));
+            else if ((prop.Type.Contains("ICollection<") ||
+                    prop.Type.Contains("IList<") ||
+                    prop.Type.Contains("List<")) &&
+                    !prop.Type.Contains("[ConsecutiveElements]"))
+				Write(naming.Apply(prop.Name).Singularize(Plurality.CouldBeEither));
             else
-                Write(naming.Apply(prop.Name).Singularize(Plurality.CouldBeEither));
+                Write(naming.Apply(prop.Name));
             Write("\": ");
             
             string res;
