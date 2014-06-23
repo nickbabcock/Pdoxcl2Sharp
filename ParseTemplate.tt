@@ -15,8 +15,8 @@ var classes = new[] {
 	new {
 		Name = "Foo",
 		Props = new[] {
-			new { Type = "int", Name = "value" },
-			new { Type = "string", Name = "you" }
+			new { Type = "int", Name = "value", Alias = "" },
+			new { Type = "string", Name = "you", Alias = "Bar" }
 		}
 	}
 };
@@ -54,7 +54,7 @@ public partial class <#= clazz.Name #> : IParadoxRead
 		PushIndent("		"); 
 		foreach (var prop in clazz.Props) {
 			Write("case " + '"');
-			Write(prop.Name);
+			Write(string.IsNullOrEmpty(prop.Alias) ? prop.Name : prop.Alias);
 			Write("\": ");
 			Write(prop.Name + " = ");
 			
