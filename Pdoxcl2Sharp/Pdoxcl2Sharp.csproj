@@ -61,6 +61,7 @@
     <Compile Include="ParadoxParser.cs" />
     <Compile Include="ParadoxSaver.cs" />
     <Compile Include="ParadoxStreamWriter.cs" />
+    <Compile Include="Property.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config">

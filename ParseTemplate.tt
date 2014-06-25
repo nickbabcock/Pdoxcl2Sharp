@@ -20,34 +20,34 @@ var classes = new[] {
     new {
         Name = "Province",
         Props = new[] {
-            new { Type = "string", Name = "Name", Alias = "" },
-            new { Type = "double", Name = "Tax", Alias = "" },
-            new { Type = "IList<string>", Name = "Cores", Alias = "add_core" },
-            new { Type = "[ConsecutiveElements] IList<string>", Name = "TopProvinces", Alias = ""},
-            new { Type = "IList<Army>", Name = "Armies", Alias = ""}
+            new Property() { Type = "string", Name = "Name" },
+            new Property() { Type = "double", Name = "Tax" },
+            new Property() { Type = "IList<string>", Name = "Cores", Alias = "add_core" },
+            new Property() { Type = "[ConsecutiveElements] IList<string>", Name = "TopProvinces"},
+            new Property() { Type = "IList<Army>", Name = "Armies"}
         }
     },
     new {
         Name = "Army",
         Props = new[] {
-            new { Type = "string", Name = "Name", Alias = "" },
-            new { Type = "IList<Unit>", Name = "Units", Alias = "" },
-            new { Type = "Leader", Name = "Leader", Alias = "" }
+            new Property() { Type = "string", Name = "Name" },
+            new Property() { Type = "IList<Unit>", Name = "Units" },
+            new Property() { Type = "Leader", Name = "Leader" }
         }
     },
     new {
         Name = "Unit",
         Props = new[] {
-            new { Type = "string", Name = "Name", Alias = "" },
-            new { Type = "string", Name = "Type", Alias = "" },
-            new { Type = "double", Name = "Morale", Alias = "" },
-            new { Type = "double", Name = "Strength", Alias = "" }
+            new Property() { Type = "string", Name = "Name" },
+            new Property() { Type = "string", Name = "Type" },
+            new Property() { Type = "double", Name = "Morale" },
+            new Property() { Type = "double", Name = "Strength" }
         }
     },
     new {
         Name = "Leader",
         Props = new[] {
-            new { Type = "int", Name = "Id", Alias = "" }
+            new Property() { Type = "int", Name = "Id" }
         }
     }
 };
@@ -96,16 +96,10 @@ public partial class <#= clazz.Name #> : IParadoxRead
 
     public <#= clazz.Name #>()
     {
-<#  var lists = clazz.Props.Where(x =>
-                    (x.Type.Contains("ICollection<") ||
-                    x.Type.Contains("IList<") ||
-                    x.Type.Contains("List<")) &&
-                    !x.Type.Contains("[ConsecutiveElements]"));
+<#  var lists = clazz.Props.Where(x => x.IsNonConsecutiveList);
     foreach (var list in lists)
     {
-        var str = list.Type;
-        str = str.Substring(str.IndexOf('<') + 1);
-        str = str.Remove(str.LastIndexOf('>'));
+        var str = list.ExtractInnerListType();
         WriteLine("        " + list.Name + " = new List<" + str + ">();");
     }#>
     }
@@ -119,29 +113,16 @@ public partial class <#= clazz.Name #> : IParadoxRead
         PushIndent("        "); 
         foreach (var prop in clazz.Props) {
             Write("case " + '"');
-            if (!string.IsNullOrEmpty(prop.Alias))
-                Write(prop.Alias);
-            else if ((prop.Type.Contains("ICollection<") ||
-                    prop.Type.Contains("IList<") ||
-                    prop.Type.Contains("List<")) &&
-                    !prop.Type.Contains("[ConsecutiveElements]"))
-				Write(naming.Apply(prop.Name).Singularize(Plurality.CouldBeEither));
-            else
-                Write(naming.Apply(prop.Name));
+			Write(prop.GetStr(naming));
             Write("\": ");
             
             string res;
             string fallback = "parser.Parse(new " + prop.Type + "())";
             if (dict.TryGetValue(prop.Type, out res))
                 Write(prop.Name + " = " + res);
-            else if ((prop.Type.Contains("ICollection<") ||
-                    prop.Type.Contains("IList<") ||
-                    prop.Type.Contains("List<")) &&
-                    !prop.Type.Contains("[ConsecutiveElements]"))
+            else if (prop.IsNonConsecutiveList)
             {
-                var str = prop.Type;
-                str = str.Substring(str.IndexOf('<') + 1);
-                str = str.Remove(str.LastIndexOf('>'));
+                var str = prop.ExtractInnerListType();
                 fallback = "parser.Parse(new " + str + "())";
                 Write(prop.Name + ".Add(" + (dict.TryGetValue(str, out res)
                     ? res : fallback) + ")");
