@@ -73,6 +73,16 @@ var dict = new Dictionary<string, string>()
     { "float", "parser.ReadFloat()" },
     { "ushort", "parser.ReadUInt16()" },
     { "uint", "parser.ReadUInt32()" },
+    { "int?", "parser.ReadInt32()" },
+    { "bool?", "parser.ReadBool()" },
+    { "byte?", "parser.ReadByte()" },
+    { "DateTime?", "parser.ReadDateTime()" },
+    { "double?", "parser.ReadDouble()" },
+    { "short?", "parser.ReadInt16()" },
+    { "sbyte?", "parser.ReadSByte()" },
+    { "float?", "parser.ReadFloat()" },
+    { "ushort?", "parser.ReadUInt16()" },
+    { "uint?", "parser.ReadUInt32()" },
     { "[ConsecutiveElements] IEnumerable<string>", "parser.ReadStringList()" },
     { "[ConsecutiveElements] ICollection<string>", "parser.ReadStringList()" },
     { "[ConsecutiveElements] IList<string>", "parser.ReadStringList()" },
@@ -149,8 +159,18 @@ foreach (var clazz in classes) { #>
         foreach (var prop in clazz.Props) {
             var qStr = !prop.Quoted ? "" : ", ValueWrite.Quoted";
 
+            // eg. nullables
+            if (prop.Type.Contains('?')) {
+                WriteLine("if (" + prop.Name + ".HasValue)");
+                WriteLine("{");
+                PushIndent("    ");
+                WriteLine("writer.WriteLine(\"" + prop.GetStr(naming) + "\", " + prop.Name + ".Value);");
+                PopIndent();
+                WriteLine("}");
+            }
+
             // eg. List<string>, add_core
-            if (prop.IsNonConsecutiveList && dict.ContainsKey(prop.ExtractInnerListType())) {
+            else if (prop.IsNonConsecutiveList && dict.ContainsKey(prop.ExtractInnerListType())) {
                 WriteLine("foreach(var val in " + prop.Name + ")");
                 WriteLine("{");
                 PushIndent("    ");
