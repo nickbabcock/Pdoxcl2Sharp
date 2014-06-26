@@ -77,5 +77,36 @@ namespace Pdoxcl2Sharp.Test
                 Assert.AreEqual("name=šžŸ", actual);
             }
         }
+
+        [Test]
+        public void SaveDouble()
+        {
+            string actual;
+            using (MemoryStream ms = new MemoryStream())
+            {
+                using (ParadoxSaver saver = new ParadoxSaver(ms))
+                {
+                    saver.Write(0.23456);
+                }
+                actual = Globals.ParadoxEncoding.GetString(ms.ToArray());
+                Assert.AreEqual("0.235", actual);
+            }
+        }
+
+        [Test]
+        public void SaveInt()
+        {
+            string actual;
+            int val = -1235346;
+            using (MemoryStream ms = new MemoryStream())
+            {
+                using (ParadoxSaver saver = new ParadoxSaver(ms))
+                {
+                    saver.Write(val);
+                }
+                actual = Globals.ParadoxEncoding.GetString(ms.ToArray());
+                Assert.AreEqual("-1235346", actual);
+            }
+        }
     }
 }

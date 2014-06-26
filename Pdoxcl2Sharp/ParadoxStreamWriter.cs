@@ -38,6 +38,8 @@ namespace Pdoxcl2Sharp
 
     public abstract class ParadoxStreamWriter : IDisposable
     {
+        private const string DoubleFmt = "0.000";
+
         private static string[] tabs = 
         {
             string.Empty,
@@ -135,6 +137,24 @@ namespace Pdoxcl2Sharp
         }
 
         /// <summary>
+        /// Writes a double to the stream
+        /// </summary>
+        /// <param name="value">Double to be written</param>
+        public virtual void Write(double value)
+        {
+            this.Write(value.ToString(DoubleFmt));
+        }
+
+        /// <summary>
+        /// Writes an int to the stream
+        /// </summary>
+        /// <param name="value">Integer to be written</param>
+        public virtual void Write(int value)
+        {
+            this.Write(value.ToString());
+        }
+
+        /// <summary>
         /// Writes a key-value pair to the stream with no special formatting
         /// </summary>
         /// <param name="key">Key that identifies the value</param>
@@ -201,7 +221,7 @@ namespace Pdoxcl2Sharp
         /// <param name="val">Double to be written</param>
         public virtual void WriteLine(string key, double val)
         {
-            this.WriteLine(key, val.ToString("#.000"));
+            this.WriteLine(key, val.ToString(DoubleFmt));
         }
 
         /// <summary>
