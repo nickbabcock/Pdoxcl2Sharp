@@ -108,5 +108,21 @@ namespace Pdoxcl2Sharp.Test
                 Assert.AreEqual("-1235346", actual);
             }
         }
+
+        [Test]
+        public void SaveDatetime()
+        {
+            string actual;
+            DateTime value = new DateTime(1402, 1, 1);
+            using (MemoryStream ms = new MemoryStream())
+            {
+                using (ParadoxSaver saver = new ParadoxSaver(ms))
+                {
+                    saver.Write(value);
+                }
+                actual = Globals.ParadoxEncoding.GetString(ms.ToArray());
+                Assert.AreEqual("1402.1.1", actual);
+            }
+        }
     }
 }

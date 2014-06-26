@@ -155,6 +155,15 @@ namespace Pdoxcl2Sharp
         }
 
         /// <summary>
+        /// Writes a DateTime to the stream
+        /// </summary>
+        /// <param name="value">DateTime to be written</param>
+        public virtual void Write(DateTime value)
+        {
+            this.Write(value.ToParadoxString());
+        }
+
+        /// <summary>
         /// Writes a key-value pair to the stream with no special formatting
         /// </summary>
         /// <param name="key">Key that identifies the value</param>
