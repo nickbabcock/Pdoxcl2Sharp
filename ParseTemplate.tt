@@ -20,25 +20,26 @@ var classes = new[] {
     new {
         Name = "Province",
         Props = new[] {
-            new Property() { Type = "string", Name = "Name" },
+            new Property() { Type = "string", Name = "Name", Quoted = true },
             new Property() { Type = "double", Name = "Tax" },
             new Property() { Type = "IList<string>", Name = "Cores", Alias = "add_core" },
-            new Property() { Type = "[ConsecutiveElements] IList<string>", Name = "TopProvinces"},
+            new Property() { Type = "[ConsecutiveElements] IList<string>", 
+							 Name = "TopProvinces", Quoted = true},
             new Property() { Type = "IList<Army>", Name = "Armies"}
         }
     },
     new {
         Name = "Army",
         Props = new[] {
-            new Property() { Type = "string", Name = "Name" },
-            new Property() { Type = "IList<Unit>", Name = "Units" },
-            new Property() { Type = "Leader", Name = "Leader" }
+            new Property() { Type = "string", Name = "Name", Quoted = true },
+            new Property() { Type = "Leader", Name = "Leader" },
+            new Property() { Type = "IList<Unit>", Name = "Units" }
         }
     },
     new {
         Name = "Unit",
         Props = new[] {
-            new Property() { Type = "string", Name = "Name" },
+            new Property() { Type = "string", Name = "Name", Quoted = true },
             new Property() { Type = "string", Name = "Type" },
             new Property() { Type = "double", Name = "Morale" },
             new Property() { Type = "double", Name = "Strength" }
@@ -88,7 +89,7 @@ var dict = new Dictionary<string, string>()
 };
 
 foreach (var clazz in classes) { #>
-public partial class <#= clazz.Name #> : IParadoxRead
+public partial class <#= clazz.Name #> : IParadoxRead, IParadoxWrite
 {
 <# foreach (var prop in clazz.Props) { #>
     public <#= prop.Type.Replace("[ConsecutiveElements] ", "") #> <#= prop.Name #> { get; set; }
@@ -113,7 +114,7 @@ public partial class <#= clazz.Name #> : IParadoxRead
         PushIndent("        "); 
         foreach (var prop in clazz.Props) {
             Write("case " + '"');
-			Write(prop.GetStr(naming));
+            Write(prop.GetStr(naming));
             Write("\": ");
             
             string res;
@@ -135,6 +136,60 @@ public partial class <#= clazz.Name #> : IParadoxRead
         WriteLine("}");
         ClearIndent();
          #>
+    }
+
+    public void Write(ParadoxStreamWriter writer)
+    {
+<#
+        ClearIndent();
+        PushIndent("        "); 
+        foreach (var prop in clazz.Props) {
+            var qStr = !prop.Quoted ? "" : ", ValueWrite.Quoted";
+
+            // eg. List<string>, add_core
+            if (prop.IsNonConsecutiveList && dict.ContainsKey(prop.ExtractInnerListType())) {
+                WriteLine("foreach(var val in " + prop.Name + ")");
+                WriteLine("{");
+                PushIndent("    ");
+                WriteLine("writer.WriteLine(\"" + prop.GetStr(naming) + "\", val" + qStr + ");");
+                PopIndent();
+                WriteLine("}");
+            }
+             
+            // eg. List<Army>
+            else if (prop.IsNonConsecutiveList && !dict.ContainsKey(prop.ExtractInnerListType())) {
+                WriteLine("foreach(var val in " + prop.Name + ")");
+                WriteLine("{");
+                PushIndent("    ");
+                WriteLine("writer.Write(\"" + prop.GetStr(naming) + "\", val);");
+                PopIndent();
+                WriteLine("}");
+            }
+
+            // eg. string, int, etc
+            else if (dict.ContainsKey(prop.Type) && !prop.Type.Contains("[ConsecutiveElements]")) {
+                WriteLine("writer.WriteLine(\"" + prop.GetStr(naming) + "\", " + prop.Name + qStr + ");");
+            }
+
+            // eg. List<string> { you me them }
+            else if (dict.ContainsKey(prop.Type)) {
+                WriteLine("writer.Write(\"" + prop.GetStr(naming) + "={ \");");
+                WriteLine("foreach (var val in " + prop.Name + ")");
+                WriteLine("{");
+                PushIndent("    ");
+                WriteLine("writer.Write(val" + qStr + ");");
+                WriteLine("writer.Write(\" \");");
+                PopIndent();
+                WriteLine("}");
+                WriteLine("writer.WriteLine(\"}\");");
+            }
+            else {
+                WriteLine("writer.Write(\"" + prop.GetStr(naming) + "\", " + prop.Name + ");");
+            }
+        }
+
+        ClearIndent();
+    #>
     }
 }
 
