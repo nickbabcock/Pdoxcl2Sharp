@@ -146,7 +146,7 @@ namespace Pdoxcl2Sharp
         }
 
         /// <summary>
-        /// Writes an int to the stream
+        /// Writes an integer to the stream
         /// </summary>
         /// <param name="value">Integer to be written</param>
         public virtual void Write(int value)

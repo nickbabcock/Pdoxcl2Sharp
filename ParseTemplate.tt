@@ -24,7 +24,7 @@ var classes = new[] {
             new Property() { Type = "double", Name = "Tax" },
             new Property() { Type = "IList<string>", Name = "Cores", Alias = "add_core" },
             new Property() { Type = "[ConsecutiveElements] IList<string>", 
-							 Name = "TopProvinces", Quoted = true},
+                             Name = "TopProvinces", Quoted = true},
             new Property() { Type = "IList<Army>", Name = "Armies"}
         }
     },
@@ -168,7 +168,18 @@ public partial class <#= clazz.Name #> : IParadoxRead, IParadoxWrite
 
             // eg. string, int, etc
             else if (dict.ContainsKey(prop.Type) && !prop.Type.Contains("[ConsecutiveElements]")) {
+                if (prop.Type == "string") {
+                    WriteLine("if (" + prop.Name + " != null)");
+                    WriteLine("{");
+                    PushIndent("    ");
+                }
+
                 WriteLine("writer.WriteLine(\"" + prop.GetStr(naming) + "\", " + prop.Name + qStr + ");");
+
+                if (prop.Type == "string") {
+                    PopIndent();
+                    WriteLine("}");
+                }
             }
 
             // eg. List<string> { you me them }
@@ -184,7 +195,13 @@ public partial class <#= clazz.Name #> : IParadoxRead, IParadoxWrite
                 WriteLine("writer.WriteLine(\"}\");");
             }
             else {
+                WriteLine("if (" + prop.Name + " != null)");
+                WriteLine("{");
+                PushIndent("    ");
                 WriteLine("writer.Write(\"" + prop.GetStr(naming) + "\", " + prop.Name + ");");
+                PopIndent();
+                WriteLine("}");
+
             }
         }
 
