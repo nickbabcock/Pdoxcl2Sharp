@@ -11,6 +11,9 @@
 using System;
 using Pdoxcl2Sharp;
 using System.Collections.Generic;
+
+namespace Pdoxcl2Sharp.Test
+{
 <#
 
 // Here is where you add any classes to be deserialized. Here is a tiny sample
@@ -89,29 +92,29 @@ var dict = new Dictionary<string, string>()
 };
 
 foreach (var clazz in classes) { #>
-public partial class <#= clazz.Name #> : IParadoxRead, IParadoxWrite
-{
+    public partial class <#= clazz.Name #> : IParadoxRead, IParadoxWrite
+    {
 <# foreach (var prop in clazz.Props) { #>
-    public <#= prop.Type.Replace("[ConsecutiveElements] ", "") #> <#= prop.Name #> { get; set; }
+        public <#= prop.Type.Replace("[ConsecutiveElements] ", "") #> <#= prop.Name #> { get; set; }
 <# } #>
 
-    public <#= clazz.Name #>()
-    {
+        public <#= clazz.Name #>()
+        {
 <#  var lists = clazz.Props.Where(x => x.IsNonConsecutiveList);
     foreach (var list in lists)
     {
         var str = list.ExtractInnerListType();
-        WriteLine("        " + list.Name + " = new List<" + str + ">();");
+        WriteLine("            " + list.Name + " = new List<" + str + ">();");
     }#>
-    }
+        }
 
-    public void TokenCallback(ParadoxParser parser, string token)
-    {
-        switch (token)
+        public void TokenCallback(ParadoxParser parser, string token)
         {
-        <#
+            switch (token)
+            {
+<#
         ClearIndent();
-        PushIndent("        "); 
+        PushIndent("            "); 
         foreach (var prop in clazz.Props) {
             Write("case " + '"');
             Write(prop.GetStr(naming));
@@ -136,13 +139,13 @@ public partial class <#= clazz.Name #> : IParadoxRead, IParadoxWrite
         WriteLine("}");
         ClearIndent();
          #>
-    }
+        }
 
-    public void Write(ParadoxStreamWriter writer)
-    {
+        public void Write(ParadoxStreamWriter writer)
+        {
 <#
         ClearIndent();
-        PushIndent("        "); 
+        PushIndent("            "); 
         foreach (var prop in clazz.Props) {
             var qStr = !prop.Quoted ? "" : ", ValueWrite.Quoted";
 
@@ -201,13 +204,13 @@ public partial class <#= clazz.Name #> : IParadoxRead, IParadoxWrite
                 WriteLine("writer.Write(\"" + prop.GetStr(naming) + "\", " + prop.Name + ");");
                 PopIndent();
                 WriteLine("}");
-
             }
         }
 
         ClearIndent();
     #>
+        }
     }
-}
 
 <# } #>
+}
