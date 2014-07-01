@@ -207,6 +207,9 @@ foreach (var clazz in classes) { #>
 
             // eg. List<string> { you me them }
             else if (dict.ContainsKey(prop.Type)) {
+                WriteLine("if (" + prop.Name + " != null)");
+                WriteLine("{");
+                PushIndent("    ");
                 WriteLine("writer.Write(\"" + prop.GetStr(naming) + "={ \");");
                 WriteLine("foreach (var val in " + prop.Name + ")");
                 WriteLine("{");
@@ -216,6 +219,8 @@ foreach (var clazz in classes) { #>
                 PopIndent();
                 WriteLine("}");
                 WriteLine("writer.WriteLine(\"}\");");
+                PopIndent();
+                WriteLine("}");
             }
             else {
                 WriteLine("if (" + prop.Name + " != null)");
