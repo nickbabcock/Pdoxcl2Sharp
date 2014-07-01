@@ -80,7 +80,7 @@ public static int Main()
         theoryFile = ParadoxParser.Parse(fs, new TheoreticalFile());
     }
 
-    //Save the information into RAM
+    // Save the information into a new file
     using (FileStream fs = new FileStream("theories.new.txt", FileMode.Create))
     using (ParadoxSaver saver = new ParadoxSaver(fs))
     {
@@ -89,13 +89,49 @@ public static int Main()
 }
 ```
 
-## Advanced Examples
+So the previous example was fine and all to write by hand, but as one can
+imagine the more complex a document that needs to be parsed is, the more
+complex the code to write the parser is. Luckily we can take advantage of [T4
+templates][] in the ParseTemplate.tt file to write the reading and writing
+code. You'll gain a lot from using the parser template. For every one line of
+code specified in the T4 document, expect at least six lines of code written
+for you. The greatest thing is understanding how to modify the T4 template is
+insanely simple. If you're trying to integrate the template into your project
+for the first time, here are a couple of instructions that you need to execute
+one.
 
-These are more advanced examples in the test project, but I'll copy a sample
-here for convienence.
+- Locate the line `<#@ assembly
+  name="$(SolutionDir)\Pdoxcl2Sharp\bin\Pdoxcl2Sharp.dll" #>`. This tells the
+  template where to find some code needed to run the template. Right now, the
+  value points to the build directory for this project, which will obviously
+  differ for your project. You should take the Pdoxcl2Sharp.dll and move it a
+  vendor directory in your project. Change the assembly line in the template to
+  the new location, which should now be `<#@ assembly
+  name="$(SolutionDir)\vendor\Pdoxcl2Sharp.dll" #>`
+- Locate `namespace Pdoxcl2Sharp.Test` and change it to the desired namespace
 
-Let's say you want to parse the following file (it is slightly unrealistic, but
-it serves as a good example)
+Now we get to the good stuff. The T4 template works off an array whose elements
+contain a Name, which will be the generated class's name, and an array of
+properties. Each property has a required Name and Type field. The type of the
+property is the literal string representation of the type eg. "string", "int",
+etc and from this type, the template knows what to generate for reading and
+writing. The template tries to guess what the property looks like in the text
+by transforming the Name field. For instance, a property Name of
+"GoodLookingMan" will cause the template to look for "good_looking_man" in the
+text. The template is incredibly smart about this. Given an "IList<Army>" with
+a property name of "Armies", the template will generate code for reading and
+writing individual "army" elements. Naming can be overridden by explicitly
+specifying the `Alias` field.
+
+The last thing that you need to tell the template is if the string you are
+writing should contain quotes surrounding it. Do this by specifying the `Quoted
+= true` field.
+
+[T4 templates]: http://msdn.microsoft.com/en-us/library/bb126445.aspx
+
+Here is a more advanced example using what we just talked about. Let's say you
+want to parse the following file (it is slightly unrealistic, but it serves as a
+good example)
 
 ```
 name = "My Prov"
