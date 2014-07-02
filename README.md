@@ -10,19 +10,19 @@ meaning that any file or configuration written in a similar
 Many of those who play Paradox Interactive's games are also programmers;
 however, one of the biggest hurdles to developing a tool is the actual parsing
 of the files.  Parsing is a nontrivial problem that is hard to get right.  This
-project aims to be 100% compatible with the parser Paradox uses.  The end
-result is to eliminate of all the boiler plate code and provide a "plug and
-parse" mechanism.
+project aims to be 100% compatible with the parser Paradox uses.  The end is to
+eliminate of all the boiler plate code and provide a "plug and parse"
+mechanism.
 
 ## Install
 
-Since the demographics users are convceivably small, I've decided against a
+Since the demographics, users are conceivably small, I've decided against a
 nuget package, so installation is a manual process. If a nuget package is
 wanted, please raise an issue.
 
 If you will be doing all the parsing manually, then all you need to do is grab
-the .dll from the from the [latest] release, and add the appropriate reference
-in your favorite IDE.
+the .dll from the [latest] release, and add the appropriate reference in your
+favorite IDE.
 
 [latest]: https://github.com/nickbabcock/Pdoxcl2Sharp/releases/latest
 
@@ -91,7 +91,7 @@ public static int Main()
 
 So the previous example was fine and all to write by hand, but as one can
 imagine the more complex a document that needs to be parsed is, the more
-complex the code to write the parser is. Luckily we can take advantage of [T4
+complex the code to write the parser is. Luckily, we can take advantage of [T4
 templates][] in the ParseTemplate.tt file to write the reading and writing
 code. You'll gain a lot from using the parser template. For every one line of
 code specified in the T4 document, expect at least six lines of code written
@@ -159,7 +159,7 @@ army={
 ```
 
 You could manually code this up in an hour, or you could modify
-ParseTemplate.tt and in a few minutes and 35 lines of code you could have the
+ParseTemplate.tt and in a few minutes and 35 lines of code, you could have the
 same thing! Here are the relevant lines added to ParseTemplate.tt:
 
 ```csharp
@@ -369,7 +369,7 @@ namespace Pdoxcl2Sharp.Test
 ## FAQ: What does ConsecutiveElements mean?
 
 If you do all the parsing by hand then there is no need to worry about this;
-however, if you are using the generator then there are a couple of ambiugous
+however, if you are using the generator then there are a couple of ambiguous
 situations. Let's say you have a list of strings representing factories:
 
     factories={Here There Everywhere}
@@ -395,38 +395,38 @@ consecutive list elements. Please feel free to implement this one missing
 feature. I doubt I'll work on it as I don't see the benefits right now, as will
 be explained.
 
-It's hard to support automatic deserialization as Paradox files are not
-rigorously structured. For instance, in JSON there is only one way to denote a
+It's hard to support automatic deserialization, as Paradox files are not
+rigorously structured. For instance, in JSON there is only one-way to denote a
 list `a: [...]`, but in a paradox file there are [multiple
-ways](#faq-what-does-consecutiveelements-mean) to handle lists. Sure there is a
-way around this if we force the user to denote everything with custom
-attributes. The only problem would be the number of attributes may get out of
+ways](#faq-what-does-consecutiveelements-mean) to handle lists. Sure, there is
+a way around this if we force the user to denote everything with custom
+attributes. The only problem would be the number of attributes might get out of
 control. An aliased list with consecutive elements of quoted strings would need
 three attributes to deserialize and serialize correctly. To me this seems
 pretty cluttered. Another technical reason that makes it hard is that objects
 can be in a partially deserialized state such as a list. We know that once
 `a:[...]` is read that `a` is fully constructed, but if ou construct the list
 out of individual `a` elements, you have a situation with a partially
-constructed list. This isn't a problem by itself, it just exasperates current
+constructed list. This isn't a problem by itself; it just exasperates current
 problems with parsing lists.
 
-Another reason why I'm not a fan is that deserializeing something is
-inheritantly slow if done dynamically and especially something as complex as
-Paradox files. Some of the use cases involve parsing a 50MB save file with a
-deep and complex heirarchial tree, and parsing 10,000 similiarly structured
-small files. Any time spent discovering how to deserialize an object will be
-too long. An ineresting notion is precompiling like [protobuf-net][], as there
-really isn't a need to rediscover how to deserialize an object on each program
-invocation. I've toyed with implementing this, but I've decided against this,
-as I'm unsure of the value that would be added.
+Another reason why I'm not a fan is that deserializeing something is inherently
+slow if done dynamically and especially something as complex as Paradox files.
+Some of the use cases involve parsing a 50MB save file with a deep and complex
+hierarchical tree, and parsing 10,000 similarly structured small files. Any
+time spent discovering how to deserialize an object will be too long. An
+interesting notion is precompiling like [protobuf-net][], as there really isn't
+a need to rediscover how to deserialize an object on each program invocation.
+I've toyed with implementing this, but I've decided against this, as I'm unsure
+of the value that would be added.
 
 Some popular libraries like [ServiceStack.Text][] use a concurrent dictionary
 to store type and the function that will parse out the type after this function
 has been computed. This is a great time saver but it is still too much time.
 Think about it this way. Say we have 1.5 million lines with 100,000 objects of
 maybe three dozen different kinds. Even if the dictionary was preloaded, a
-100,000 lookups on a concurrrent dictionary is fast, but definitely
-non-negible. For those curious, in this instance a single threaded regular
+100,000 lookups on a concurrent dictionary is fast, but definitely
+non-negligible. For those curious, in this instance a single threaded regular
 dictionary would be faster, but there would be no caching bonus across parallel
 deserialiations (think back to the 10,000 file example). 
 
