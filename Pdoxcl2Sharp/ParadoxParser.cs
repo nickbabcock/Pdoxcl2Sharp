@@ -45,7 +45,7 @@ namespace Pdoxcl2Sharp
 
         private int currentIndent;
         private LexerToken currentToken;
-        private LexerToken? nextToken;
+        private Queue<LexerToken> nextTokens = new Queue<LexerToken>();
         private char currentChar;
         private int currentPosition;
         private int bufferSize;
@@ -54,6 +54,7 @@ namespace Pdoxcl2Sharp
         private int stringBufferCount = 0;
         private TextReader reader;
         private bool eof = false;
+        private bool tagIsBracketed = false;
         private string currentString;
 
         /// <summary>
@@ -610,10 +611,11 @@ namespace Pdoxcl2Sharp
         /// <returns>The significant token encountered</returns>
         private LexerToken GetNextToken()
         {
-            if (this.nextToken != null)
+            this.tagIsBracketed = false;
+            
+            if (this.nextTokens.Count != 0)
             {
-                LexerToken temp = this.nextToken.Value;
-                this.nextToken = null;
+                LexerToken temp = this.nextTokens.Dequeue();
                 return temp;
             }
 
@@ -643,9 +645,43 @@ namespace Pdoxcl2Sharp
         /// <returns>The next token in the stream</returns>
         private LexerToken PeekToken()
         {
-            this.nextToken = null;
-            this.nextToken = this.GetNextToken();
-            return this.nextToken.Value;
+            if (this.nextTokens.Count > 0)
+                this.nextTokens.Dequeue();
+            this.nextTokens.Enqueue(this.GetNextToken());
+            return this.nextTokens.Peek();
+        }
+
+        /// <summary>
+        /// "Peeks" ahead of the current position to check if the previously read data
+        /// is followed by a left bracket ('{'). Multiple calls without reading data will
+        /// return the same value.
+        /// </summary>
+        /// <returns>Whether the current tag contains bracketed data.</returns>
+        public bool NextIsBracketed()
+        {
+            if (this.tagIsBracketed)
+                return this.tagIsBracketed;
+
+            bool isBracketed = false;
+
+            if (this.currentToken != LexerToken.LeftCurly)
+            {
+                LexerToken temp;
+                do
+                {
+                    temp = this.GetNextToken();
+                    this.nextTokens.Enqueue( temp );
+
+                    if (temp == LexerToken.LeftCurly)
+                    {
+                        isBracketed = true;
+                        break;
+                    }
+                } while (temp != LexerToken.Untyped && !this.eof);
+            }
+
+            this.tagIsBracketed = isBracketed;
+            return tagIsBracketed;
         }
 
         /// <summary>
