@@ -164,39 +164,40 @@ same thing! Here are the relevant lines added to ParseTemplate.tt:
 
 ```csharp
 var classes = new[] {
-  new {
-    Name = "Province",
-    Props = new[] {
-      new { Type = "string", Name = "Name", Alias = "" },
-      new { Type = "double", Name = "Tax", Alias = "" },
-      new { Type = "IList<string>", Name = "Cores", Alias = "add_core" },
-      new { Type = "[ConsecutiveElements] IList<string>", Name = "TopProvinces", Alias = ""},
-      new { Type = "IList<Army>", Name = "Armies", Alias = ""}
+    new {
+        Name = "Province",
+        Props = new[] {
+            new Property() { Type = "string", Name = "Name", Quoted = true },
+            new Property() { Type = "double", Name = "Tax" },
+            new Property() { Type = "IList<string>", Name = "Cores", Alias = "add_core" },
+            new Property() { Type = "[ConsecutiveElements] IList<string>", 
+                             Name = "TopProvinces", Quoted = true},
+            new Property() { Type = "IList<Army>", Name = "Armies"}
+        }
+    },
+    new {
+        Name = "Army",
+        Props = new[] {
+            new Property() { Type = "string", Name = "Name", Quoted = true },
+            new Property() { Type = "Leader", Name = "Leader" },
+            new Property() { Type = "IList<Unit>", Name = "Units" }
+        }
+    },
+    new {
+        Name = "Unit",
+        Props = new[] {
+            new Property() { Type = "string", Name = "Name", Quoted = true },
+            new Property() { Type = "string", Name = "Type" },
+            new Property() { Type = "double", Name = "Morale" },
+            new Property() { Type = "double", Name = "Strength" }
+        }
+    },
+    new {
+        Name = "Leader",
+        Props = new[] {
+            new Property() { Type = "int", Name = "Id" }
+        }
     }
-  },
-  new {
-    Name = "Army",
-    Props = new[] {
-      new { Type = "string", Name = "Name", Alias = "" },
-      new { Type = "IList<Unit>", Name = "Units", Alias = "" },
-      new { Type = "Leader", Name = "Leader", Alias = "" }
-    }
-  },
-  new {
-    Name = "Unit",
-    Props = new[] {
-      new { Type = "string", Name = "Name", Alias = "" },
-      new { Type = "string", Name = "Type", Alias = "" },
-      new { Type = "double", Name = "Morale", Alias = "" },
-      new { Type = "double", Name = "Strength", Alias = "" }
-    }
-  },
-  new {
-    Name = "Leader",
-    Props = new[] {
-      new { Type = "int", Name = "Id", Alias = "" }
-    }
-  }
 };
 ```
 
@@ -204,96 +205,163 @@ Here's the generated auto-generated content:
 
 ```csharp
   
+  
 using System;
 using Pdoxcl2Sharp;
 using System.Collections.Generic;
-public partial class Province : IParadoxRead
+
+namespace Pdoxcl2Sharp.Test
 {
-  public string Name { get; set; }
-  public double Tax { get; set; }
-  public IList<string> Cores { get; set; }
-  public IList<string> TopProvinces { get; set; }
-  public IList<Army> Armies { get; set; }
-
-  public Province()
-  {
-        Cores = new List<string>();
-        Armies = new List<Army>();
-  }
-
-  public void TokenCallback(ParadoxParser parser, string token)
-  {
-    switch (token)
+    public partial class Province : IParadoxRead, IParadoxWrite
     {
-    case "name": Name = parser.ReadString(); break;
-    case "tax": Tax = parser.ReadDouble(); break;
-    case "add_core": Cores.Add(parser.ReadString()); break;
-    case "top_provinces": TopProvinces = parser.ReadStringList(); break;
-    case "army": Armies.Add(parser.Parse(new Army())); break;
+        public string Name { get; set; }
+        public double Tax { get; set; }
+        public IList<string> Cores { get; set; }
+        public IList<string> TopProvinces { get; set; }
+        public IList<Army> Armies { get; set; }
+
+        public Province()
+        {
+            Cores = new List<string>();
+            Armies = new List<Army>();
+        }
+
+        public void TokenCallback(ParadoxParser parser, string token)
+        {
+            switch (token)
+            {
+            case "name": Name = parser.ReadString(); break;
+            case "tax": Tax = parser.ReadDouble(); break;
+            case "add_core": Cores.Add(parser.ReadString()); break;
+            case "top_provinces": TopProvinces = parser.ReadStringList(); break;
+            case "army": Armies.Add(parser.Parse(new Army())); break;
+            }
+        }
+
+        public void Write(ParadoxStreamWriter writer)
+        {
+            if (Name != null)
+            {
+                writer.WriteLine("name", Name, ValueWrite.Quoted);
+            }
+            writer.WriteLine("tax", Tax);
+            foreach(var val in Cores)
+            {
+                writer.WriteLine("add_core", val);
+            }
+            if (TopProvinces != null)
+            {
+                writer.Write("top_provinces={ ");
+                foreach (var val in TopProvinces)
+                {
+                    writer.Write(val, ValueWrite.Quoted);
+                    writer.Write(" ");
+                }
+                writer.WriteLine("}");
+            }
+            foreach(var val in Armies)
+            {
+                writer.Write("army", val);
+            }
+        }
     }
-  }
-}
 
-public partial class Army : IParadoxRead
-{
-  public string Name { get; set; }
-  public IList<Unit> Units { get; set; }
-  public Leader Leader { get; set; }
-
-  public Army()
-  {
-        Units = new List<Unit>();
-  }
-
-  public void TokenCallback(ParadoxParser parser, string token)
-  {
-    switch (token)
+    public partial class Army : IParadoxRead, IParadoxWrite
     {
-    case "name": Name = parser.ReadString(); break;
-    case "unit": Units.Add(parser.Parse(new Unit())); break;
-    case "leader": Leader = parser.Parse(new Leader()); break;
+        public string Name { get; set; }
+        public Leader Leader { get; set; }
+        public IList<Unit> Units { get; set; }
+
+        public Army()
+        {
+            Units = new List<Unit>();
+        }
+
+        public void TokenCallback(ParadoxParser parser, string token)
+        {
+            switch (token)
+            {
+            case "name": Name = parser.ReadString(); break;
+            case "leader": Leader = parser.Parse(new Leader()); break;
+            case "unit": Units.Add(parser.Parse(new Unit())); break;
+            }
+        }
+
+        public void Write(ParadoxStreamWriter writer)
+        {
+            if (Name != null)
+            {
+                writer.WriteLine("name", Name, ValueWrite.Quoted);
+            }
+            if (Leader != null)
+            {
+                writer.Write("leader", Leader);
+            }
+            foreach(var val in Units)
+            {
+                writer.Write("unit", val);
+            }
+        }
     }
-  }
-}
 
-public partial class Unit : IParadoxRead
-{
-  public string Name { get; set; }
-  public string Type { get; set; }
-  public double Morale { get; set; }
-  public double Strength { get; set; }
-
-  public Unit()
-  {
-  }
-
-  public void TokenCallback(ParadoxParser parser, string token)
-  {
-    switch (token)
+    public partial class Unit : IParadoxRead, IParadoxWrite
     {
-    case "name": Name = parser.ReadString(); break;
-    case "type": Type = parser.ReadString(); break;
-    case "morale": Morale = parser.ReadDouble(); break;
-    case "strength": Strength = parser.ReadDouble(); break;
+        public string Name { get; set; }
+        public string Type { get; set; }
+        public double Morale { get; set; }
+        public double Strength { get; set; }
+
+        public Unit()
+        {
+        }
+
+        public void TokenCallback(ParadoxParser parser, string token)
+        {
+            switch (token)
+            {
+            case "name": Name = parser.ReadString(); break;
+            case "type": Type = parser.ReadString(); break;
+            case "morale": Morale = parser.ReadDouble(); break;
+            case "strength": Strength = parser.ReadDouble(); break;
+            }
+        }
+
+        public void Write(ParadoxStreamWriter writer)
+        {
+            if (Name != null)
+            {
+                writer.WriteLine("name", Name, ValueWrite.Quoted);
+            }
+            if (Type != null)
+            {
+                writer.WriteLine("type", Type);
+            }
+            writer.WriteLine("morale", Morale);
+            writer.WriteLine("strength", Strength);
+        }
     }
-  }
-}
 
-public partial class Leader : IParadoxRead
-{
-  public int Id { get; set; }
-
-  public Leader()
-  {
-  }
-
-  public void TokenCallback(ParadoxParser parser, string token)
-  {
-    switch (token)
+    public partial class Leader : IParadoxRead, IParadoxWrite
     {
-    case "id": Id = parser.ReadInt32(); break;
+        public int Id { get; set; }
+
+        public Leader()
+        {
+        }
+
+        public void TokenCallback(ParadoxParser parser, string token)
+        {
+            switch (token)
+            {
+            case "id": Id = parser.ReadInt32(); break;
+            }
+        }
+
+        public void Write(ParadoxStreamWriter writer)
+        {
+            writer.WriteLine("id", Id);
+        }
     }
-  }
 }
 
 ```
