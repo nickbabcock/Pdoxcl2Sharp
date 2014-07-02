@@ -59,6 +59,7 @@ var classes = new[] {
 // end add
 
 INamingConvention naming = new ParadoxNamingConvention();
+bool exhaustive = false;
 
 var dict = new Dictionary<string, string>()
 {
@@ -144,6 +145,10 @@ foreach (var clazz in classes) { #>
             else
                 Write(prop.Name + " = " + fallback);
             WriteLine("; break;");
+        }
+
+        if (exhaustive) {
+            WriteLine("default: throw new ApplicationException(\"Unrecognized token: \" + token);");
         }
         
         WriteLine("}");
