@@ -46,6 +46,7 @@ namespace Pdoxcl2Sharp
         private int currentIndent;
         private LexerToken currentToken;
         private LexerToken? nextToken;
+        private Queue<char> nextChars = new Queue<char>();
         private char currentChar;
         private int currentPosition;
         private int bufferSize;
@@ -54,6 +55,7 @@ namespace Pdoxcl2Sharp
         private int stringBufferCount = 0;
         private TextReader reader;
         private bool eof = false;
+        private bool? tagIsBracketed = null;
         private string currentString;
 
         /// <summary>
@@ -610,6 +612,8 @@ namespace Pdoxcl2Sharp
         /// <returns>The significant token encountered</returns>
         private LexerToken GetNextToken()
         {
+            this.tagIsBracketed = null;
+            
             if (this.nextToken != null)
             {
                 LexerToken temp = this.nextToken.Value;
@@ -649,12 +653,62 @@ namespace Pdoxcl2Sharp
         }
 
         /// <summary>
+        /// "Peeks" ahead of the current position to check if the previously read data
+        /// is followed by a left bracket ('{'). Multiple calls without reading data will
+        /// return the same value.
+        /// <remarks>
+        ///     GetNextToken() should not be used, because it updates the state of the parser,
+        ///     which requires messy handling of indentation and ensuring the next token is
+        ///     a left curly.
+        /// </remarks>
+        /// </summary>
+        /// <returns>Whether the current tag contains bracketed data.</returns>
+        public bool NextIsBracketed()
+        {
+            if (this.tagIsBracketed.HasValue)
+                return this.tagIsBracketed.Value;
+
+            bool isBracketed = false;
+            Queue<char> tempQueue = new Queue<char>();
+
+            if (this.currentToken != LexerToken.LeftCurly)
+            {
+                char tempChar;
+                LexerToken tempToken;
+                do
+                {
+                    // This allows the bracket peeking to work without breaking DoWhileBracket.
+                    // It avoids updating the state of the parser while checking ahead.
+                    tempChar = ReadNext();
+                    tempToken = GetToken(tempChar);
+
+                    tempQueue.Enqueue(tempChar);
+
+                    if (tempToken == LexerToken.LeftCurly)
+                    {
+                        isBracketed = true;    
+                        break;
+                    }
+                } while ((tempToken == LexerToken.Equals || tempChar == ' ') && !this.eof);
+
+                while (tempQueue.Count > 0)
+                    this.nextChars.Enqueue(tempQueue.Dequeue());
+            }
+
+            this.tagIsBracketed = isBracketed;
+            return tagIsBracketed.Value;
+        }
+
+        /// <summary>
         /// Retrieves the next char in the buffer, reading from the stream if necessary.  
         /// If the end of the stream was reached, the flag denoting it will be set.
         /// </summary>
         /// <returns>The next character in the buffer or '\0' if the end of the stream was reached</returns>
         private char ReadNext()
         {
+            if (this.nextChars.Count > 0)
+                return this.nextChars.Dequeue();
+
             if (this.currentPosition == this.bufferSize)
             {
                 if (!this.eof)

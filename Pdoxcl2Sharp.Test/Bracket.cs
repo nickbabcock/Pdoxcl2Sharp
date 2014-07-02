@@ -10,6 +10,80 @@ namespace Pdoxcl2Sharp.Test
     class Bracket
     {
         [Test]
+        public void BracketTest()
+        {
+            string input = @"id={
+	type=40
+}
+id=21016
+name=""test""";
+            string typeVal = string.Empty;
+            string idVal = string.Empty;
+            string nameVal = string.Empty;
+            Action<ParadoxParser, string> action = (p, s) =>
+            {
+                p.NextIsBracketed();
+                
+                if (p.NextIsBracketed())
+                {
+                    Action<ParadoxParser, string> innerAction = (p2, s2) =>
+                    {
+                        if (s2 == "type")
+                            typeVal = p2.ReadString();
+                    };
+                    p.Parse(innerAction);
+                } else
+                {
+                    if(s == "id")
+                        idVal = p.ReadString();
+                    else if(s == "name")
+                        nameVal = p.ReadString();
+                }
+            };
+            ParadoxParser.Parse(input.ToStream(), action);
+            Assert.AreEqual("21016", idVal);
+            Assert.AreEqual("40", typeVal);
+            Assert.AreEqual("test", nameVal);
+        }
+
+        [Test]
+        public void BracketSpaceTest()
+        {
+            string input = @"id = {
+	type = 40
+}
+id = 21016
+name=""test""";
+            string typeVal = string.Empty;
+            string idVal = string.Empty;
+            string nameVal = string.Empty;
+            Action<ParadoxParser, string> action = (p, s) =>
+            {
+                p.NextIsBracketed();
+                
+                if (p.NextIsBracketed())
+                {
+                    Action<ParadoxParser, string> innerAction = (p2, s2) =>
+                    {
+                        if (s2 == "type")
+                            typeVal = p2.ReadString();
+                    };
+                    p.Parse(innerAction);
+                } else
+                {
+                    if(s == "id")
+                        idVal = p.ReadString();
+                    else if(s == "name")
+                        nameVal = p.ReadString();
+                }
+            };
+            ParadoxParser.Parse(input.ToStream(), action);
+            Assert.AreEqual("21016", idVal);
+            Assert.AreEqual("40", typeVal);
+            Assert.AreEqual("test", nameVal);
+        }
+        
+        [Test]
         public void SingleBracket()
         {
             string toParse = "date={date2=\"1770.12.5\"}";
