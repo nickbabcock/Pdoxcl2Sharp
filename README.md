@@ -384,6 +384,55 @@ It would prohibitively expensive to support both variations with a single list,
 hence the attribute must be appended lists that are in the format of the first
 factory example.
 
+## On Automatic Deserialization
+
+Popular libraries for XML, JSON, YAML, CSV, and basically any structured text
+document has an automatic deserialization feature, where all one has to do is
+call `Deserialize<MyType>(text)` and they will receive a populated object back.
+There currently is a partially implemented version, which can be invoked with
+`ParadoxParser.Deserialize<MyType>()`. It does everything fine except
+consecutive list elements. Please feel free to implement this one missing
+feature. I doubt I'll work on it as I don't see the benefits right now, as will
+be explained.
+
+It's hard to support automatic deserialization as Paradox files are not
+rigorously structured. For instance, in JSON there is only one way to denote a
+list `a: [...]`, but in a paradox file there are [multiple
+ways](#faq-what-does-consecutiveelements-mean) to handle lists. Sure there is a
+way around this if we force the user to denote everything with custom
+attributes. The only problem would be the number of attributes may get out of
+control. An aliased list with consecutive elements of quoted strings would need
+three attributes to deserialize and serialize correctly. To me this seems
+pretty cluttered. Another technical reason that makes it hard is that objects
+can be in a partially deserialized state such as a list. We know that once
+`a:[...]` is read that `a` is fully constructed, but if ou construct the list
+out of individual `a` elements, you have a situation with a partially
+constructed list. This isn't a problem by itself, it just exasperates current
+problems with parsing lists.
+
+Another reason why I'm not a fan is that deserializeing something is
+inheritantly slow if done dynamically and especially something as complex as
+Paradox files. Some of the use cases involve parsing a 50MB save file with a
+deep and complex heirarchial tree, and parsing 10,000 similiarly structured
+small files. Any time spent discovering how to deserialize an object will be
+too long. An ineresting notion is precompiling like [protobuf-net][], as there
+really isn't a need to rediscover how to deserialize an object on each program
+invocation. I've toyed with implementing this, but I've decided against this,
+as I'm unsure of the value that would be added.
+
+Some popular libraries like [ServiceStack.Text][] use a concurrent dictionary
+to store type and the function that will parse out the type after this function
+has been computed. This is a great time saver but it is still too much time.
+Think about it this way. Say we have 1.5 million lines with 100,000 objects of
+maybe three dozen different kinds. Even if the dictionary was preloaded, a
+100,000 lookups on a concurrrent dictionary is fast, but definitely
+non-negible. For those curious, in this instance a single threaded regular
+dictionary would be faster, but there would be no caching bonus across parallel
+deserialiations (think back to the 10,000 file example). 
+
+[protobuf-net]: https://code.google.com/p/protobuf-net/
+[ServiceStack.Text]: https://github.com/ServiceStack/ServiceStack.Text
+
 ## TokenCallback and ReadString
 
 These methods are the heart of the parsing.  Whenever the parser comes across
@@ -406,9 +455,12 @@ Let me first say that if you have any troubles, file an issue.
 
 - Get a github account
 - Fork the repo
-- Add a failing test.  The purpose of this is to show that what you are adding couldn't have been done before, or was wrong.
+- Add a failing test.  The purpose of this is to show that what you are adding
+  couldn't have been done before, or was wrong.
 - Add your changes
-- Commit your changes in such a way there is only a single commit difference between the main branch here and yours.  If you need help, check out [git workflow][]
+- Commit your changes in such a way there is only a single commit difference
+  between the main branch here and yours.  If you need help, check out [git
+  workflow][]
 - Push changes to your repo
 - Submit a pull request and I'll review it!
     
