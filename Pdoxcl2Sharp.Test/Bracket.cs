@@ -37,6 +37,35 @@ id=21016";
             Assert.AreEqual("21016", idVal);
             Assert.AreEqual("40", typeVal);
         }
+
+		[Test]
+		public void BracketSpaceTest()
+		{
+			string input = @"id = {
+	type = 40
+}
+id = 21016";
+			string typeVal = string.Empty;
+			string idVal = string.Empty;
+			Action<ParadoxParser, string> action = (p, s) =>
+			{
+				if (p.NextIsBracketed())
+				{
+					Action<ParadoxParser, string> innerAction = (p2, s2) =>
+					{
+						if (s2 == "type")
+							typeVal = p2.ReadString();
+					};
+					p.Parse(innerAction);
+				} else
+				{
+					idVal = p.ReadString();
+				}
+			};
+			ParadoxParser.Parse(input.ToStream(), action);
+			Assert.AreEqual("21016", idVal);
+			Assert.AreEqual("40", typeVal);
+		}
         
         [Test]
         public void SingleBracket()
