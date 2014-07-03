@@ -529,10 +529,16 @@ namespace Pdoxcl2Sharp
         /// </summary>
         private void EnsureLeftCurly()
         {
-            if (this.currentToken == LexerToken.LeftCurly)
-                return;
+			// Need to check tagIsBracketed and increment, because running NextIsBracket will prematurely count
+			// the left curly as incremented and then decrement currentIndent back to where it was.
+			if (this.currentToken == LexerToken.LeftCurly)
+			{
+				if (this.tagIsBracketed)
+					currentIndent++;
+				return;
+			}
 
-            this.currentToken = this.GetNextToken();
+	        this.currentToken = this.GetNextToken();
             if (this.currentToken == LexerToken.Equals)
                 this.currentToken = this.GetNextToken();
 
@@ -663,6 +669,7 @@ namespace Pdoxcl2Sharp
                 return this.tagIsBracketed;
 
             bool isBracketed = false;
+			Queue<LexerToken> tempQueue = new Queue<LexerToken>();
 
             if (this.currentToken != LexerToken.LeftCurly)
             {
@@ -670,14 +677,19 @@ namespace Pdoxcl2Sharp
                 do
                 {
                     temp = this.GetNextToken();
-                    this.nextTokens.Enqueue( temp );
+                    tempQueue.Enqueue(temp);
 
                     if (temp == LexerToken.LeftCurly)
                     {
                         isBracketed = true;
+						// Peeking for the next bracket will prematurely increment currentIndent.
+	                    currentIndent--;
                         break;
                     }
                 } while (temp != LexerToken.Untyped && !this.eof);
+
+				while (tempQueue.Count > 0)
+					this.nextTokens.Enqueue( tempQueue.Dequeue() );
             }
 
             this.tagIsBracketed = isBracketed;
