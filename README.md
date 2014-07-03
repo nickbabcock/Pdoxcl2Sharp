@@ -56,20 +56,35 @@ Say you want to parse this file:
 Here's how:
 
 ```csharp
+// Here we define a class that says "I can read and write myself"
 public class TheoreticalFile : IParadoxRead, IParadoxWrite
 {
     IList<string> theories = new List<string>();
+    
+    // This is the read interface. Whenever the parser finds something
+    // interesting it will pass it to this function as the token. From
+    // there, we decide if we want to process it further. This function
+    // will never receive the whitespace, a bracket, etc. 
     public void TokenCallback(ParadoxParser parser, string token)
     {
+        // Hey, we know what to do when we see "theoretical"!,
+        // we know that it is simply a list of strings.
         if (token == "theoretical") 
         {
             theories = parser.ReadStringList();
         }
     }
 
+    // This is the write interface, and unlike the read interface
+    // this is not a callback. This simply means that given a writer
+    // the class will dump its contents there.
     public void Write(ParadoxStreamWriter writer)
     {
         writer.WriteComment("Hey, I'm a new comment");
+        
+        // Write the header for the list. Notice that we include a bracket.
+        // The writer will automatically indent subsequent lines by an
+        // additional tab
         writer.WriteLine("theoretical = {");
         foreach (var theory in theoryFile.theories)
         {
