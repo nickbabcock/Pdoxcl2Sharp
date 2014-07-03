@@ -15,9 +15,11 @@ namespace Pdoxcl2Sharp.Test
 			string input = @"id={
 	type=40
 }
-id=21016";
+id=21016
+name=""test""";
             string typeVal = string.Empty;
             string idVal = string.Empty;
+	        string nameVal = string.Empty;
             Action<ParadoxParser, string> action = (p, s) =>
             {
                 if (p.NextIsBracketed())
@@ -30,12 +32,16 @@ id=21016";
                     p.Parse(innerAction);
                 } else
                 {
-                    idVal = p.ReadString();
+					if(s == "id")
+						idVal = p.ReadString();
+					else if(s == "name")
+						nameVal = p.ReadString();
                 }
             };
             ParadoxParser.Parse(input.ToStream(), action);
             Assert.AreEqual("21016", idVal);
             Assert.AreEqual("40", typeVal);
+			Assert.AreEqual("test", nameVal);
         }
 
 		[Test]
@@ -44,9 +50,11 @@ id=21016";
 			string input = @"id = {
 	type = 40
 }
-id = 21016";
+id = 21016
+name=""test""";
 			string typeVal = string.Empty;
 			string idVal = string.Empty;
+			string nameVal = string.Empty;
 			Action<ParadoxParser, string> action = (p, s) =>
 			{
 				if (p.NextIsBracketed())
@@ -59,12 +67,16 @@ id = 21016";
 					p.Parse(innerAction);
 				} else
 				{
-					idVal = p.ReadString();
+					if(s == "id")
+						idVal = p.ReadString();
+					else if( s == "name" )
+						nameVal = p.ReadString();
 				}
 			};
 			ParadoxParser.Parse(input.ToStream(), action);
 			Assert.AreEqual("21016", idVal);
 			Assert.AreEqual("40", typeVal);
+			Assert.AreEqual("test", nameVal);
 		}
         
         [Test]
