@@ -684,6 +684,10 @@ namespace Pdoxcl2Sharp
                         isBracketed = true;
                         // Peeking for the next bracket will prematurely increment currentIndent.
                         currentIndent--;
+
+                        // Clear queue up to curly, otherwise it breaks DoWhileBracket.
+                        while(tempQueue.Peek() != LexerToken.LeftCurly)
+                            tempQueue.Dequeue();
                         break;
                     }
                 } while ((temp == LexerToken.Equals || temp == LexerToken.LeftCurly) && !this.eof);
