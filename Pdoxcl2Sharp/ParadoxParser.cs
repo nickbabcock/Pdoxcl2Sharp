@@ -686,7 +686,7 @@ namespace Pdoxcl2Sharp
 	                    currentIndent--;
                         break;
                     }
-                } while (temp != LexerToken.Untyped && !this.eof);
+                } while ((temp == LexerToken.Equals || temp == LexerToken.LeftCurly) && !this.eof);
 
 				while (tempQueue.Count > 0)
 					this.nextTokens.Enqueue( tempQueue.Dequeue() );
