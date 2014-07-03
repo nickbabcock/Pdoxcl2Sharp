@@ -5,6 +5,14 @@ While the parser is aimed towards Paradox Interactive, it is not exclusive,
 meaning that any file or configuration written in a similar
 [style](#style-of-file) can be parsed without problems.
 
+## Features
+
+- Speed: Seriously. The parser was written to rip through 50MB files as fast as possible
+- Encoding: The parser handles the encoding and decoding of files so that all your letters render fine. I'm looking at some of you guys (šžŸ)
+- Ease of use: Don't worry about if something contains quotes, if a list spans multiple lines, or about brackets. The parser takes care of everything. The parser only shows you what you care about.
+- Saving: You can as easily write info as parse it.
+- Lossless Compression: If you don't care about a pretty output, you can compress what is written and it will still be read successfully from the parser and Paradox, hence the phrase "lossless". You can achieve compression ratios up to three (so your new file will be three times smaller than the old).
+
 ## Motivation
 
 Many of those who play Paradox Interactive's games are also programmers;
