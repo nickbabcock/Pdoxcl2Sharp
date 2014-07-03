@@ -12,10 +12,10 @@ namespace Pdoxcl2Sharp.Test
         [Test]
         public void BracketTest()
         {
-            string input = @"id=21016
-id={
+			string input = @"id={
 	type=40
-}";
+}
+id=21016";
             string typeVal = string.Empty;
             string idVal = string.Empty;
             Action<ParadoxParser, string> action = (p, s) =>
