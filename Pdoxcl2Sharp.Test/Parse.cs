@@ -363,6 +363,51 @@ me=you";
             Assert.AreEqual("nationalist_rebels", actual);
             Assert.AreEqual("you", meActual);
         }
+
+
+        public class Cid : IParadoxRead
+        {
+            public int Id { get; set; } 
+            public int Type { get; set; }
+
+            public void TokenCallback(ParadoxParser parser, string token)
+            {
+                if (token == "id") Id = parser.ReadInt32();
+                else if (token == "type") Type = parser.ReadInt32();
+            }
+        }
+
+        [Test]
+        public void ParseListObject()
+        {
+            var data = @"attachments={
+			{
+				id=2296
+				type=54
+			}
+
+			{
+				id=61768
+				type=4713
+			}
+}";
+
+            IList<Cid> actual = null;
+            ParadoxParser.Parse(data.ToStream(), (p, s) =>
+                {
+                    if (s == "attachments")
+                    {
+                        actual = p.ReadList(() => p.Parse(new Cid()));
+                    }
+                });
+
+            Assert.IsNotNull(actual);
+            Assert.AreEqual(2, actual.Count);
+            Assert.AreEqual(2296, actual[0].Id);
+            Assert.AreEqual(54, actual[0].Type);
+            Assert.AreEqual(61768, actual[1].Id);
+            Assert.AreEqual(4713, actual[1].Type);
+        }
     }
 
 }

@@ -236,7 +236,7 @@ namespace Pdoxcl2Sharp
                 {
                     stringBuffer[stringBufferCount++] = currentChar;
                 } while (!IsSpace(currentChar = ReadNext()) &&
-                    SetcurrentToken(currentChar) == LexerToken.Untyped && !eof);
+                    SetCurrentToken(currentChar) == LexerToken.Untyped && !eof);
             }
             else if (currentToken == LexerToken.Quote)
             {
@@ -276,7 +276,7 @@ namespace Pdoxcl2Sharp
                 else if (currentChar == '-')
                     negative = true;
             } while (!IsSpace(currentChar = ReadNext()) &&
-                SetcurrentToken(currentChar) == LexerToken.Untyped && !eof);
+                SetCurrentToken(currentChar) == LexerToken.Untyped && !eof);
 
             return negative ? -result : result;
         }
@@ -320,7 +320,7 @@ namespace Pdoxcl2Sharp
             {
                 result = (uint)((10 * result) + (currentChar - '0'));
             } while (!IsSpace(currentChar = ReadNext()) &&
-                SetcurrentToken(currentChar) == LexerToken.Untyped && !eof);
+                SetCurrentToken(currentChar) == LexerToken.Untyped && !eof);
             return result;
         }
 
@@ -480,7 +480,7 @@ namespace Pdoxcl2Sharp
         /// <typeparam name="T">Type that the data will be interpreted as</typeparam>
         /// <param name="func">Function that will extract the data</param>
         /// <returns>Data between curly brackets constructed as a list.</returns>
-        internal IList<T> ReadList<T>(Func<T> func)
+        public IList<T> ReadList<T>(Func<T> func)
         {
             List<T> result = new List<T>();
             DoWhileBracket(() => result.Add(func()));
@@ -573,6 +573,8 @@ namespace Pdoxcl2Sharp
                 if (currentToken == LexerToken.RightCurly
                     || PeekToken() == LexerToken.RightCurly)
                 {
+                    if (nextToken == LexerToken.RightCurly)
+                        GetNextToken();
                     while (startingIndent != currentIndent
                         && PeekToken() == LexerToken.RightCurly && !eof)
                         ;
@@ -590,14 +592,24 @@ namespace Pdoxcl2Sharp
         /// </summary>
         /// <param name="c">Char that will be evaluated for equivalent token</param>
         /// <returns>Current token</returns>
-        private LexerToken SetcurrentToken(char c)
+        private LexerToken SetCurrentToken(char c)
         {
-            currentToken = GetToken(c);
+            return SetCurrentToken(GetToken(c));
+        }
+
+        /// <summary>
+        /// Evaluates the token parameter for brackets and sets the current
+        /// token to it
+        /// </summary>
+        /// <param name="token">The token to be evaluated</param>
+        /// <returns>The current token</returns>
+        private LexerToken SetCurrentToken(LexerToken token)
+        {
+            currentToken = token;
             if (currentToken == LexerToken.LeftCurly)
                 currentIndent++;
             else if (currentToken == LexerToken.RightCurly)
                 currentIndent--;
-
             return currentToken;
         }
 
@@ -615,13 +627,13 @@ namespace Pdoxcl2Sharp
             {
                 LexerToken temp = nextToken.Value;
                 nextToken = null;
-                return temp;
+                return SetCurrentToken(temp);
             }
 
             while (IsSpace(currentChar = ReadNext()) && !eof)
                 ;
 
-            if (SetcurrentToken(currentChar) == LexerToken.Comment)
+            if (SetCurrentToken(currentChar) == LexerToken.Comment)
             {
                 while ((currentChar = ReadNext()) != '\n' && !eof)
                     ;
@@ -634,7 +646,9 @@ namespace Pdoxcl2Sharp
         /// <summary>
         /// Retrieves the next token, so that a subsequent call to <see cref="GetNextToken"/>
         /// will return the same token.  If multiple peekTokens are invoked then it is the last
-        /// token encountered that <see cref="GetNextToken"/> will also return.
+        /// token encountered that <see cref="GetNextToken"/> will also return. The key
+        /// difference between this function and <see cref="GetNextToken"/> is that this
+        /// function doesn't evaluate the new peeked token for brackets.
         /// <remarks>
         ///     This function is a misnomer in the traditional sense the peek
         ///     does not affect the underlying stream.  Though this function is
@@ -644,8 +658,19 @@ namespace Pdoxcl2Sharp
         /// <returns>The next token in the stream</returns>
         private LexerToken PeekToken()
         {
-            nextToken = null;
-            nextToken = GetNextToken();
+            if (nextToken.HasValue)
+                SetCurrentToken(nextToken.Value);
+
+            while (IsSpace(currentChar = ReadNext()) && !eof)
+                ;
+
+            if ((nextToken = GetToken(currentChar)) == LexerToken.Comment)
+            {
+                while ((currentChar = ReadNext()) != '\n' && !eof)
+                    ;
+                return PeekToken();
+            }
+
             return nextToken.Value;
         }
 
