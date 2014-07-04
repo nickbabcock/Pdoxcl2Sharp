@@ -22,6 +22,8 @@ name=""test""";
             string nameVal = string.Empty;
             Action<ParadoxParser, string> action = (p, s) =>
             {
+                p.NextIsBracketed();
+                
                 if (p.NextIsBracketed())
                 {
                     Action<ParadoxParser, string> innerAction = (p2, s2) =>
@@ -57,6 +59,8 @@ name=""test""";
             string nameVal = string.Empty;
             Action<ParadoxParser, string> action = (p, s) =>
             {
+                p.NextIsBracketed();
+                
                 if (p.NextIsBracketed())
                 {
                     Action<ParadoxParser, string> innerAction = (p2, s2) =>
