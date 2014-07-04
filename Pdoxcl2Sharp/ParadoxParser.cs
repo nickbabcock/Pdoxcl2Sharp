@@ -66,7 +66,7 @@ namespace Pdoxcl2Sharp
         /// <exception cref="ArgumentNullException">If <paramref name="data"/> is null</exception>
         private ParadoxParser(TextReader data)
         {
-            this.reader = data;
+            reader = data;
         }
 
         /// <summary>
@@ -75,7 +75,7 @@ namespace Pdoxcl2Sharp
         /// </summary>
         public int CurrentIndent
         {
-            get { return this.currentIndent; }
+            get { return currentIndent; }
         }
 
         /// <summary>
@@ -83,7 +83,7 @@ namespace Pdoxcl2Sharp
         /// </summary>
         public string CurrentString
         {
-            get { return this.currentString; }
+            get { return currentString; }
         }
 
         /// <summary>
@@ -91,7 +91,7 @@ namespace Pdoxcl2Sharp
         /// </summary>
         public bool EndOfStream
         {
-            get { return this.eof; }
+            get { return eof; }
         }
 
         /// <summary>
@@ -217,7 +217,7 @@ namespace Pdoxcl2Sharp
         /// <param name="action">The action to be performed on each token</param>
         public void Parse(Action<ParadoxParser, string> action)
         {
-            this.DoWhileBracket(() => action(this, this.ReadString()));
+            DoWhileBracket(() => action(this, ReadString()));
         }
 
         /// <summary>
@@ -229,28 +229,28 @@ namespace Pdoxcl2Sharp
         /// <returns>The string being read</returns>
         public string ReadString()
         {
-            this.currentToken = this.GetNextToken();
-            if (this.currentToken == LexerToken.Untyped)
+            currentToken = GetNextToken();
+            if (currentToken == LexerToken.Untyped)
             {
                 do
                 {
-                    this.stringBuffer[this.stringBufferCount++] = this.currentChar;
-                } while (!IsSpace(this.currentChar = this.ReadNext()) && 
-                    this.SetcurrentToken(this.currentChar) == LexerToken.Untyped && !this.eof);
+                    stringBuffer[stringBufferCount++] = currentChar;
+                } while (!IsSpace(currentChar = ReadNext()) &&
+                    SetcurrentToken(currentChar) == LexerToken.Untyped && !eof);
             }
-            else if (this.currentToken == LexerToken.Quote)
+            else if (currentToken == LexerToken.Quote)
             {
-                while ((this.currentChar = this.ReadNext()) != '"' && !this.eof)
-                    this.stringBuffer[this.stringBufferCount++] = this.currentChar;
+                while ((currentChar = ReadNext()) != '"' && !eof)
+                    stringBuffer[stringBufferCount++] = currentChar;
             }
             else
             {
-                return this.ReadString();
+                return ReadString();
             }
 
-            this.currentString = new string(this.stringBuffer, 0, this.stringBufferCount);
-            this.stringBufferCount = 0;
-            return this.currentString;
+            currentString = new string(stringBuffer, 0, stringBufferCount);
+            stringBufferCount = 0;
+            return currentString;
         }
 
         /// <summary>
@@ -263,20 +263,20 @@ namespace Pdoxcl2Sharp
             int result = 0;
             bool negative = false;
 
-            while (this.GetNextToken() != LexerToken.Untyped && !this.eof)
+            while (GetNextToken() != LexerToken.Untyped && !eof)
                 ;
 
-            if (this.eof)
+            if (eof)
                 return 0;
 
             do
             {
-                if (this.currentChar >= '0' && this.currentChar <= '9')
-                    result = (10 * result) + (this.currentChar - '0');
-                else if (this.currentChar == '-')
+                if (currentChar >= '0' && currentChar <= '9')
+                    result = (10 * result) + (currentChar - '0');
+                else if (currentChar == '-')
                     negative = true;
-            } while (!IsSpace(this.currentChar = this.ReadNext()) &&
-                this.SetcurrentToken(this.currentChar) == LexerToken.Untyped && !this.eof);
+            } while (!IsSpace(currentChar = ReadNext()) &&
+                SetcurrentToken(currentChar) == LexerToken.Untyped && !eof);
 
             return negative ? -result : result;
         }
@@ -288,7 +288,7 @@ namespace Pdoxcl2Sharp
         /// <returns>A 2-byte signed integer read from the current stream</returns>
         public short ReadInt16() 
         { 
-            return (short)this.ReadInt32();
+            return (short)ReadInt32();
         }
         
         /// <summary>
@@ -298,7 +298,7 @@ namespace Pdoxcl2Sharp
         /// <returns>A signed byte read from the current stream</returns>
         public sbyte ReadSByte() 
         { 
-            return (sbyte)this.ReadInt32();
+            return (sbyte)ReadInt32();
         }
 
         /// <summary>
@@ -310,17 +310,17 @@ namespace Pdoxcl2Sharp
         {
             uint result = 0;
 
-            while (this.GetNextToken() != LexerToken.Untyped && !this.eof)
+            while (GetNextToken() != LexerToken.Untyped && !eof)
                 ;
 
-            if (this.eof)
+            if (eof)
                 return 0;
 
             do
             {
-                result = (uint)((10 * result) + (this.currentChar - '0'));
-            } while (!IsSpace(this.currentChar = this.ReadNext()) &&
-                this.SetcurrentToken(this.currentChar) == LexerToken.Untyped && !this.eof);
+                result = (uint)((10 * result) + (currentChar - '0'));
+            } while (!IsSpace(currentChar = ReadNext()) &&
+                SetcurrentToken(currentChar) == LexerToken.Untyped && !eof);
             return result;
         }
 
@@ -331,7 +331,7 @@ namespace Pdoxcl2Sharp
         /// <returns>A 2-byte unsigned integer read from the current stream</returns>
         public ushort ReadUInt16() 
         { 
-            return (ushort)this.ReadUInt32();
+            return (ushort)ReadUInt32();
         }
 
         /// <summary>
@@ -341,7 +341,7 @@ namespace Pdoxcl2Sharp
         /// <returns>A byte read from the current stream</returns>
         public byte ReadByte() 
         { 
-            return (byte)this.ReadUInt32();
+            return (byte)ReadUInt32();
         }
 
         /// <summary>
@@ -352,7 +352,7 @@ namespace Pdoxcl2Sharp
         /// <returns>A boolean read from the current stream</returns>
         public bool ReadBool()
         {
-            return this.ReadString() == "yes";
+            return ReadString() == "yes";
         }
 
         /// <summary>
@@ -363,9 +363,9 @@ namespace Pdoxcl2Sharp
         public double ReadDouble()
         {
             double result;
-            if (double.TryParse(this.ReadString(), SignedFloatingStyle, CultureInfo.InvariantCulture, out result))
+            if (double.TryParse(ReadString(), SignedFloatingStyle, CultureInfo.InvariantCulture, out result))
                 return result;
-            throw new FormatException(string.Format("{0} is not a correct Double", this.currentString));
+            throw new FormatException(string.Format("{0} is not a correct Double", currentString));
         }
 
         /// <summary>
@@ -376,9 +376,9 @@ namespace Pdoxcl2Sharp
         public float ReadFloat()
         {
             float result;
-            if (float.TryParse(this.ReadString(), SignedFloatingStyle, CultureInfo.InvariantCulture, out result))
+            if (float.TryParse(ReadString(), SignedFloatingStyle, CultureInfo.InvariantCulture, out result))
                 return result;
-            throw new FormatException(string.Format("{0} is not a correct Float", this.currentString));
+            throw new FormatException(string.Format("{0} is not a correct Float", currentString));
         }
 
         /// <summary>
@@ -389,9 +389,9 @@ namespace Pdoxcl2Sharp
         public DateTime ReadDateTime()
         {
             DateTime result;
-            if (TryParseDate(this.ReadString(), out result))
+            if (TryParseDate(ReadString(), out result))
                 return result;
-            throw new FormatException(string.Format("{0} is not a correct DateTime", this.currentString));
+            throw new FormatException(string.Format("{0} is not a correct DateTime", currentString));
         }
 
         /// <summary>
@@ -400,7 +400,7 @@ namespace Pdoxcl2Sharp
         /// <returns>A list of the data interpreted as integers</returns>
         public IList<int> ReadIntList() 
         { 
-            return this.ReadList(this.ReadInt32);
+            return ReadList(ReadInt32);
         }
 
         /// <summary>
@@ -409,7 +409,7 @@ namespace Pdoxcl2Sharp
         /// <returns>A list of the data interpreted as doubles</returns>
         public IList<double> ReadDoubleList() 
         { 
-            return this.ReadList(this.ReadDouble);
+            return ReadList(ReadDouble);
         }
 
         /// <summary>
@@ -418,7 +418,7 @@ namespace Pdoxcl2Sharp
         /// <returns>A list of the data interpreted as strings</returns>
         public IList<string> ReadStringList()
         { 
-            return this.ReadList(this.ReadString);
+            return ReadList(ReadString);
         }
 
         /// <summary>
@@ -427,7 +427,7 @@ namespace Pdoxcl2Sharp
         /// <returns>A list of the data interpreted as DateTimes</returns>
         public IList<DateTime> ReadDateTimeList() 
         { 
-            return this.ReadList(this.ReadDateTime);
+            return ReadList(ReadDateTime);
         }
 
         /// <summary>
@@ -457,7 +457,7 @@ namespace Pdoxcl2Sharp
                 throw new ArgumentNullException("valueFunc", "Function for extracting values must not be null");
             
             IDictionary<TKey, TValue> result = new Dictionary<TKey, TValue>();
-            this.DoWhileBracket(() => result.Add(keyFunc(this), valueFunc(this)));
+            DoWhileBracket(() => result.Add(keyFunc(this), valueFunc(this)));
             return result;
         }
 
@@ -471,7 +471,7 @@ namespace Pdoxcl2Sharp
         {
             if (action == null)
                 throw new ArgumentNullException("action", "Action for reading bracket content must not be null");
-            this.DoWhileBracket(() => action(this));
+            DoWhileBracket(() => action(this));
         }
 
         /// <summary>
@@ -483,7 +483,7 @@ namespace Pdoxcl2Sharp
         internal IList<T> ReadList<T>(Func<T> func)
         {
             List<T> result = new List<T>();
-            this.DoWhileBracket(() => result.Add(func()));
+            DoWhileBracket(() => result.Add(func()));
             return result;
         }
 
@@ -530,14 +530,14 @@ namespace Pdoxcl2Sharp
         /// </summary>
         private void EnsureLeftCurly()
         {
-            if (this.currentToken == LexerToken.LeftCurly)
+            if (currentToken == LexerToken.LeftCurly)
                 return;
 
-            this.currentToken = this.GetNextToken();
-            if (this.currentToken == LexerToken.Equals)
-                this.currentToken = this.GetNextToken();
+            currentToken = GetNextToken();
+            if (currentToken == LexerToken.Equals)
+                currentToken = GetNextToken();
 
-            if (this.currentToken != LexerToken.LeftCurly)
+            if (currentToken != LexerToken.LeftCurly)
                 throw new InvalidOperationException("When reading inside brackets the first token must be a left curly");
         }
 
@@ -556,7 +556,7 @@ namespace Pdoxcl2Sharp
         /// advance as long as the loop conditional is true.  For the loop conditional to be
         /// true the current token or the next token can't be a right a curly.
         /// Since the action doesn't advance the stream it is guaranteed that current
-        /// iteration's this.currentToken is the same value as the previous iteration's
+        /// iteration's currentToken is the same value as the previous iteration's
         /// <see cref="PeekToken"/> and <see cref="PeekToken"/> token could not have been
         /// a right curly.  Therefore, if the action doesn't advance the stream,
         /// the current token will never be a right curly and <see cref="PeekToken"/> will
@@ -566,26 +566,26 @@ namespace Pdoxcl2Sharp
         /// <param name="act">The action that will be repeatedly performed while there is data left in the brackets</param>
         private void DoWhileBracket(Action act)
         {
-            int startingIndent = this.currentIndent;
+            int startingIndent = currentIndent;
 
-            if (this.currentString != null)
-                this.EnsureLeftCurly();
+            if (currentString != null)
+                EnsureLeftCurly();
 
             do
             {
-                if (this.currentToken == LexerToken.RightCurly 
-                    || this.PeekToken() == LexerToken.RightCurly)
+                if (currentToken == LexerToken.RightCurly
+                    || PeekToken() == LexerToken.RightCurly)
                 {
-                    while (startingIndent != this.currentIndent 
-                        && this.PeekToken() == LexerToken.RightCurly && !this.eof)
+                    while (startingIndent != currentIndent
+                        && PeekToken() == LexerToken.RightCurly && !eof)
                         ;
-                    if (startingIndent == this.currentIndent)
+                    if (startingIndent == currentIndent)
                         break;
                 }
 
-                if (this.stringBufferCount != 0 || this.currentChar != '\0')
+                if (stringBufferCount != 0 || currentChar != '\0')
                     act();
-            } while (!this.eof);
+            } while (!eof);
         }
 
         /// <summary>
@@ -595,13 +595,13 @@ namespace Pdoxcl2Sharp
         /// <returns>Current token</returns>
         private LexerToken SetcurrentToken(char c)
         {
-            this.currentToken = GetToken(c);
-            if (this.currentToken == LexerToken.LeftCurly)
-                this.currentIndent++;
-            else if (this.currentToken == LexerToken.RightCurly)
-                this.currentIndent--;
+            currentToken = GetToken(c);
+            if (currentToken == LexerToken.LeftCurly)
+                currentIndent++;
+            else if (currentToken == LexerToken.RightCurly)
+                currentIndent--;
 
-            return this.currentToken;
+            return currentToken;
         }
 
         /// <summary>
@@ -612,26 +612,26 @@ namespace Pdoxcl2Sharp
         /// <returns>The significant token encountered</returns>
         private LexerToken GetNextToken()
         {
-            this.tagIsBracketed = null;
+            tagIsBracketed = null;
             
-            if (this.nextToken != null)
+            if (nextToken != null)
             {
-                LexerToken temp = this.nextToken.Value;
-                this.nextToken = null;
+                LexerToken temp = nextToken.Value;
+                nextToken = null;
                 return temp;
             }
 
-            while (IsSpace(this.currentChar = this.ReadNext()) && !this.eof)
+            while (IsSpace(currentChar = ReadNext()) && !eof)
                 ;
 
-            if (this.SetcurrentToken(this.currentChar) == LexerToken.Comment)
+            if (SetcurrentToken(currentChar) == LexerToken.Comment)
             {
-                while ((this.currentChar = this.ReadNext()) != '\n' && !this.eof)
+                while ((currentChar = ReadNext()) != '\n' && !eof)
                     ;
-                return this.GetNextToken();
+                return GetNextToken();
             }
 
-            return this.currentToken;
+            return currentToken;
         }
 
         /// <summary>
@@ -647,9 +647,9 @@ namespace Pdoxcl2Sharp
         /// <returns>The next token in the stream</returns>
         private LexerToken PeekToken()
         {
-            this.nextToken = null;
-            this.nextToken = this.GetNextToken();
-            return this.nextToken.Value;
+            nextToken = null;
+            nextToken = GetNextToken();
+            return nextToken.Value;
         }
 
         /// <summary>
@@ -665,13 +665,13 @@ namespace Pdoxcl2Sharp
         /// <returns>Whether the current tag contains bracketed data.</returns>
         public bool NextIsBracketed()
         {
-            if (this.tagIsBracketed.HasValue)
-                return this.tagIsBracketed.Value;
+            if (tagIsBracketed.HasValue)
+                return tagIsBracketed.Value;
 
             bool isBracketed = false;
             Queue<char> tempQueue = new Queue<char>();
 
-            if (this.currentToken != LexerToken.LeftCurly)
+            if (currentToken != LexerToken.LeftCurly)
             {
                 char tempChar;
                 LexerToken tempToken;
@@ -689,13 +689,13 @@ namespace Pdoxcl2Sharp
                         isBracketed = true;    
                         break;
                     }
-                } while ((tempToken == LexerToken.Equals || IsSpace(tempChar)) && !this.eof);
+                } while ((tempToken == LexerToken.Equals || IsSpace(tempChar)) && !eof);
 
                 while (tempQueue.Count > 0)
-                    this.nextChars.Enqueue(tempQueue.Dequeue());
+                    nextChars.Enqueue(tempQueue.Dequeue());
             }
 
-            this.tagIsBracketed = isBracketed;
+            tagIsBracketed = isBracketed;
             return tagIsBracketed.Value;
         }
 
@@ -706,24 +706,24 @@ namespace Pdoxcl2Sharp
         /// <returns>The next character in the buffer or '\0' if the end of the stream was reached</returns>
         private char ReadNext()
         {
-            if (this.nextChars.Count > 0)
-                return this.nextChars.Dequeue();
+            if (nextChars.Count > 0)
+                return nextChars.Dequeue();
 
-            if (this.currentPosition == this.bufferSize)
+            if (currentPosition == bufferSize)
             {
-                if (!this.eof)
-                    this.bufferSize = this.reader.Read(this.buffer, 0, BufferSize);
+                if (!eof)
+                    bufferSize = reader.Read(buffer, 0, BufferSize);
 
-                this.currentPosition = 0;
+                currentPosition = 0;
 
-                if (this.bufferSize == 0)
+                if (bufferSize == 0)
                 {
-                    this.eof = true;
+                    eof = true;
                     return '\0';
                 }
             }
 
-            return this.buffer[this.currentPosition++];
+            return buffer[currentPosition++];
         }
     }
 }

@@ -15,43 +15,43 @@ namespace Pdoxcl2Sharp
         public ParadoxSaver(Stream output) 
             : base(output)
         {
-            this.Writer.NewLine = "\r\n";
+            Writer.NewLine = "\r\n";
         }
 
         public override void Write(string key, string value, ValueWrite valuetype)
         {
-            this.Write(key, ValueWrite.LeadingTabs);
-            this.Writer.Write('=');
-            this.Write(value, valuetype & ~ValueWrite.LeadingTabs);
+            Write(key, ValueWrite.LeadingTabs);
+            Writer.Write('=');
+            Write(value, valuetype & ~ValueWrite.LeadingTabs);
         }
 
         public override void WriteLine(string key, string value, ValueWrite valuetype)
         {
-            this.Write(key, value, valuetype | ValueWrite.NewLine);
+            Write(key, value, valuetype | ValueWrite.NewLine);
         }
 
         public override void WriteLine(string value, ValueWrite valuetype)
         {
-            this.Write(value, valuetype | ValueWrite.NewLine);
+            Write(value, valuetype | ValueWrite.NewLine);
         }
 
         public override void WriteLine(string key, DateTime date)
         {
-            this.WriteLine(key, date.ToParadoxString(), ValueWrite.Quoted);
+            WriteLine(key, date.ToParadoxString(), ValueWrite.Quoted);
         }
 
         public override void WriteComment(string comment)
         {
-            this.WriteLine('#' + comment, ValueWrite.LeadingTabs);
+            WriteLine('#' + comment, ValueWrite.LeadingTabs);
         }
 
         public override void Write(string header, Action<ParadoxStreamWriter> objWriter)
         {
-            this.Write(header, ValueWrite.LeadingTabs);
-            this.WriteLine("=");
-            this.WriteLine("{", ValueWrite.LeadingTabs);
+            Write(header, ValueWrite.LeadingTabs);
+            WriteLine("=");
+            WriteLine("{", ValueWrite.LeadingTabs);
             objWriter(this);
-            this.WriteLine("}", ValueWrite.LeadingTabs);
+            WriteLine("}", ValueWrite.LeadingTabs);
         }
     }
 }

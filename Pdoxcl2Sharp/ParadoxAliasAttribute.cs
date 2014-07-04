@@ -16,7 +16,7 @@ namespace Pdoxcl2Sharp
         {
             if (string.IsNullOrWhiteSpace(alias))
                 throw new ArgumentException("Cannot be empty", "alias");
-            this.Alias = alias;
+            Alias = alias;
         }
 
         /// <summary>

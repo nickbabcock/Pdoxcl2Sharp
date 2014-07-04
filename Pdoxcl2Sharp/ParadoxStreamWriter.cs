@@ -62,8 +62,8 @@ namespace Pdoxcl2Sharp
                 throw new ArgumentNullException("output", "Must be able to write data to an object");
             }
 
-            this.Writer = new StreamWriter(output, Globals.ParadoxEncoding);
-            this.currentIndent = 0;
+            Writer = new StreamWriter(output, Globals.ParadoxEncoding);
+            currentIndent = 0;
         }
 
         protected TextWriter Writer { get; set; }
@@ -114,7 +114,7 @@ namespace Pdoxcl2Sharp
         /// <param name="obj">The <see cref="IParadoxWrite"/> that dictates how the structure will be written</param>
         public void Write(string header, IParadoxWrite obj)
         {
-            this.Write(header, obj.Write);
+            Write(header, obj.Write);
         }
 
         /// <summary>
@@ -133,7 +133,7 @@ namespace Pdoxcl2Sharp
         /// <param name="value">String to be written</param>
         public virtual void Write(string value)
         {
-            this.Write(value, ValueWrite.None);
+            Write(value, ValueWrite.None);
         }
 
         /// <summary>
@@ -142,7 +142,7 @@ namespace Pdoxcl2Sharp
         /// <param name="value">Double to be written</param>
         public virtual void Write(double value)
         {
-            this.Write(value.ToString(DoubleFmt));
+            Write(value.ToString(DoubleFmt));
         }
 
         /// <summary>
@@ -151,7 +151,7 @@ namespace Pdoxcl2Sharp
         /// <param name="value">Integer to be written</param>
         public virtual void Write(int value)
         {
-            this.Write(value.ToString());
+            Write(value.ToString());
         }
 
         /// <summary>
@@ -160,7 +160,7 @@ namespace Pdoxcl2Sharp
         /// <param name="value">DateTime to be written</param>
         public virtual void Write(DateTime value)
         {
-            this.Write(value.ToParadoxString());
+            Write(value.ToParadoxString());
         }
 
         /// <summary>
@@ -170,7 +170,7 @@ namespace Pdoxcl2Sharp
         /// <param name="value">Value to be written to the stream</param>
         public virtual void Write(string key, string value)
         {
-            this.Write(key, value, ValueWrite.None);
+            Write(key, value, ValueWrite.None);
         }
 
         /// <summary>
@@ -180,7 +180,7 @@ namespace Pdoxcl2Sharp
         /// <param name="value">Value to be written</param>
         public virtual void WriteLine(string key, string value)
         {
-            this.WriteLine(key, value, ValueWrite.None);
+            WriteLine(key, value, ValueWrite.None);
         }
 
         /// <summary>
@@ -189,7 +189,7 @@ namespace Pdoxcl2Sharp
         /// <param name="value">The string to write. If value is null, only the line termination characters are written</param>
         public virtual void WriteLine(string value)
         {
-            this.Write(value, ValueWrite.NewLine);
+            Write(value, ValueWrite.NewLine);
         }
 
         /// <summary>
@@ -197,7 +197,7 @@ namespace Pdoxcl2Sharp
         /// </summary>
         public virtual void WriteLine()
         {
-            this.Writer.WriteLine();
+            Writer.WriteLine();
         }
 
         /// <summary>
@@ -208,7 +208,7 @@ namespace Pdoxcl2Sharp
         /// <param name="val">Boolean to be written</param>
         public virtual void WriteLine(string key, bool val)
         {
-            this.WriteLine(key, val ? "yes" : "no");
+            WriteLine(key, val ? "yes" : "no");
         }
 
         /// <summary>
@@ -219,7 +219,7 @@ namespace Pdoxcl2Sharp
         /// <param name="val">Value to the be written to the stream</param>
         public virtual void WriteLine(string key, int val)
         {
-            this.WriteLine(key, val.ToString());
+            WriteLine(key, val.ToString());
         }
 
         /// <summary>
@@ -230,7 +230,7 @@ namespace Pdoxcl2Sharp
         /// <param name="val">Double to be written</param>
         public virtual void WriteLine(string key, double val)
         {
-            this.WriteLine(key, val.ToString(DoubleFmt));
+            WriteLine(key, val.ToString(DoubleFmt));
         }
 
         /// <summary>
@@ -242,15 +242,15 @@ namespace Pdoxcl2Sharp
         {
             if (type.HasFlag(ValueWrite.LeadingTabs))
             {
-                this.Writer.Write(ParadoxStreamWriter.tabs[value == "}" ? this.currentIndent - 1 : this.currentIndent]);
+                Writer.Write(ParadoxStreamWriter.tabs[value == "}" ? currentIndent - 1 : currentIndent]);
             }
 
-            this.UpdateCurrentIndentFromIndentsIn(value);
-            this.Writer.Write(type.HasFlag(ValueWrite.Quoted) ? '"' + value + '"' : value);
+            UpdateCurrentIndentFromIndentsIn(value);
+            Writer.Write(type.HasFlag(ValueWrite.Quoted) ? '"' + value + '"' : value);
 
             if (type.HasFlag(ValueWrite.NewLine))
             {
-                this.Writer.WriteLine();
+                Writer.WriteLine();
             }
         }
 
@@ -259,7 +259,7 @@ namespace Pdoxcl2Sharp
         /// </summary>
         public void Dispose()
         {
-            this.Dispose(true);
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 
@@ -267,9 +267,9 @@ namespace Pdoxcl2Sharp
         {
             if (disposing)
             {
-                if (this.Writer != null)
+                if (Writer != null)
                 {
-                    this.Writer.Dispose();
+                    Writer.Dispose();
                 }
             }
         }
@@ -284,9 +284,9 @@ namespace Pdoxcl2Sharp
             for (int i = 0; i < str.Length; i++)
             {
                 if (str[i] == '}')
-                    this.currentIndent--;
+                    currentIndent--;
                 else if (str[i] == '{')
-                    this.currentIndent++;
+                    currentIndent++;
             }
         }
     }

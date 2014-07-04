@@ -11,26 +11,26 @@
         {
             get
             {
-                return (this.Type.Contains("ICollection<") ||
-                    this.Type.Contains("IList<") ||
-                    this.Type.Contains("List<")) &&
-                    !this.Type.Contains("[ConsecutiveElements]");
+                return (Type.Contains("ICollection<") ||
+                    Type.Contains("IList<") ||
+                    Type.Contains("List<")) &&
+                    !Type.Contains("[ConsecutiveElements]");
             }
         }
 
         public string GetStr(INamingConvention naming)
         {
-            if (!string.IsNullOrEmpty(this.Alias))
-                return this.Alias;
-            else if (this.IsNonConsecutiveList)
-                return naming.Apply(this.Name).Singularize(Plurality.CouldBeEither);
+            if (!string.IsNullOrEmpty(Alias))
+                return Alias;
+            else if (IsNonConsecutiveList)
+                return naming.Apply(Name).Singularize(Plurality.CouldBeEither);
             else
-                return naming.Apply(this.Name);
+                return naming.Apply(Name);
         }
 
         public string ExtractInnerListType()
         {
-            var str = this.Type;
+            var str = Type;
             str = str.Substring(str.IndexOf('<') + 1);
             return str.Remove(str.LastIndexOf('>'));
         }
