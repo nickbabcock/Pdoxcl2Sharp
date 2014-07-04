@@ -689,7 +689,7 @@ namespace Pdoxcl2Sharp
                         isBracketed = true;    
                         break;
                     }
-                } while ((tempToken == LexerToken.Equals || tempChar == ' ') && !this.eof);
+                } while ((tempToken == LexerToken.Equals || IsSpace(tempChar)) && !this.eof);
 
                 while (tempQueue.Count > 0)
                     this.nextChars.Enqueue(tempQueue.Dequeue());
