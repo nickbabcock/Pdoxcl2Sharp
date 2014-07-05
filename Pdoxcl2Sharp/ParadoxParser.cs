@@ -530,9 +530,6 @@ namespace Pdoxcl2Sharp
         /// </summary>
         private void EnsureLeftCurly()
         {
-            if (currentToken == LexerToken.LeftCurly)
-                return;
-
             currentToken = GetNextToken();
             if (currentToken == LexerToken.Equals)
                 currentToken = GetNextToken();
