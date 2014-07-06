@@ -124,5 +124,22 @@ namespace Pdoxcl2Sharp.Test
                 Assert.AreEqual("1402.1.1", actual);
             }
         }
+
+        [Test]
+        public void SaveWithoutHeader()
+        {
+            using (MemoryStream ms = new MemoryStream())
+            {
+                using (ParadoxSaver saver = new ParadoxSaver(ms))
+                {
+                    saver.Write(String.Empty, (w) =>
+                        {
+                            w.WriteLine("Hey there!", ValueWrite.LeadingTabs);
+                        });
+                }
+                string actual = Globals.ParadoxEncoding.GetString(ms.ToArray());
+                Assert.AreEqual("{\r\n\tHey there!\r\n}\r\n", actual);
+            }
+        }
     }
 }

@@ -6,7 +6,10 @@ add_core=THM
 top_provinces={ "BNG" "ORI" "PEG" }
 army={
 	name = "My first army"
-	leader = { id = 5 }
+	leader = { 
+	    id = 5
+		type = 49
+	}
 	unit = {
 		name = "First infantry of Awesomeness"
 		type = ninjas
@@ -18,5 +21,15 @@ army={
 		type = ninjas
 		morale = 6.000
 		strength = 1.000
+	}
+	attachments = {
+		{
+			id=2296
+			type=54
+		}
+		{
+			id=61768
+			type=4713
+		}
 	}
 }

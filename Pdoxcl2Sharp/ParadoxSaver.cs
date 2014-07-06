@@ -47,8 +47,12 @@ namespace Pdoxcl2Sharp
 
         public override void Write(string header, Action<ParadoxStreamWriter> objWriter)
         {
-            Write(header, ValueWrite.LeadingTabs);
-            WriteLine("=");
+            if (!string.IsNullOrEmpty(header))
+            {
+                Write(header, ValueWrite.LeadingTabs);
+                WriteLine("=");
+            }
+
             WriteLine("{", ValueWrite.LeadingTabs);
             objWriter(this);
             WriteLine("}", ValueWrite.LeadingTabs);

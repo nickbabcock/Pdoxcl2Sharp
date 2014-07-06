@@ -205,6 +205,14 @@ namespace Pdoxcl2Sharp.Test
             Assert.AreEqual("ninjas", army.Units[1].Type);
             Assert.AreEqual(6.000, army.Units[1].Morale);
             Assert.AreEqual(1.000, army.Units[1].Strength);
+
+            var act = actual.Armies[0].Attachments;
+            Assert.IsNotNull(act);
+            Assert.AreEqual(2, act.Count);
+            Assert.AreEqual(2296, act[0].Id);
+            Assert.AreEqual(54, act[0].Type);
+            Assert.AreEqual(61768, act[1].Id);
+            Assert.AreEqual(4713, act[1].Type);
         }
     }
 }

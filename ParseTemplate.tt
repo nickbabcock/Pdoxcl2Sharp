@@ -35,8 +35,10 @@ var classes = new[] {
         Name = "Army",
         Props = new[] {
             new Property() { Type = "string", Name = "Name", Quoted = true },
-            new Property() { Type = "Leader", Name = "Leader" },
-            new Property() { Type = "IList<Unit>", Name = "Units" }
+            new Property() { Type = "ParadoxId", Name = "Leader" },
+            new Property() { Type = "IList<Unit>", Name = "Units" },
+                        new Property() { Type = "[ConsecutiveElements] IList<ParadoxId>",
+                                         Name = "Attachments" }
         }
     },
     new {
@@ -49,9 +51,10 @@ var classes = new[] {
         }
     },
     new {
-        Name = "Leader",
+        Name = "ParadoxId",
         Props = new[] {
-            new Property() { Type = "int", Name = "Id" }
+            new Property() { Type = "int", Name = "Id" },
+                        new Property() { Type = "int", Name = "Type" }
         }
     }
 };
@@ -142,6 +145,8 @@ foreach (var clazz in classes) { #>
                 Write(prop.Name + ".Add(" + (dict.TryGetValue(str, out res)
                     ? res : fallback) + ")");
             }
+            else if (prop.Type.Contains("[ConsecutiveElements]"))
+                Write(prop.Name + " = parser.ReadList(() => parser.Parse(new " + prop.ExtractInnerListType() + "()))");
             else
                 Write(prop.Name + " = " + fallback);
             WriteLine("; break;");
@@ -227,6 +232,26 @@ foreach (var clazz in classes) { #>
                 PopIndent();
                 WriteLine("}");
             }
+
+            else if (prop.Type.Contains("[ConsecutiveElements]")) {
+                WriteLine("if (" + prop.Name + " != null)");
+                WriteLine("{");
+                PushIndent("    ");
+                WriteLine("writer.Write(\"" + prop.GetStr(naming) + "\", w =>");
+                WriteLine("{");
+                PushIndent("    ");
+                WriteLine("foreach (var val in " + prop.Name + ")");
+                WriteLine("{");
+                PushIndent("    ");
+                WriteLine("w.Write(String.Empty, val);");
+                PopIndent();
+                WriteLine("}");
+                PopIndent();
+                WriteLine("});");
+                PopIndent();
+                WriteLine("}");
+            }
+
             else {
                 WriteLine("if (" + prop.Name + " != null)");
                 WriteLine("{");
