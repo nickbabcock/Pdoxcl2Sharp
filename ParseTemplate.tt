@@ -146,7 +146,8 @@ foreach (var clazz in classes) { #>
                     ? res : fallback) + ")");
             }
             else if (prop.Type.Contains("[ConsecutiveElements]"))
-                Write(prop.Name + " = parser.ReadList(() => parser.Parse(new " + prop.ExtractInnerListType() + "()))");
+                Write(prop.Name + " = parser.ReadList(() => parser.Parse " +
+					"(new " + prop.ExtractInnerListType() + "()))");
             else
                 Write(prop.Name + " = " + fallback);
             WriteLine("; break;");
