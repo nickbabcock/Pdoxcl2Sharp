@@ -577,7 +577,7 @@ namespace Pdoxcl2Sharp
                         GetNextToken();
                     while (startingIndent != currentIndent
                         && PeekToken() == LexerToken.RightCurly && !eof)
-                        ;
+                        GetNextToken();
                     if (startingIndent == currentIndent)
                         break;
                 }

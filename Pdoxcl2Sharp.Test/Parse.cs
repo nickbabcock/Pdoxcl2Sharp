@@ -408,6 +408,86 @@ me=you";
             Assert.AreEqual(61768, actual[1].Id);
             Assert.AreEqual(4713, actual[1].Type);
         }
+
+        public class TestNode : IParadoxRead
+        {
+            public IList<Incoming> incomings;
+            public IList<double> tradeGoodsSize;
+            public TestNode()
+            {
+                incomings = new List<Incoming>();
+            }
+
+            public void TokenCallback(ParadoxParser parser, string token)
+            {
+                if (token == "incoming")
+                    incomings.Add(parser.Parse(new Incoming()));
+                else if (token == "trade_goods_size")
+                    tradeGoodsSize = parser.ReadDoubleList();
+                else
+                    throw new ApplicationException(token + " not recognized");
+            }
+        }
+
+        public class Incoming : IParadoxRead
+        {
+            public int actualAddedValue;
+            public int value;
+            public int from;
+            public Cid modifier;
+            public void TokenCallback(ParadoxParser parser, string token)
+            {
+                switch (token)
+                {
+                    case "actual_added_value": actualAddedValue = parser.ReadInt32(); break;
+                    case "value": value = parser.ReadInt32(); break;
+                    case "from": from = parser.ReadInt32(); break;
+                    case "modifier": modifier = parser.Parse(new Cid()); break;
+                }
+            }
+        }
+
+
+        [Test]
+        public void ListRegression()
+        {
+            var data = @"trade=
+{
+    node=
+    {
+		incoming=
+		{
+			actual_added_value=0
+			value=0
+			from=1
+            modifier=
+            {
+                id=3
+                type=49
+            }
+		}
+		trade_goods_size=
+		{
+0.000 0.710 }
+    }
+}";
+            List<TestNode> nodes = new List<TestNode>();
+            ParadoxParser.Parse(data.ToStream(), (p, s) =>
+                {
+                    if (s == "node")
+                        nodes.Add(p.Parse(new TestNode()));
+                });
+
+            Assert.That(nodes.Count, Is.EqualTo(1));
+            var actual = nodes[0];
+            Assert.That(actual, Is.Not.Null);
+            Assert.That(actual.incomings, Is.Not.Null);
+            Assert.That(actual.incomings.Count, Is.EqualTo(1));
+            Assert.That(actual.incomings[0].actualAddedValue, Is.EqualTo(0));
+            Assert.That(actual.incomings[0].value, Is.EqualTo(0));
+            Assert.That(actual.incomings[0].from, Is.EqualTo(1));
+            Assert.That(actual.tradeGoodsSize, Is.EquivalentTo(new[] { 0, 0.710 }));
+        }
     }
 
 }
