@@ -7,12 +7,23 @@ meaning that any file or configuration written in a similar
 
 ## Features
 
-- Speed: Seriously. The parser was written to rip through 50MB files as fast as possible
-- Encoding: The parser handles the encoding and decoding of files so that all your letters render fine. I'm looking at some of you guys (šžŸ)
-- Ease of use: Don't worry about if something contains quotes, if a list spans multiple lines, or about brackets. The parser takes care of everything. The parser only shows you what you care about.
+- Speed: Seriously. The parser was written to rip through 50MB files as fast as
+  possible
+- Reliability: There are a 100+ tests to ensure that the parser can handle any
+  situation
+- Encoding: The parser handles the encoding and decoding of files so that all
+  your letters render fine. I'm looking at some of you guys (šžŸ)
+- Ease of use: Don't worry about if something contains quotes, if a list spans
+  multiple lines, or about brackets. The parser takes care of everything. The
+  parser only shows you what you care about.
 - Saving: You can as easily write info as parse it.
-- Lossless Compression: If you don't care about a pretty output, you can compress what is written and it will still be read successfully from the parser and Paradox, hence the phrase "lossless". You can achieve compression ratios up to three (so your new file will be three times smaller than the old).
-- No dependencies: Written in pure managed C#, relying on no other libraries, Pdoxcl2Sharp has seamless integration into any situation  
+- Lossless Compression: If you don't care about a pretty output, you can
+  compress what is written and it will still be read successfully from the
+  parser and Paradox, hence the phrase "lossless". You can achieve compression
+  ratios up to three (so your new file will be three times smaller than the
+  old).
+- No dependencies: Written in pure managed C#, relying on no other libraries,
+  Pdoxcl2Sharp has seamless integration into any situation  
 
 ## Motivation
 
@@ -407,6 +418,34 @@ This is also valid
 It would prohibitively expensive to support both variations with a single list,
 hence the attribute must be appended lists that are in the format of the first
 factory example.
+
+Consecutive Elements for non-primitive types is even more interesting as there
+three good representations for the list, and all three are used in practice.
+Let's say there is a list of `Attachments` that we want parsed, the three ways
+to encounter this list are as follows.
+
+```
+// First method - individual occurences (non-consecutive elemtents)
+attachment={...}
+attachment={...}
+
+// Second method - nested structures
+attachments={ {...} {...} }
+
+// Third method - nested structures with headers
+attachments={ attachment={...} attachment={...}}
+```
+
+The second and third methods have consecutive elements, and in a tough decision
+it was decided that the parser would support the second method in automatic
+parsing, whereas the third method involves the client fleshing out the parsing
+structure.
+
+To parse the second method, use the following line:
+
+```csharp
+list = parser.ReadList(() => parser.Parse(new Attachment()));
+```
 
 ## On Automatic Deserialization
 
