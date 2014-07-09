@@ -217,7 +217,7 @@ namespace Pdoxcl2Sharp
         /// <param name="action">The action to be performed on each token</param>
         public void Parse(Action<ParadoxParser, string> action)
         {
-            DoWhileBracket(() => action(this, ReadString()));
+            DoWhileBracket(() => { if (ReadString() != null) action(this, currentString); });
         }
 
         /// <summary>
@@ -243,10 +243,11 @@ namespace Pdoxcl2Sharp
                 while ((currentChar = ReadNext()) != '"' && !eof)
                     stringBuffer[stringBufferCount++] = currentChar;
             }
+            else if (currentToken == LexerToken.LeftCurly &&
+                    PeekToken() == LexerToken.RightCurly)
+                return null;
             else
-            {
                 return ReadString();
-            }
 
             currentString = new string(stringBuffer, 0, stringBufferCount);
             stringBufferCount = 0;

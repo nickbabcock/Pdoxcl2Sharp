@@ -507,6 +507,52 @@ me=you";
             Assert.That(actual.incomings[0].from, Is.EqualTo(1));
             Assert.That(actual.tradeGoodsSize, Is.EquivalentTo(new[] { 0, 0.710 }));
         }
+
+        [Test]
+        public void EmptyBrackets()
+        {
+            var data = @"history=
+{
+	1452.4.9=
+	{
+		controller=
+		{
+			controller2=""SWE""
+		}
+	}
+
+	{
+	}
+}
+patrol=1";
+            int? patrol = null;
+            string controller2 = null;
+            ParadoxParser.Parse(data.ToStream(), (p, s) =>
+                {
+                    if (s == "history")
+                        p.Parse((p2, s2) =>
+                        {
+                            switch(s2)
+                            {
+                                case "controller2": controller2 = p.ReadString(); break;
+                                case "1452.4.9":
+                                case "controller":
+                                    break;
+                                default:
+                                    throw new ApplicationException("Unrecognized Token");
+                            }
+                        });
+                    else if (s == "patrol")
+                        patrol = p.ReadInt32();
+                    else
+                        throw new ApplicationException("Unrecognized Token");
+                });
+
+            Assert.That(patrol, Is.Not.Null);
+            Assert.That(patrol, Is.EqualTo(1));
+            Assert.That(controller2, Is.Not.Null);
+            Assert.That(controller2, Is.EqualTo("SWE"));
+        }
     }
 
 }
