@@ -352,7 +352,12 @@ namespace Pdoxcl2Sharp
         /// <returns>A boolean read from the current stream</returns>
         public bool ReadBool()
         {
-            return ReadString() == "yes";
+            ReadString();
+            if (CurrentString == "yes")
+                return true;
+            else if (CurrentString == "no")
+                return false;
+            throw new ApplicationException(CurrentString + " not recognized bool value");
         }
 
         /// <summary>
