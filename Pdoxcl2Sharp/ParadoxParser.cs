@@ -47,6 +47,7 @@ namespace Pdoxcl2Sharp
         private LexerToken currentToken;
         private LexerToken? nextToken;
         private Queue<char> nextChars = new Queue<char>();
+        private bool nextCharsEmpty = true;
         private char currentChar;
         private int currentPosition;
         private int bufferSize;
@@ -719,6 +720,7 @@ namespace Pdoxcl2Sharp
                     }
                 } while ((tempToken == LexerToken.Equals || IsSpace(tempChar)) && !eof);
 
+                nextCharsEmpty &= tempQueue.Count == 0;
                 while (tempQueue.Count > 0)
                     nextChars.Enqueue(tempQueue.Dequeue());
             }
@@ -734,8 +736,12 @@ namespace Pdoxcl2Sharp
         /// <returns>The next character in the buffer or '\0' if the end of the stream was reached</returns>
         private char ReadNext()
         {
-            if (nextChars.Count > 0)
-                return nextChars.Dequeue();
+            if (!nextCharsEmpty)
+            {
+                char result = nextChars.Dequeue();
+                nextCharsEmpty = nextChars.Count == 0;
+                return result;
+            }
 
             if (currentPosition == bufferSize)
             {
