@@ -1,6 +1,7 @@
 # Pdoxcl2Sharp
 
-[![Build status](https://ci.appveyor.com/api/projects/status/d3uy1opirc4t19di)](https://ci.appveyor.com/project/nickbabcock/pdoxcl2sharp)
+(.NET 4.0/Mono 3.x): [![Build status](https://ci.appveyor.com/api/projects/status/d3uy1opirc4t19di)](https://ci.appveyor.com/project/nickbabcock/pdoxcl2sharp)
+[![Build Status](https://travis-ci.org/nickbabcock/Pdoxcl2Sharp.svg?branch=master)](https://travis-ci.org/nickbabcock/Pdoxcl2Sharp)
 
 Pdoxcl2Sharp is a general parser for files related to Paradox Interactive.
 While the parser is aimed towards Paradox Interactive, it is not exclusive,
