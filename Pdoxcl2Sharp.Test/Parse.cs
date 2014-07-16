@@ -162,9 +162,8 @@ namespace Pdoxcl2Sharp.Test
         public void BooleanParse3()
         {
             var data = "cool={ 1.0 }".ToStream();
-            bool isCool = true;
             Assert.Throws<ApplicationException>(() =>
-                ParadoxParser.Parse(data, (p, s) => isCool = p.ReadBool()));
+                ParadoxParser.Parse(data, (p, s) => p.ReadBool()));
         }
 
         [Test]
