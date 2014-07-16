@@ -1,0 +1,6 @@
+language: c
+os: linux
+install: sudo apt-get install mono-devel mono-gmcs nunit-console
+branches:
+  only: master
+script: xbuild Pdoxcl2Sharp.sln && nunit-console Pdoxcl2Sharp.Test/bin/Pdoxcl2Sharp.Test.dll
