@@ -1,6 +1,13 @@
 language: c
 os: linux
-install: sudo apt-get install mono-devel mono-gmcs nunit-console
+install:
+  - sudo add-apt-repository ppa:directhex/monoxide
+  - sudo apt-get update
+  - sudo apt-get install mono-devel mono-gmcs nunit-console
+  - sudo mozroots --import --machine --sync
+  - yes | sudo certmgr -ssl -m https://go.microsoft.com
+  - yes | sudo certmgr -ssl -m https://nugetgallery.blob.core.windows.net
+  - yes | sudo certmgr -ssl -m https://nuget.org
 branches:
   only: master
 script: xbuild Pdoxcl2Sharp.sln && nunit-console Pdoxcl2Sharp.Test/bin/Pdoxcl2Sharp.Test.dll
