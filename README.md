@@ -39,7 +39,7 @@ mechanism.
 
 ## Install
 
-Since the demographics, users are conceivably small, I've decided against a
+Since the demographics of potential users is small, I've decided against a
 nuget package, so installation is a manual process. If a nuget package is
 wanted, please raise an issue.
 
