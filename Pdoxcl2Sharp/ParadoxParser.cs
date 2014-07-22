@@ -656,7 +656,9 @@ namespace Pdoxcl2Sharp
                 return SetCurrentToken(temp);
             }
 
-            if (currentToken == LexerToken.Comment)
+            // Check current character because checking the current token will cause it
+            // to skip the next tag if the comment is preceeded by a space.
+            if (currentChar == '#')
             {
                 while((currentChar = ReadNext()) != '\n' && !eof)
                     ;
