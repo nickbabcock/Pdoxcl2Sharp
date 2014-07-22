@@ -90,7 +90,7 @@ namespace Pdoxcl2Sharp.Test
             };
             ParadoxParser.Parse(data, dictionary.ParserAdapter());
 
-            Assert.AreEqual( "Nick_name", actual );
+            Assert.AreEqual("Nick_name", actual);
         }
 
         [Test]

@@ -259,7 +259,7 @@ namespace Pdoxcl2Sharp
                 } else
                 {
                     // Enqueue because it could be important (Equals, quote, etc.)
-                    nextChars.Enqueue( nextChar );
+                    nextChars.Enqueue(nextChar);
                     nextCharsEmpty = false;
                 }
             }
