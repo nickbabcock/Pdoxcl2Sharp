@@ -243,6 +243,25 @@ namespace Pdoxcl2Sharp
             {
                 while ((currentChar = ReadNext()) != '"' && !eof)
                     stringBuffer[stringBufferCount++] = currentChar;
+
+                // Check for partially quoted string of the style "name"_group.
+                // If it is, then read string as if untyped.
+                char nextChar = ReadNext();
+                if ( nextChar == '_' )
+                {
+                    stringBuffer[stringBufferCount++] = nextChar;
+                    currentToken = GetNextToken();
+                    do
+                    {
+                        stringBuffer[stringBufferCount++] = currentChar;
+                    } while(!IsSpace(currentChar = ReadNext()) &&
+                        SetCurrentToken(currentChar) == LexerToken.Untyped && !eof);
+                } else
+                {
+                    // Enqueue because it could be important (Equals, quote, etc.)
+                    nextChars.Enqueue(nextChar);
+                    nextCharsEmpty = false;
+                }
             }
             else if (currentToken == LexerToken.LeftCurly &&
                     PeekToken() == LexerToken.RightCurly)
@@ -637,6 +656,15 @@ namespace Pdoxcl2Sharp
                 return SetCurrentToken(temp);
             }
 
+            // Check current character because checking the current token will cause it
+            // to skip the next tag if the comment is preceeded by a space.
+            if (currentChar == '#')
+            {
+                while((currentChar = ReadNext()) != '\n' && !eof)
+                    ;
+                SetCurrentToken(currentChar);
+            }
+            
             while (IsSpace(currentChar = ReadNext()) && !eof)
                 ;
 

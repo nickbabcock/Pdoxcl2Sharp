@@ -78,19 +78,79 @@ namespace Pdoxcl2Sharp.Test
         }
 
         [Test]
-        public void SimpleComment()
+        public void PartialQuotedName()
         {
-            string toParse = "#culture=michigan";
+            string toParse = "name=\"Nick\"_name";
             var data = toParse.ToStream();
 
             string actual = String.Empty;
             Dictionary<string, Action<ParadoxParser>> dictionary = new Dictionary<string, Action<ParadoxParser>>
             {
-                { "culture", x => actual = x.ReadString() }
+                { "name", x => actual = x.ReadString() }
+            };
+            ParadoxParser.Parse(data, dictionary.ParserAdapter());
+
+            Assert.AreEqual("Nick_name", actual);
+        }
+
+        [Test]
+        public void SimpleComment()
+        {
+            string toParse = "#culture=michigan\n" +
+                             "tag2 = data2";
+            var data = toParse.ToStream();
+
+            string actual = String.Empty;
+            string tag2 = String.Empty;
+            Dictionary<string, Action<ParadoxParser>> dictionary = new Dictionary<string, Action<ParadoxParser>>
+            {
+                { "culture", x => actual = x.ReadString() },
+                { "tag2", x => tag2 = x.ReadString() }
             };
 
             ParadoxParser.Parse(data, dictionary.ParserAdapter());
             Assert.AreEqual(String.Empty, actual);
+            Assert.AreEqual("data2",tag2);
+        }
+
+        [Test]
+        public void FollowingCommentNoSpace()
+        {
+            string toParse = "tag = data#culture=michigan\n" +
+                             "tag2 = data2";
+            var data = toParse.ToStream();
+
+            string actual = String.Empty;
+            string tag2 = String.Empty;
+            Dictionary<string, Action<ParadoxParser>> dictionary = new Dictionary<string, Action<ParadoxParser>>
+            {
+                { "culture", x => actual = x.ReadString() },
+                { "tag2", x => tag2 = x.ReadString() }
+            };
+
+            ParadoxParser.Parse(data, dictionary.ParserAdapter());
+            Assert.AreEqual(String.Empty, actual);
+            Assert.AreEqual("data2", tag2);
+        }
+
+        [Test]
+        public void FollowingCommentWithSpace()
+        {
+            string toParse = "tag = data #culture=michigan\n" +
+                             "tag2 = data2";
+            var data = toParse.ToStream();
+
+            string actual = String.Empty;
+            string tag2 = String.Empty;
+            Dictionary<string, Action<ParadoxParser>> dictionary = new Dictionary<string, Action<ParadoxParser>>
+            {
+                { "culture", x => actual = x.ReadString() },
+                { "tag2", x => tag2 = x.ReadString() }
+            };
+
+            ParadoxParser.Parse(data, dictionary.ParserAdapter());
+            Assert.AreEqual(String.Empty, actual);
+            Assert.AreEqual("data2", tag2);
         }
 
         [Test]
