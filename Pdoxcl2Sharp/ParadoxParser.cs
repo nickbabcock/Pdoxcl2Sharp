@@ -637,6 +637,13 @@ namespace Pdoxcl2Sharp
                 return SetCurrentToken(temp);
             }
 
+            if (currentToken == LexerToken.Comment)
+            {
+                while((currentChar = ReadNext()) != '\n' && !eof)
+                    ;
+                SetCurrentToken(currentChar);
+            }
+            
             while (IsSpace(currentChar = ReadNext()) && !eof)
                 ;
 
