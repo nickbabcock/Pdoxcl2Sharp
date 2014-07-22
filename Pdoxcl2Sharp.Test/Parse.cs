@@ -94,6 +94,22 @@ namespace Pdoxcl2Sharp.Test
         }
 
         [Test]
+        public void FollowingComment()
+        {
+            string toParse = "tag = data#culture=michigan";
+            var data = toParse.ToStream();
+
+            string actual = String.Empty;
+            Dictionary<string, Action<ParadoxParser>> dictionary = new Dictionary<string, Action<ParadoxParser>>
+            {
+                { "culture", x => actual = x.ReadString() }
+            };
+
+            ParadoxParser.Parse(data, dictionary.ParserAdapter());
+            Assert.AreEqual(String.Empty, actual);
+        }
+
+        [Test]
         public void SimpleInt32()
         {
             string toParse = "ID=130";
