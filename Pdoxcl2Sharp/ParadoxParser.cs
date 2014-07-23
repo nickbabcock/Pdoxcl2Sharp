@@ -243,6 +243,26 @@ namespace Pdoxcl2Sharp
             {
                 while ((currentChar = ReadNext()) != '"' && !eof)
                     stringBuffer[stringBufferCount++] = currentChar;
+
+                // Check for partially quoted string of the style "name"_group.
+                // If it is, then read string as if untyped.
+                char nextChar = ReadNext();
+                if ( nextChar == '_' )
+                {
+                    stringBuffer[stringBufferCount++] = nextChar;
+                    currentToken = GetNextToken();
+                    do
+                    {
+                        stringBuffer[stringBufferCount++] = currentChar;
+                    } while(!IsSpace(currentChar = ReadNext()) &&
+                        SetCurrentToken(currentChar) == LexerToken.Untyped && !eof);
+                }
+                else
+                {
+                    // Enqueue because it could be important (Equals, quote, etc.)
+                    nextChars.Enqueue(nextChar);
+                    nextCharsEmpty = false;
+                }
             }
             else if (currentToken == LexerToken.LeftCurly &&
                     PeekToken() == LexerToken.RightCurly)

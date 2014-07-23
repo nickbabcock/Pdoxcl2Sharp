@@ -78,6 +78,22 @@ namespace Pdoxcl2Sharp.Test
         }
 
         [Test]
+        public void PartialQuotedName()
+        {
+            string toParse = "name=\"Nick\"_name";
+            var data = toParse.ToStream();
+
+            string actual = String.Empty;
+            Dictionary<string, Action<ParadoxParser>> dictionary = new Dictionary<string, Action<ParadoxParser>>
+            {
+                { "name", x => actual = x.ReadString() }
+            };
+            ParadoxParser.Parse(data, dictionary.ParserAdapter());
+
+            Assert.AreEqual("Nick_name", actual);
+        }
+
+        [Test]
         public void SimpleComment()
         {
             string toParse = "#culture=michigan\n" +
