@@ -79,7 +79,9 @@ public class TheoreticalFile : IParadoxRead, IParadoxWrite
     // This is the read interface. Whenever the parser finds something
     // interesting it will pass it to this function as the token. From
     // there, we decide if we want to process it further. This function
-    // will never receive the whitespace, a bracket, etc. 
+    // will never receive the whitespace, null, a bracket, etc. With the
+    // example, token will be "theoretical", "infantry_theory",
+    // "militia_theory", and "mobile_theory"
     public void TokenCallback(ParadoxParser parser, string token)
     {
         // Hey, we know what to do when we see "theoretical"!,
