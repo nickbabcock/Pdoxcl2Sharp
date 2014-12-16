@@ -5,4 +5,4 @@
 [assembly: AssemblyCompany("NBSoftSolutions")]
 [assembly: AssemblyProduct("Pdoxcl2Sharp")]
 [assembly: AssemblyCopyright("Copyright (C) Nick Babcock")]
-[assembly: AssemblyVersion("0.5.0.0")]
+[assembly: AssemblyVersion("0.5.1.0")]
