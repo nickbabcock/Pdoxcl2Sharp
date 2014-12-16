@@ -375,7 +375,7 @@ namespace Pdoxcl2Sharp
         public bool ReadBool()
         {
             ReadString();
-            if (CurrentString == "yes")
+            if (CurrentString == "yes" || CurrentString == "1")
                 return true;
             else if (CurrentString == "no")
                 return false;
