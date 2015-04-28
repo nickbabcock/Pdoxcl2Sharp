@@ -366,8 +366,8 @@ Target "All" DoNothing
 "GenerateHelp"
   ==> "KeepRunning"
     
-"ReleaseDocs"
-  ==> "Release"
+(**"ReleaseDocs"
+  ==> "Release"*)
 
 "BuildPackage"
   ==> "PublishNuget"
