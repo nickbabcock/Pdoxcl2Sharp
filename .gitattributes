@@ -1,12 +1,25 @@
-# Set default behaviour, in case users don't have core.autocrlf set.
-* text=auto
+# Auto detect text files
+* text=auto 
 
-# Explicitly declare text files we want to always be normalized and converted 
-# to native line endings on checkout.
-*.cs text
+# Custom for Visual Studio
+*.cs diff=csharp text=auto eol=lf
+*.fs diff=csharp text=auto eol=lf
+*.fsi diff=csharp text=auto eol=lf
+*.fsx diff=csharp text=auto eol=lf
+*.sln text eol=crlf merge=union
+*.csproj merge=union
+*.vbproj merge=union
+*.fsproj merge=union
+*.dbproj merge=union
 
-Pdoxcl2Sharp.Test/FileTextCompressed.txt text eol=lf
-Pdoxcl2Sharp.Test/FileTest.txt eol=crlf
-
-# Declare files that will always have CRLF line endings on checkout.
-*.sln text eol=crlf
+# Standard to msysgit
+*.doc diff=astextplain
+*.DOC diff=astextplain
+*.docx diff=astextplain
+*.DOCX diff=astextplain
+*.dot diff=astextplain
+*.DOT diff=astextplain
+*.pdf diff=astextplain
+*.PDF diff=astextplain
+*.rtf diff=astextplain
+*.RTF diff=astextplain

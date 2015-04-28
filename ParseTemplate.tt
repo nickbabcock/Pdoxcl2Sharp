@@ -2,7 +2,7 @@
 <#@ assembly name="System.Core" #>
 <# // CHANGE ME: The next line should be something like:
 // $(SolutionDir)\vendor\Pdoxcl2Sharp.dll #>
-<#@ assembly name="$(SolutionDir)\Pdoxcl2Sharp\bin\Pdoxcl2Sharp.dll" #>
+<#@ assembly name="$(SolutionDir)\src\Pdoxcl2Sharp\bin\Pdoxcl2Sharp.dll" #>
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Collections.Generic" #>

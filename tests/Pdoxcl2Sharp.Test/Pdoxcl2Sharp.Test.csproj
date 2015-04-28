@@ -33,10 +33,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="nunit.framework, Version=2.6.1.12217, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\NUnit.2.6.1\lib\nunit.framework.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -46,14 +42,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\ParseTemplate.cs">
+    <Compile Include="..\..\ParseTemplate.cs">
       <Link>ParseTemplate.cs</Link>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>ParseTemplate.tt</DependentUpon>
-    </Compile>
-    <Compile Include="..\SharedAssemblyVersion.cs">
-      <Link>Properties\SharedAssemblyVersion.cs</Link>
     </Compile>
     <Compile Include="Bracket.cs" />
     <Compile Include="Building.cs" />
@@ -66,15 +59,14 @@
     <Compile Include="Saving.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\ParseTemplate.tt">
+    <None Include="..\..\ParseTemplate.tt">
       <Link>ParseTemplate.tt</Link>
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>ParseTemplate.cs</LastGenOutput>
     </None>
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Pdoxcl2Sharp\Pdoxcl2Sharp.csproj">
+    <ProjectReference Include="..\..\src\Pdoxcl2Sharp\Pdoxcl2Sharp.csproj">
       <Project>{7E6B9A32-3D38-49EE-B95F-F7FB4961CF0F}</Project>
       <Name>Pdoxcl2Sharp</Name>
     </ProjectReference>
@@ -95,7 +87,6 @@
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
@@ -103,4 +94,11 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <ItemGroup>
+    <Reference Include="nunit.framework">
+      <HintPath>..\..\packages\NUnit\lib\nunit.framework.dll</HintPath>
+      <Private>True</Private>
+      <Paket>True</Paket>
+    </Reference>
+  </ItemGroup>
 </Project>
