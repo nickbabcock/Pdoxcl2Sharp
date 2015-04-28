@@ -1,6 +1,8 @@
 # Auto detect text files
 * text=auto 
 
+tests/Pdoxcl2Sharp.Test/*.txt text eol=crlf
+
 # Custom for Visual Studio
 *.cs diff=csharp text=auto eol=lf
 *.fs diff=csharp text=auto eol=lf
