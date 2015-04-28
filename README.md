@@ -39,20 +39,20 @@ mechanism.
 
 ## Install
 
-Since the demographics of potential users is small, I've decided against a
-nuget package, so installation is a manual process. If a nuget package is
-wanted, please raise an issue.
+Pdoxcl2Sharp can be [installed from NuGet](https://nuget.org/packages/Pdoxcl2Sharp):
+
+```
+PM> Install-Package Pfarah
+```
 
 If you will be doing all the parsing manually, then all you need to do is grab
-the .dll from the [latest] release, and add the appropriate reference in your
+the package from the [latest] release, and add the appropriate reference in your
 favorite IDE.
 
-[latest]: https://github.com/nickbabcock/Pdoxcl2Sharp/releases/latest
-
-If you want to use the parser generator ParseTemplate.tt, which I highly
-recommend, then you'll have to grab that file along with the .dll. Then modify
-the text in between the commented "add" section. Add a reference to the
-downloaded .dll in the generator.
+If you want to use the parser generator, ParseTemplate.tt, which I highly
+recommend, then you'll have to grab that file as well, and then modify the
+text in between the commented "add" section. Add a reference to the downloaded
+.dll in the generator.
 
 ## Example
 
