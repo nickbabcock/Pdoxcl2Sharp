@@ -46,7 +46,7 @@ PM> Install-Package Pfarah
 ```
 
 If you will be doing all the parsing manually, then all you need to do is grab
-the package from the [latest] release, and add the appropriate reference in your
+the package from the latest release, and add the appropriate reference in your
 favorite IDE.
 
 If you want to use the parser generator, ParseTemplate.tt, which I highly
@@ -518,8 +518,8 @@ solution to this approach is to define a separate class for the children or an
 
 ## Contributing
 
-So you want to help?  Great!  Here are a series of steps to get you on your way!
-Let me first say that if you have any troubles, file an issue.
+So you want to help? Great!  Here are a series of steps to get you on your
+way! Let me first say that if you have any troubles, file an issue.
 
 - Get a github account
 - Fork the repo
@@ -531,6 +531,17 @@ Let me first say that if you have any troubles, file an issue.
   workflow][]
 - Push changes to your repo
 - Submit a pull request and I'll review it!
+
+## Building
+
+There are a couple ways to build the project:
+
+```
+build.sh    // linux
+build.cmd   // windows
+```
+
+But you can also just click "Build" in Visual Studio :smile:
     
 ## Style of File 
 
