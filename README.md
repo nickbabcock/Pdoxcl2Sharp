@@ -42,7 +42,7 @@ mechanism.
 Pdoxcl2Sharp can be [installed from NuGet](https://nuget.org/packages/Pdoxcl2Sharp):
 
 ```
-PM> Install-Package Pfarah
+PM> Install-Package Pdoxcl2Sharp
 ```
 
 If you will be doing all the parsing manually, then all you need to do is grab
