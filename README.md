@@ -26,7 +26,7 @@ meaning that any file or configuration written in a similar
   ratios up to three (so your new file will be three times smaller than the
   old).
 - No dependencies: Written in pure managed C#, relying on no other libraries,
-  Pdoxcl2Sharp has seamless integration into any situation  
+  Pdoxcl2Sharp has seamless integration into any situation
 
 ## Motivation
 
@@ -58,7 +58,7 @@ text in between the commented "add" section. Add a reference to the downloaded
 
 Say you want to parse this file:
 
-    # Hey, I'm a comment, put me anywhere and everything 
+    # Hey, I'm a comment, put me anywhere and everything
     # until the end of line won't matter and will be chucked! 
 
     theoretical = {
@@ -534,16 +534,15 @@ way! Let me first say that if you have any troubles, file an issue.
 
 ## Building
 
-There are a couple ways to build the project:
+Install dotnet SDK 2.0 and then
 
 ```
-build.sh    // linux
-build.cmd   // windows
+dotnet build
 ```
 
-But you can also just click "Build" in Visual Studio :smile:
-    
-## Style of File 
+If you have Visual Studio 2017, I believe you can just hit "Build"
+
+## Style of File
 
 This section describes in more detail the style of files that can be parsed.
 
@@ -583,8 +582,8 @@ This leads to an interesting example showcasing the parser's flexibility.
 
     ids = { 1 2 3 4 }
     ids={1 2 3 4 }
-    ids = { 
-        1, 2, 
+    ids = {
+        1, 2,
         3, 4,
     }
 
