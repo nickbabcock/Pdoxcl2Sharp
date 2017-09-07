@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Pdoxcl2Sharp;
-using NUnit.Framework;
+using Xunit;
 namespace Pdoxcl2Sharp.Test
 {
-    [TestFixture]
     class Building : IParadoxRead
     {
         string onCompletion;
@@ -19,7 +18,7 @@ namespace Pdoxcl2Sharp.Test
         Dictionary<string, string> otherFields;
 
         IDictionary<string, Action<ParadoxParser>> parseStrategy;
-        [Test]
+        [Fact]
         public void ParseCorrectly()
         {
             parseStrategy = new Dictionary<string, Action<ParadoxParser>>
@@ -44,12 +43,12 @@ namespace Pdoxcl2Sharp.Test
 	visibility = yes".ToStream();
             ParadoxParser.Parse(data, TokenCallback);
 
-            Assert.AreEqual(0.13f, completionSize);
-            Assert.AreEqual("construction_practical", onCompletion);
-            Assert.AreEqual(true, onMap);
-            Assert.AreEqual(2, cost);
-            Assert.AreEqual(180, time);
-            Assert.AreEqual(10, maxLevel);
+            Assert.Equal(0.13f, completionSize);
+            Assert.Equal("construction_practical", onCompletion);
+            Assert.Equal(true, onMap);
+            Assert.Equal(2, cost);
+            Assert.Equal(180, time);
+            Assert.Equal(10, maxLevel);
 
             Dictionary<string, string> expected = new Dictionary<string, string>()
             {
@@ -57,7 +56,7 @@ namespace Pdoxcl2Sharp.Test
                 { "capital", "yes" },
                 { "visibility", "yes" }
             };
-            CollectionAssert.AreEqual(expected, otherFields);
+            Assert.Equal(expected, otherFields);
         }
 
         public void TokenCallback(ParadoxParser parser, string token)

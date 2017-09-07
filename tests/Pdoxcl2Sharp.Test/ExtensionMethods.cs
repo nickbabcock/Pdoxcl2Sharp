@@ -10,7 +10,7 @@ namespace Pdoxcl2Sharp.Test
     {
         public static Stream ToStream(this string str)
         {
-            return new MemoryStream(Encoding.GetEncoding(1252).GetBytes(str));
+            return new MemoryStream(Pdoxcl2Sharp.Globals.ParadoxEncoding.GetBytes(str));
         }
 
         public static Action<ParadoxParser, string> ParserAdapter(this IDictionary<string, Action<ParadoxParser>> dictionary)

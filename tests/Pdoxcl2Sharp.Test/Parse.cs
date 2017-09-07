@@ -2,34 +2,33 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NUnit.Framework;
+using Xunit;
 using Pdoxcl2Sharp;
 namespace Pdoxcl2Sharp.Test
 {
-    [TestFixture]
     public class Parse
     {
-        [Test]
+        [Fact]
         public void ReadSingleString()
         {
             var data = "michigan".ToStream();
             string actual = string.Empty;
             Action<ParadoxParser, string> action = (x, s) => actual = s;
             ParadoxParser.Parse(data, action);
-            Assert.AreEqual("michigan", actual);
+            Assert.Equal("michigan", actual);
         }
 
-        [Test]
+        [Fact]
         public void ReadSingleSpacedString()
         {
             var data = "   michigan    ".ToStream();
             string actual = string.Empty;
             Action<ParadoxParser, string> action = (x, s) => actual = s;
             ParadoxParser.Parse(data, action);
-            Assert.AreEqual("michigan", actual);
+            Assert.Equal("michigan", actual);
         }
 
-        [Test]
+        [Fact]
         public void Simple()
         {
             string toParse = "culture=michigan";
@@ -43,10 +42,10 @@ namespace Pdoxcl2Sharp.Test
             };
             ParadoxParser.Parse(data, dictionary.ParserAdapter());
 
-            Assert.AreEqual("michigan", actual);
+            Assert.Equal("michigan", actual);
         }
 
-        [Test]
+        [Fact]
         public void SimpleWithSpace()
         {
             var data = "culture = michigan".ToStream();
@@ -58,10 +57,10 @@ namespace Pdoxcl2Sharp.Test
             };
             ParadoxParser.Parse(data, dictionary.ParserAdapter());
 
-            Assert.AreEqual("michigan", actual);
+            Assert.Equal("michigan", actual);
         }
 
-        [Test]
+        [Fact]
         public void SimpleName()
         {
             string toParse = "name=\"Nick\"";
@@ -74,10 +73,10 @@ namespace Pdoxcl2Sharp.Test
             };
             ParadoxParser.Parse(data, dictionary.ParserAdapter());
 
-            Assert.AreEqual("Nick", actual);
+            Assert.Equal("Nick", actual);
         }
 
-        [Test]
+        [Fact]
         public void PartialQuotedName()
         {
             string toParse = "name=\"Nick\"_name";
@@ -90,10 +89,10 @@ namespace Pdoxcl2Sharp.Test
             };
             ParadoxParser.Parse(data, dictionary.ParserAdapter());
 
-            Assert.AreEqual("Nick_name", actual);
+            Assert.Equal("Nick_name", actual);
         }
 
-        [Test]
+        [Fact]
         public void SimpleComment()
         {
             string toParse = "#culture=michigan\n" +
@@ -109,11 +108,11 @@ namespace Pdoxcl2Sharp.Test
             };
 
             ParadoxParser.Parse(data, dictionary.ParserAdapter());
-            Assert.AreEqual(String.Empty, actual);
-            Assert.AreEqual("data2",tag2);
+            Assert.Equal(String.Empty, actual);
+            Assert.Equal("data2",tag2);
         }
 
-        [Test]
+        [Fact]
         public void FollowingCommentNoSpace()
         {
             string toParse = "tag = data#culture=michigan\n" +
@@ -129,11 +128,11 @@ namespace Pdoxcl2Sharp.Test
             };
 
             ParadoxParser.Parse(data, dictionary.ParserAdapter());
-            Assert.AreEqual(String.Empty, actual);
-            Assert.AreEqual("data2", tag2);
+            Assert.Equal(String.Empty, actual);
+            Assert.Equal("data2", tag2);
         }
 
-        [Test]
+        [Fact]
         public void FollowingCommentWithSpace()
         {
             string toParse = "tag = data #culture=michigan\n" +
@@ -149,11 +148,11 @@ namespace Pdoxcl2Sharp.Test
             };
 
             ParadoxParser.Parse(data, dictionary.ParserAdapter());
-            Assert.AreEqual(String.Empty, actual);
-            Assert.AreEqual("data2", tag2);
+            Assert.Equal(String.Empty, actual);
+            Assert.Equal("data2", tag2);
         }
 
-        [Test]
+        [Fact]
         public void SimpleInt32()
         {
             string toParse = "ID=130";
@@ -166,9 +165,9 @@ namespace Pdoxcl2Sharp.Test
             };
             ParadoxParser.Parse(data, dictionary.ParserAdapter());
 
-            Assert.AreEqual(130, actual);
+            Assert.Equal(130, actual);
         }
-        [Test]
+        [Fact]
         public void NegativeInt32()
         {
             var data = "ID=-130".ToStream();
@@ -180,10 +179,10 @@ namespace Pdoxcl2Sharp.Test
 
             ParadoxParser.Parse(data, dictionary.ParserAdapter());
 
-            Assert.AreEqual(-130, actual);
+            Assert.Equal(-130, actual);
         }
 
-        [Test]
+        [Fact]
         public void Int32WithSpace()
         {
             var data = "ID = -130".ToStream();
@@ -196,38 +195,38 @@ namespace Pdoxcl2Sharp.Test
 
             ParadoxParser.Parse(data, dictionary.ParserAdapter());
 
-            Assert.AreEqual(-130, actual);
+            Assert.Equal(-130, actual);
         }
 
-        [Test]
+        [Fact]
         public void BooleanParse()
         {
             var data = "cool=yes".ToStream();
             bool isCool = false;
             ParadoxParser.Parse(data, (p, s) => isCool = p.ReadBool());
-            Assert.AreEqual(true, isCool);
+            Assert.Equal(true, isCool);
         }
 
-        [Test]
+        [Fact]
         public void BooleanIntParse()
         {
             var data = "cool=1".ToStream();
             bool isCool = false;
             ParadoxParser.Parse(data, (p, s) => isCool = p.ReadBool());
-            Assert.AreEqual(true, isCool);
+            Assert.Equal(true, isCool);
         }
 
-        [Test]
+        [Fact]
         public void BooleanParse2()
         {
             var data = "cool=no".ToStream();
             bool isCool = true;
             ParadoxParser.Parse(data, (p, s) => isCool = p.ReadBool());
-            Assert.AreEqual(false, isCool);
+            Assert.Equal(false, isCool);
         }
 
 
-        [Test]
+        [Fact]
         public void BooleanParse3()
         {
             var data = "cool={ 1.0 }".ToStream();
@@ -235,7 +234,7 @@ namespace Pdoxcl2Sharp.Test
                 ParadoxParser.Parse(data, (p, s) => p.ReadBool()));
         }
 
-        [Test]
+        [Fact]
         public void TrickyNewLine()
         {
             var data = "tag=tagger\ntype=typer".ToStream();
@@ -250,11 +249,11 @@ namespace Pdoxcl2Sharp.Test
 
             ParadoxParser.Parse(data, dictionary.ParserAdapter());
 
-            Assert.AreEqual("tagger", tag);
-            Assert.AreEqual("typer", type);
+            Assert.Equal("tagger", tag);
+            Assert.Equal("typer", type);
         }
 
-        [Test]
+        [Fact]
         public void TrickyNewLineWithQuotes()
         {
             var data = "name=\"namer1\"\ncolor=\"Gray\"".ToStream();
@@ -268,11 +267,11 @@ namespace Pdoxcl2Sharp.Test
             };
             ParadoxParser.Parse(data, dictionary.ParserAdapter());
 
-            Assert.AreEqual("namer1", name);
-            Assert.AreEqual("Gray", color);
+            Assert.Equal("namer1", name);
+            Assert.Equal("Gray", color);
         }
 
-        [Test]
+        [Fact]
         public void ExtraNewLinesDontMatter()
         {
             var data = "\n\n\n\n ID=100 \n\n\n\n\n\n".ToStream();
@@ -283,11 +282,11 @@ namespace Pdoxcl2Sharp.Test
                 {"ID", x => id = x.ReadInt32()}
             };
             ParadoxParser.Parse(data, dictionary.ParserAdapter());
-            Assert.AreEqual(100, id);
+            Assert.Equal(100, id);
 
         }
 
-        [Test]
+        [Fact]
         public void SimpleDate()
         {
             string toParse = "date=\"1770.12.5\"";
@@ -301,20 +300,20 @@ namespace Pdoxcl2Sharp.Test
             ParadoxParser.Parse(data, dictionary.ParserAdapter());
 
             DateTime expected = new DateTime(1770, 12, 5);
-            Assert.AreEqual(expected, actual);
+            Assert.Equal(expected, actual);
         }
 
-        [Test]
+        [Fact]
         public void HourlyDate()
         {
             string toParse = "date=\"1936.1.10.4\"";
             DateTime actual = DateTime.MinValue;
             ParadoxParser.Parse(toParse.ToStream(), (p, s) => { if (s == "date") actual = p.ReadDateTime(); });
             DateTime expected = new DateTime(1936, 1, 10, 4, 0, 0);
-            Assert.AreEqual(expected, actual);
+            Assert.Equal(expected, actual);
         }
 
-        [Test]
+        [Fact]
         public void SimpleMultiLine()
         {
             string toParse = "date=\"1770.12.5\"" + Environment.NewLine +
@@ -335,26 +334,26 @@ namespace Pdoxcl2Sharp.Test
 
             ParadoxParser.Parse(data, dictionary.ParserAdapter());
 
-            Assert.That(actualDate.HasValue);
-            Assert.That(!String.IsNullOrEmpty(actualPlayer));
-            Assert.That(actualMonarch.HasValue);
+            Assert.True(actualDate.HasValue);
+            Assert.True(!String.IsNullOrEmpty(actualPlayer));
+            Assert.True(actualMonarch.HasValue);
 
-            Assert.AreEqual(new DateTime(1770, 12, 5), actualDate);
-            Assert.AreEqual("JAP", actualPlayer);
-            Assert.AreEqual(12209, actualMonarch);
+            Assert.Equal(new DateTime(1770, 12, 5), actualDate);
+            Assert.Equal("JAP", actualPlayer);
+            Assert.Equal(12209, actualMonarch);
         }
 
-        [Test]
+        [Fact]
         public void NoEmptyStringStatic()
         {
             var data = "A B C D ".ToStream();
             var expected = new[] { "A", "B", "C", "D" };
             List<string> actual = new List<string>();
             ParadoxParser.Parse(data, (p, s) => actual.Add(s));
-            CollectionAssert.AreEqual(expected, actual);
+            Assert.Equal(expected, actual);
         }
 
-        [Test]
+        [Fact]
         public void WhenChristWasBorn()
         {
             string input = "date=1.1.1";
@@ -365,10 +364,10 @@ namespace Pdoxcl2Sharp.Test
                 {"date", x => actual = x.ReadDateTime()}
             };
             ParadoxParser.Parse(input.ToStream(), dictionary.ParserAdapter());
-            Assert.AreEqual(expected, actual);
+            Assert.Equal(expected, actual);
         }
 
-        [Test]
+        [Fact]
         public void FirstMilleniumParty()
         {
             string input = "date=999.1.1";
@@ -379,10 +378,10 @@ namespace Pdoxcl2Sharp.Test
                 {"date", x => actual = x.ReadDateTime()}
             };
             ParadoxParser.Parse(input.ToStream(), dictionary.ParserAdapter());
-            Assert.AreEqual(expected, actual);
+            Assert.Equal(expected, actual);
         }
 
-        [Test]
+        [Fact]
         public void NestedParse()
         {
             string input = @"rebel_faction=
@@ -408,11 +407,11 @@ namespace Pdoxcl2Sharp.Test
                     }
                 };
             ParadoxParser.Parse(input.ToStream(), action);
-            Assert.AreEqual("nationalist_rebels", actual);
+            Assert.Equal("nationalist_rebels", actual);
         }
 
 
-        [Test]
+        [Fact]
         public void NestedParseAfter()
         {
             string input = @"rebel_faction=
@@ -447,8 +446,8 @@ me=you";
                         meActual = p.ReadString();
                 };
             ParadoxParser.Parse(input.ToStream(), action);
-            Assert.AreEqual("nationalist_rebels", actual);
-            Assert.AreEqual("you", meActual);
+            Assert.Equal("nationalist_rebels", actual);
+            Assert.Equal("you", meActual);
         }
 
 
@@ -464,7 +463,7 @@ me=you";
             }
         }
 
-        [Test]
+        [Fact]
         public void ParseListObject()
         {
             var data = @"attachments={
@@ -488,12 +487,12 @@ me=you";
                     }
                 });
 
-            Assert.IsNotNull(actual);
-            Assert.AreEqual(2, actual.Count);
-            Assert.AreEqual(2296, actual[0].Id);
-            Assert.AreEqual(54, actual[0].Type);
-            Assert.AreEqual(61768, actual[1].Id);
-            Assert.AreEqual(4713, actual[1].Type);
+            Assert.NotNull(actual);
+            Assert.Equal(2, actual.Count);
+            Assert.Equal(2296, actual[0].Id);
+            Assert.Equal(54, actual[0].Type);
+            Assert.Equal(61768, actual[1].Id);
+            Assert.Equal(4713, actual[1].Type);
         }
 
         public class TestNode : IParadoxRead
@@ -535,7 +534,7 @@ me=you";
         }
 
 
-        [Test]
+        [Fact]
         public void ListRegression()
         {
             var data = @"trade=
@@ -565,18 +564,18 @@ me=you";
                         nodes.Add(p.Parse(new TestNode()));
                 });
 
-            Assert.That(nodes.Count, Is.EqualTo(1));
+            Assert.Equal(nodes.Count, 1);
             var actual = nodes[0];
-            Assert.That(actual, Is.Not.Null);
-            Assert.That(actual.incomings, Is.Not.Null);
-            Assert.That(actual.incomings.Count, Is.EqualTo(1));
-            Assert.That(actual.incomings[0].actualAddedValue, Is.EqualTo(0));
-            Assert.That(actual.incomings[0].value, Is.EqualTo(0));
-            Assert.That(actual.incomings[0].from, Is.EqualTo(1));
-            Assert.That(actual.tradeGoodsSize, Is.EquivalentTo(new[] { 0, 0.710 }));
+            Assert.NotNull(actual);
+            Assert.NotNull(actual.incomings);
+            Assert.Equal(actual.incomings.Count, 1);
+            Assert.Equal(actual.incomings[0].actualAddedValue, 0);
+            Assert.Equal(actual.incomings[0].value, 0);
+            Assert.Equal(actual.incomings[0].from, 1);
+            Assert.Equal(actual.tradeGoodsSize, new[] { 0, 0.710 });
         }
 
-        [Test]
+        [Fact]
         public void EmptyBrackets()
         {
             var data = @"history=
@@ -616,10 +615,10 @@ patrol=1";
                         throw new ApplicationException("Unrecognized Token");
                 });
 
-            Assert.That(patrol, Is.Not.Null);
-            Assert.That(patrol, Is.EqualTo(1));
-            Assert.That(controller2, Is.Not.Null);
-            Assert.That(controller2, Is.EqualTo("SWE"));
+            Assert.NotNull(patrol);
+            Assert.Equal(patrol, 1);
+            Assert.NotNull(controller2);
+            Assert.Equal(controller2, "SWE");
         }
     }
 

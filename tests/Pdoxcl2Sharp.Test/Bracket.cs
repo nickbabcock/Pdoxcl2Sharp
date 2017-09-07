@@ -2,14 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NUnit.Framework;
+using Xunit;
 using System.IO;
 namespace Pdoxcl2Sharp.Test
 {
-    [TestFixture]
     class Bracket
     {
-        [Test]
+        [Fact]
         public void BracketTest()
         {
             string input = @"id={
@@ -41,12 +40,12 @@ name=""test""";
                 }
             };
             ParadoxParser.Parse(input.ToStream(), action);
-            Assert.AreEqual("21016", idVal);
-            Assert.AreEqual("40", typeVal);
-            Assert.AreEqual("test", nameVal);
+            Assert.Equal("21016", idVal);
+            Assert.Equal("40", typeVal);
+            Assert.Equal("test", nameVal);
         }
 
-        [Test]
+        [Fact]
         public void BracketSpaceTest()
         {
             string input = @"id = {
@@ -78,12 +77,12 @@ name=""test""";
                 }
             };
             ParadoxParser.Parse(input.ToStream(), action);
-            Assert.AreEqual("21016", idVal);
-            Assert.AreEqual("40", typeVal);
-            Assert.AreEqual("test", nameVal);
+            Assert.Equal("21016", idVal);
+            Assert.Equal("40", typeVal);
+            Assert.Equal("test", nameVal);
         }
         
-        [Test]
+        [Fact]
         public void SingleBracket()
         {
             string toParse = "date={date2=\"1770.12.5\"}";
@@ -96,10 +95,10 @@ name=""test""";
             };
 
             ParadoxParser.Parse(data, dictionary.ParserAdapter());
-            Assert.AreEqual(new DateTime(1770, 12, 5), actual.Date);            
+            Assert.Equal(new DateTime(1770, 12, 5), actual.Date);            
         }
 
-        [Test]
+        [Fact]
         public void MultipleBracket()
         {
             var data = ("date={date2=\"1770.12.5\"}" + Environment.NewLine +
@@ -122,7 +121,7 @@ name=""test""";
                 new DateTime(1666,6,6)
             };
 
-            CollectionAssert.AreEquivalent(expected, actual.Select(x => x.Date));
+            Assert.Equal(expected, actual.Select(x => x.Date));
         }
 
         void ReadInto(ParadoxParser x, ref int? tech, ref double? progress)
@@ -131,7 +130,7 @@ name=""test""";
             progress = x.ReadDouble();
         }
 
-        [Test]
+        [Fact]
         public void TechnologyBracket()
         {
             var data = "\t\tland_tech={45 1020.600}".ToStream();
@@ -145,13 +144,13 @@ name=""test""";
             };
 
             ParadoxParser.Parse(data, dictionary.ParserAdapter());
-            Assert.That(tech.HasValue);
-            Assert.That(progress.HasValue);
-            Assert.AreEqual(45, tech);
-            Assert.AreEqual(1020.600, progress);
+            Assert.True(tech.HasValue);
+            Assert.True(progress.HasValue);
+            Assert.Equal(45, tech);
+            Assert.Equal(1020.600, progress);
         }
 
-        [Test]
+        [Fact]
         public void MapData()
         {
             var data = @"low_pressure_zones = {
@@ -172,7 +171,7 @@ name=""test""";
             TestDictionary(data, x => x.ReadDictionary(p => p.ReadInt32(), p => p.ReadByte()), expected, "low_pressure_zones");
         }
 
-        [Test]
+        [Fact]
         public void MapDataNoSpace()
         {
             var data = @"low_pressure_zones={
@@ -192,7 +191,7 @@ name=""test""";
             TestDictionary(data, x => x.ReadDictionary(p => p.ReadInt32(), p => p.ReadByte()), expected, "low_pressure_zones");
         }
 
-        [Test]
+        [Fact]
         public void EmptyMap()
         {
             var data = "low_pressure_zones={}".ToStream();
@@ -200,7 +199,7 @@ name=""test""";
                 Enumerable.Empty<KeyValuePair<int, byte>>(), "low_pressure_zones");
         }
 
-        [Test]
+        [Fact]
         public void EmptySpacedMap()
         {
             var data = "low_pressure_zones  =   {    }     ".ToStream();
@@ -220,7 +219,7 @@ name=""test""";
                 };
 
             ParadoxParser.Parse(data, action);
-            CollectionAssert.AreEquivalent(expected, actual);
+            Assert.Equal(expected, actual);
         }
     }
 

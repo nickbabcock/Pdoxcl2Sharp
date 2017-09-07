@@ -8,8 +8,7 @@ namespace Pdoxcl2Sharp
 {
     public static class Globals
     {
-        public const int WindowsCodePage = 1252;
-        public static readonly Encoding ParadoxEncoding = Encoding.GetEncoding(WindowsCodePage);
+        public static readonly Encoding ParadoxEncoding = CodePagesEncodingProvider.Instance.GetEncoding(1252);
 
         /// <summary>
         /// Converts a <see cref="DateTime"/> to a string that adheres to

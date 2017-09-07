@@ -2,16 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NUnit.Framework;
+using Xunit;
 using Pdoxcl2Sharp;
 using System.IO;
 
 namespace Pdoxcl2Sharp.Test
 {
-    [TestFixture]
     class Saving
     {
-        [Test]
+        [Fact]
         public void SingleSaveNewLine()
         {
             using (MemoryStream ms = new MemoryStream())
@@ -20,11 +19,11 @@ namespace Pdoxcl2Sharp.Test
                 {
                     saver.Write("culture", "michigan");
                 }
-                Assert.AreEqual("culture=michigan", Globals.ParadoxEncoding.GetString(ms.ToArray()));
+                Assert.Equal("culture=michigan", Globals.ParadoxEncoding.GetString(ms.ToArray()));
             }
         }
 
-        [Test]
+        [Fact]
         public void SingleQuoteSaveNewLine()
         {
             using (MemoryStream ms = new MemoryStream())
@@ -33,11 +32,11 @@ namespace Pdoxcl2Sharp.Test
                 {
                     saver.Write("culture", "michigan", ValueWrite.Quoted);
                 }
-                Assert.AreEqual("culture=\"michigan\"", Globals.ParadoxEncoding.GetString(ms.ToArray()));
+                Assert.Equal("culture=\"michigan\"", Globals.ParadoxEncoding.GetString(ms.ToArray()));
             }
         }
 
-        [Test]
+        [Fact]
         public void SaveComment()
         {
             using (MemoryStream ms = new MemoryStream())
@@ -46,11 +45,11 @@ namespace Pdoxcl2Sharp.Test
                 {
                     saver.WriteComment("This is a comment");
                 }
-                Assert.AreEqual("#This is a comment\r\n", Globals.ParadoxEncoding.GetString(ms.ToArray()));
+                Assert.Equal("#This is a comment\r\n", Globals.ParadoxEncoding.GetString(ms.ToArray()));
             }
         }
 
-        [Test]
+        [Fact]
         public void SaveDate()
         {
             using (MemoryStream ms = new MemoryStream())
@@ -59,11 +58,11 @@ namespace Pdoxcl2Sharp.Test
                 {
                     saver.WriteLine("date", new DateTime(1, 1, 1));
                 }
-                Assert.AreEqual("date=\"1.1.1\"\r\n", Globals.ParadoxEncoding.GetString(ms.ToArray()));
+                Assert.Equal("date=\"1.1.1\"\r\n", Globals.ParadoxEncoding.GetString(ms.ToArray()));
             }
         }
 
-        [Test]
+        [Fact]
         public void SaveNonUtf8Characters()
         {
             string actual;
@@ -74,11 +73,11 @@ namespace Pdoxcl2Sharp.Test
                     saver.Write("name", "šžŸ", ValueWrite.None);
                 }
                 actual = Globals.ParadoxEncoding.GetString(ms.ToArray());
-                Assert.AreEqual("name=šžŸ", actual);
+                Assert.Equal("name=šžŸ", actual);
             }
         }
 
-        [Test]
+        [Fact]
         public void SaveDouble()
         {
             string actual;
@@ -89,11 +88,11 @@ namespace Pdoxcl2Sharp.Test
                     saver.Write(0.23456);
                 }
                 actual = Globals.ParadoxEncoding.GetString(ms.ToArray());
-                Assert.AreEqual("0.235", actual);
+                Assert.Equal("0.235", actual);
             }
         }
 
-        [Test]
+        [Fact]
         public void SaveInt()
         {
             string actual;
@@ -105,11 +104,11 @@ namespace Pdoxcl2Sharp.Test
                     saver.Write(val);
                 }
                 actual = Globals.ParadoxEncoding.GetString(ms.ToArray());
-                Assert.AreEqual("-1235346", actual);
+                Assert.Equal("-1235346", actual);
             }
         }
 
-        [Test]
+        [Fact]
         public void SaveDatetime()
         {
             string actual;
@@ -121,11 +120,11 @@ namespace Pdoxcl2Sharp.Test
                     saver.Write(value);
                 }
                 actual = Globals.ParadoxEncoding.GetString(ms.ToArray());
-                Assert.AreEqual("1402.1.1", actual);
+                Assert.Equal("1402.1.1", actual);
             }
         }
 
-        [Test]
+        [Fact]
         public void SaveWithoutHeader()
         {
             using (MemoryStream ms = new MemoryStream())
@@ -138,7 +137,7 @@ namespace Pdoxcl2Sharp.Test
                         });
                 }
                 string actual = Globals.ParadoxEncoding.GetString(ms.ToArray());
-                Assert.AreEqual("{\r\n\tHey there!\r\n}\r\n", actual);
+                Assert.Equal("{\r\n\tHey there!\r\n}\r\n", actual);
             }
         }
     }

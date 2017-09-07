@@ -1,64 +1,27 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{7E6B9A32-3D38-49EE-B95F-F7FB4961CF0F}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Pdoxcl2Sharp</RootNamespace>
-    <AssemblyName>Pdoxcl2Sharp</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
-    <RestorePackages>true</RestorePackages>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <DocumentationFile>bin\Pdoxcl2Sharp.xml</DocumentationFile>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Pdoxcl2Sharp.xml</DocumentationFile>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Product>Pdoxcl2Sharp</Product>
+    <Description>A Paradox Interactive general file parser with an emphasis on speed and efficiency</Description>
+    <Copyright>Nick Babcock</Copyright>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <Authors>Nick Babcock</Authors>
+    <PackageTags>Paradox</PackageTags>
+    <PackageProjectUrl>https://github.com/nickbabcock/Pdoxcl2Sharp</PackageProjectUrl>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/nickbabcock/Pdoxcl2Sharp/master/LICENSE.txt</PackageLicenseUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/nickbabcock/Pdoxcl2Sharp</RepositoryUrl>
+    <Major>0</Major>
+    <Minor>5</Minor>
+    <Revision>2</Revision>
+    <AssemblyVersion>$(Major).$(Minor).$(Revision)</AssemblyVersion>
+    <AssemblyFileVersion>$(Major).$(Minor).$(Revision)</AssemblyFileVersion>
+    <InformationalVersion>$(Major).$(Minor).$(Revision)</InformationalVersion>
+    <Version>$(Major).$(Minor).$(Revision)$(VersionSuffix)</Version>
+    <FileVersion>$(Major).$(Minor).$(Revision)</FileVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.4.0" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="ConsecutiveElementsAttribute.cs" />
-    <Compile Include="Deserializer.cs" />
-    <Compile Include="Globals.cs" />
-    <Compile Include="INamingConvention.cs" />
-    <Compile Include="InflectorExtensions.cs" />
-    <Compile Include="IParadoxRead.cs" />
-    <Compile Include="IParadoxWrite.cs" />
-    <Compile Include="ParadoxAliasAttribute.cs" />
-    <Compile Include="ParadoxCompressedSaver.cs" />
-    <Compile Include="ParadoxNamingConvention.cs" />
-    <Compile Include="ParadoxParser.cs" />
-    <Compile Include="ParadoxSaver.cs" />
-    <Compile Include="ParadoxStreamWriter.cs" />
-    <Compile Include="Property.cs" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

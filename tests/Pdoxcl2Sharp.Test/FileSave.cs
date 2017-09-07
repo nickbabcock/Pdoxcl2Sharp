@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+﻿using Xunit;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,7 +7,6 @@ using System.Text;
 
 namespace Pdoxcl2Sharp.Test
 {
-    [TestFixture]
     public class FileSave
     {
         private static string filePath = "FileTest.txt";
@@ -19,8 +18,7 @@ namespace Pdoxcl2Sharp.Test
         private DateTime date;
         private InnerInfo inner;
 
-        [TestFixtureSetUp]
-        public void Setup()
+        public FileSave()
         {
             date = new DateTime(1641, 6, 11);
             player = "ALG";
@@ -34,7 +32,7 @@ namespace Pdoxcl2Sharp.Test
             };
         }
 
-        [Test]
+        [Fact]
         public void SaveNoChange()
         {
             FileStream output = new FileStream(outputPath, FileMode.Create, FileAccess.ReadWrite);
@@ -44,10 +42,10 @@ namespace Pdoxcl2Sharp.Test
                 saver.WriteLine("player", player, ValueWrite.Quoted);
                 saver.Write(inner.Id.ToString(), inner);
             }
-            FileAssert.AreEqual(filePath, outputPath);
+            Assert.Equal(File.ReadAllText(filePath), File.ReadAllText(outputPath));
         }
 
-        [Test]
+        [Fact]
         public void SaveNoChangeCompressed()
         {
             FileStream output = new FileStream(outputCompressedPath, FileMode.Create, FileAccess.ReadWrite);
@@ -57,7 +55,7 @@ namespace Pdoxcl2Sharp.Test
                 saver.WriteLine("player", player, ValueWrite.Quoted);
                 saver.Write(inner.Id.ToString(), inner);
             }
-            FileAssert.AreEqual(compressedFilePath, outputCompressedPath);
+            Assert.Equal(File.ReadAllText(compressedFilePath), File.ReadAllText(outputCompressedPath));
         }
 
         private class InnerInfo : IParadoxWrite
