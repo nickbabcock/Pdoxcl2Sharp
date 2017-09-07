@@ -1,1 +1,3 @@
 image: 'Visual Studio 2017'
+test_script:
+  cmd: dotnet test -f netcoreapp2.0 tests/Pdoxcl2Sharp.Test/Pdoxcl2Sharp.Test.csproj
