@@ -1,3 +1,6 @@
+### 0.6.0 - Unreleased
+* Cross platform build with .Net standard 2.0
+
 ### 0.5.2 - Nuget! - April 28 2015
 * Finally released to nuget
 
