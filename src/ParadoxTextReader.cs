@@ -39,9 +39,18 @@ namespace Pdoxcl2Sharp
                 first = _buffer[_consumed];
             }
 
+            TokenStartIndex = _consumed;
 
+            switch (first)
+            {
+                case TextConstants.BraceClose:
+                case TextConstants.BraceOpen:
+                    break;
+                default:
 
-            TokenType = TextTokenType.Comment;
+                    break;
+            }
+
             return true;
         }
 
@@ -72,6 +81,15 @@ namespace Pdoxcl2Sharp
                         return;
                 }
             }
+        }
+
+        private bool ConsumeString()
+        {
+            var localBuffer = _buffer.Slice(_consumed);
+            localBuffer.IndexOfBoundary();
+
+
+            return true;
         }
     }
 }

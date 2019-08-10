@@ -10,5 +10,7 @@ namespace Pdoxcl2Sharp
         public const byte CarriageReturn = (byte)'\r';
         public const byte LineFeed = (byte)'\n';
         public const byte Tab = (byte)'\t';
+        public const byte BraceOpen = (byte)'{';
+        public const byte BraceClose = (byte)'}';
     }
 }
