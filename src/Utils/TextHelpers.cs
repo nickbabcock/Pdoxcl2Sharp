@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-namespace Pdoxcl2Sharp
+namespace Pdoxcl2Sharp.Utils
 {
     public static class TextHelpers
     {

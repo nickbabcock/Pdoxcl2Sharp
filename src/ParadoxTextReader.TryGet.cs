@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers.Text;
+using Pdoxcl2Sharp.Utils;
 
 namespace Pdoxcl2Sharp
 {

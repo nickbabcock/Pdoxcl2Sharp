@@ -1,9 +1,10 @@
 ﻿using System;
+using Pdoxcl2Sharp.Utils;
 using Xunit;
 
 namespace Pdoxcl2Sharp.Tests
 {
-    public class TextReaderParseTest
+    public partial class TextReaderTest
     {
         public enum ParaValue : byte
         {

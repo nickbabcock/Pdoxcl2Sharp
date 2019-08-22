@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 namespace Pdoxcl2Sharp
 {
@@ -16,8 +17,8 @@ namespace Pdoxcl2Sharp
             _isFinalBlock = isFinalBlock;
             _consumed = 0;
             TokenType = state._tokenType;
-            _bytePositionInLine = 0;
-            _lineNumber = 0;
+            _bytePositionInLine = state._bytePositionInLine;
+            _lineNumber = state._lineNumber;
             TokenStartIndex = 0;
             ValueSpan = ReadOnlySpan<byte>.Empty;
         }
@@ -26,6 +27,15 @@ namespace Pdoxcl2Sharp
 
         public TextTokenType TokenType { get; private set; }
         public int TokenStartIndex { get; private set; }
+
+        public int Consumed => _consumed;
+
+        public TextReaderState State => new TextReaderState
+        {
+            _tokenType = TokenType,
+            _bytePositionInLine = _bytePositionInLine,
+            _lineNumber = _lineNumber
+        };
 
         public bool Read()
         {
