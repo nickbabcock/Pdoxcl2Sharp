@@ -13,6 +13,6 @@ namespace Pdoxcl2Sharp.Parsers
             Type = type;
         }
 
-        public abstract void Decode(ref ParadoxTextReader reader, object obj);
+        public abstract void Decode(ref ParadoxTextReader reader, object obj, ParadoxSerializerOptions options);
     }
 }

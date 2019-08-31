@@ -8,6 +8,6 @@ namespace Pdoxcl2Sharp.Parsers
         {
         }
 
-        public override void Decode(ref ParadoxTextReader reader, object obj) { }
+        public override void Decode(ref ParadoxTextReader reader, object obj, ParadoxSerializerOptions options) { }
     }
 }

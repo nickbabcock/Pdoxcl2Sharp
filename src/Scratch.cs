@@ -6,6 +6,8 @@ using System.IO;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Pdoxcl2Sharp.Converters;
+using Pdoxcl2Sharp.Utils;
 using BindingFlags = System.Reflection.BindingFlags;
 
 namespace Pdoxcl2Sharp
@@ -32,7 +34,7 @@ namespace Pdoxcl2Sharp
                         .ConfigureAwait(false);
                     isFinalBlock = bytesRead <= 0;
                     buffer.Commit(bytesRead);
-                    var (consumed, newState) = parse(buffer.ActiveSpan, isFinalBlock, state, parser);
+                    var (consumed, newState) = Parse(buffer.ActiveSpan, isFinalBlock, state, parser);
                     state = newState;
                     buffer.Discard(consumed);
                 }
@@ -79,15 +81,24 @@ namespace Pdoxcl2Sharp
 
                     if (propertyInfo.PropertyType == typeof(string))
                     {
-                        dict.Add(hash, new DecodeString(propertyInfo));
+                        dict.Add(hash, new DecodeSetter(propertyInfo, TextObjectParser.PropertyType.Scalar, new ConverterString()));
                     }
                     else if (propertyInfo.PropertyType == typeof(int))
                     {
-                        dict.Add(hash, new DecodeInt32(propertyInfo));
+                        dict.Add(hash, new DecodeSetter(propertyInfo, TextObjectParser.PropertyType.Scalar, new ConverterInt32()));
                     }
                     else
                     {
-                        dict.Add(hash, new DecodeObject(propertyInfo));
+                        if (propertyInfo.PropertyType.IsGenericType &&
+                            propertyInfo.PropertyType.GetGenericTypeDefinition() == typeof(List<>))
+                        {
+                            var ty = propertyInfo.PropertyType.GetGenericArguments()[0];
+                            dict.Add(hash, new DecodeList(propertyInfo, GetConverter(ty)));
+                        }
+                        else
+                        {
+                            dict.Add(hash, new DecodeObject(propertyInfo));
+                        }
                     }
                 }
             }
@@ -95,7 +106,21 @@ namespace Pdoxcl2Sharp
             return dict;
         }
 
-
+        private static TextConvert GetConverter(Type type)
+        {
+            if (type == typeof(string))
+            {
+                return new ConverterString();
+            }
+            else if (type == typeof(int))
+            {
+                return new ConverterInt32();
+            }
+            else
+            {
+                throw new ArgumentException($"Unexpected type: {type}", nameof(type));
+            }
+        }
 
         private static IParse<object> CreateObjectParser(Type type, ParadoxSerializerOptions options)
         {
@@ -103,7 +128,7 @@ namespace Pdoxcl2Sharp
             return new TextObjectParser(stack);
         }
 
-        private static (int, TextReaderState) parse(ReadOnlySpan<byte> span, bool isFinalBlock, TextReaderState state, IParse<object> parser)
+        private static (int, TextReaderState) Parse(ReadOnlySpan<byte> span, bool isFinalBlock, TextReaderState state, IParse<object> parser)
         {
             var reader = new ParadoxTextReader(span, isFinalBlock, state);
             parser.Parse(ref reader);

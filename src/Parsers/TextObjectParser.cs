@@ -1,9 +1,4 @@
-﻿
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-
-namespace Pdoxcl2Sharp.Parsers
+﻿namespace Pdoxcl2Sharp.Parsers
 {
     internal class TextObjectParser : IParse<object>
     {
@@ -22,7 +17,7 @@ namespace Pdoxcl2Sharp.Parsers
             Array
         }
 
-          private readonly ReadStack _stack;
+        private readonly ReadStack _stack;
         private PropertyType _found = PropertyType.None;
         private ObjectState _state = ObjectState.Property;
 
@@ -47,10 +42,20 @@ namespace Pdoxcl2Sharp.Parsers
                         break;
                     }
 
-                    case TextTokenType.Scalar when _state == ObjectState.Value && _found == PropertyType.Scalar:
+                    case TextTokenType.Scalar when _state == ObjectState.Value:
                     {
-                        _state = ObjectState.Property;
-                        _stack.FoundValue(ref reader);
+                        switch (_found)
+                        {
+                            case PropertyType.Scalar:
+                                _state = ObjectState.Property;
+                                _stack.FoundValue(ref reader);
+                                break;
+                            case PropertyType.Array:
+                                _state = ObjectState.Value;
+                                _stack.FoundValue(ref reader);
+                                break;
+                        }
+
                         break;
                     }
                     case TextTokenType.Comment:
@@ -61,11 +66,20 @@ namespace Pdoxcl2Sharp.Parsers
                             _state = ObjectState.Value;
                         }
                         break;
-                    case TextTokenType.Open when _state == ObjectState.Value && _found == PropertyType.Object:
-                        _stack.Push();
-                        _state = ObjectState.Property;
+                    case TextTokenType.Open when _state == ObjectState.Value:
+                        switch (_found)
+                        {
+                            case PropertyType.Object:
+                                _stack.Push();
+                                _state = ObjectState.Property;
+                                break;
+                            case PropertyType.Array:
+                                _stack.Push();
+                                _state = ObjectState.Value;
+                                break;
+                        }
                         break;
-                    case TextTokenType.End when _state == ObjectState.Property:
+                    case TextTokenType.End:
                         _stack.Pop();
                         break;
                     default:

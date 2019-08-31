@@ -35,7 +35,7 @@ namespace Pdoxcl2Sharp
 
         public void FoundValue(ref ParadoxTextReader reader)
         {
-            Property.Decode(ref reader, Frame.ReturnValue);
+            Property.Decode(ref reader, Frame.ReturnValue, _options);
         }
 
         public void Push()
@@ -58,4 +58,4 @@ namespace Pdoxcl2Sharp
 
         public object ReturnValue => Frame.ReturnValue;
     }
-}
+}  
