@@ -23,14 +23,16 @@ namespace Pdoxcl2Sharp
 
             var parser = GetParser(typeof(TValue), options);
             var state = new TextReaderState();
-            using (var buffer = new ArrayBuffer(options.DefaultBufferSize * 2, options.PoolAllocations))
+            using (var buffer = new ArrayBuffer(options.DefaultBufferSize, options.PoolAllocations))
             {
                 bool isFinalBlock = false;
                 while (!isFinalBlock)
                 {
-                    buffer.EnsureAvailableSpace(options.DefaultBufferSize);
-                    int leftOver = buffer.ActiveSpan.Length;
-                    int bytesRead = await input.ReadAsync(buffer.AvailableMemory.Slice(leftOver), token)
+                    // If we can't consume a long string with a short buffer this line will grow
+                    // the buffer based on how long the string is
+                    buffer.EnsureAvailableSpace(buffer.ActiveLength * 2);
+
+                    int bytesRead = await input.ReadAsync(buffer.AvailableMemory.Slice(0), token)
                         .ConfigureAwait(false);
                     isFinalBlock = bytesRead <= 0;
                     buffer.Commit(bytesRead);

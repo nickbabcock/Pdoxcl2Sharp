@@ -26,5 +26,30 @@ namespace Pdoxcl2Sharp.Tests
             Assert.Equal(expected, rdr.GetString());
             Assert.Equal(5, rdr.Consumed);
         }
+
+        [Fact]
+        public void NonFinalSegmentTest()
+        {
+            var input = "entries = { hello goodbye sincer";
+            var slice = new ReadOnlySpan<byte>(TextHelpers.Windows1252Encoding.GetBytes(input));
+            var state = new TextReaderState();
+            var reader = new ParadoxTextReader(slice, isFinalBlock: false, state);
+            while (reader.Read())
+            {
+
+            }
+            Assert.Equal("goodbye", reader.GetString());
+            Assert.Equal(26, reader.Consumed);
+
+            slice = new ReadOnlySpan<byte>(TextHelpers.Windows1252Encoding.GetBytes("sincere }"));
+            reader = new ParadoxTextReader(slice, isFinalBlock: true, reader.State);
+            while (reader.Read())
+            {
+
+            }
+
+            Assert.Equal(TextTokenType.End, reader.TokenType);
+            Assert.Equal(9, reader.Consumed);
+        }
     }
 }

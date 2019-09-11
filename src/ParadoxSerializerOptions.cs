@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Pdoxcl2Sharp.Parsers;
+﻿using Pdoxcl2Sharp.Parsers;
 
 namespace Pdoxcl2Sharp
 {

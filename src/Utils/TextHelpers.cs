@@ -25,19 +25,27 @@ namespace Pdoxcl2Sharp.Utils
             b == TextConstants.LineFeed ||
             b == TextConstants.CarriageReturn;
 
-        private static readonly byte[] BoundaryCharacters = {
-            TextConstants.Space,
-            TextConstants.Tab,
-            TextConstants.LineFeed,
-            TextConstants.CarriageReturn,
-            TextConstants.BraceClose,
-            TextConstants.BraceOpen,
-            TextConstants.Equal,
-            TextConstants.Exclamation,
-            TextConstants.GreaterThan,
-            TextConstants.LessThan
-        };
+        public static int IndexOfBoundary(this ReadOnlySpan<byte> span)
+        {
+            for (int i = 0; i < span.Length; i++)
+            {
+                switch (span[i])
+                {
+                    case TextConstants.Space:
+                    case TextConstants.Tab:
+                    case TextConstants.LineFeed:
+                    case TextConstants.CarriageReturn:
+                    case TextConstants.BraceClose:
+                    case TextConstants.BraceOpen:
+                    case TextConstants.Equal:
+                    case TextConstants.Exclamation:
+                    case TextConstants.GreaterThan:
+                    case TextConstants.LessThan:
+                        return i;
+                }
+            }
 
-        public static int IndexOfBoundary(this ReadOnlySpan<byte> span) => span.IndexOfAny(BoundaryCharacters);
+            return -1;
+        }
     }
 }

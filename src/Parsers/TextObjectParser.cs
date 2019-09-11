@@ -20,6 +20,7 @@
         private readonly ReadStack _stack;
         private PropertyType _found = PropertyType.None;
         private ObjectState _state = ObjectState.Property;
+        private int skipDepth = 0;
 
         internal TextObjectParser(ReadStack stack)
         {
@@ -30,6 +31,21 @@
         {
             while (reader.Read())
             {
+                if (skipDepth > 0)
+                {
+                    switch (reader.TokenType)
+                    {
+                        case TextTokenType.Open:
+                            skipDepth++;
+                            break;
+                        case TextTokenType.End:
+                            skipDepth--;
+                            break;
+                    }
+
+                    continue;
+                }
+
                 switch (reader.TokenType)
                 {
                     case TextTokenType.Scalar when _state == ObjectState.Property:
@@ -66,7 +82,7 @@
                             _state = ObjectState.Value;
                         }
                         break;
-                    case TextTokenType.Open when _state == ObjectState.Value:
+                    case TextTokenType.Open:
                         switch (_found)
                         {
                             case PropertyType.Object:
@@ -76,6 +92,9 @@
                             case PropertyType.Array:
                                 _stack.Push();
                                 _state = ObjectState.Value;
+                                break;
+                            case PropertyType.None:
+                                skipDepth++;
                                 break;
                         }
                         break;
