@@ -223,5 +223,20 @@ hello=world
             Assert.Equal("venus", res.Types.Hello);
             Assert.Equal(13, res.Types.MyInt);
         }
+
+        class MyAliasList
+        {
+            [ParadoxAlias("number")]
+            public List<int> Numbers { get; set; }
+        }
+
+        [Theory]
+        [InlineData("number=1\r\nnumber=2")]
+        public async void TestAliasList(string input)
+        {
+            var mem = new MemoryStream(Encoding.ASCII.GetBytes(input));
+            var res = await ParadoxSerializer.DeserializeAsync<MyAliasList>(mem);
+            Assert.Equal(new List<int> { 1, 2 }, res.Numbers);
+        }
     }
 }

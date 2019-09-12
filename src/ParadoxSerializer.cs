@@ -70,37 +70,35 @@ namespace Pdoxcl2Sharp
 
             foreach (var propertyInfo in props)
             {
-                if (propertyInfo.GetIndexParameters().Length > 0)
+                if (propertyInfo.GetIndexParameters().Length > 0 || propertyInfo.SetMethod?.IsPublic != true)
                 {
                     continue;
                 }
 
-                if (propertyInfo.SetMethod?.IsPublic == true)
-                {
-                    var name = options.NamingConvention.ConvertName(propertyInfo.Name);
-                    var bytes = TextHelpers.Windows1252Encoding.GetBytes(name);
-                    var hash = Farmhash.Sharp.Farmhash.Hash64(new ReadOnlySpan<byte>(bytes));
+                var attr = propertyInfo.GetCustomAttribute<ParadoxAliasAttribute>();
+                var name = attr?.Alias ?? options.NamingConvention.ConvertName(propertyInfo.Name);
+                var bytes = TextHelpers.Windows1252Encoding.GetBytes(name);
+                var hash = Farmhash.Sharp.Farmhash.Hash64(new ReadOnlySpan<byte>(bytes));
 
-                    if (propertyInfo.PropertyType == typeof(string))
+                if (propertyInfo.PropertyType == typeof(string))
+                {
+                    dict.Add(hash, new DecodeSetter(propertyInfo, TextObjectParser.PropertyType.Scalar, new ConverterString()));
+                }
+                else if (propertyInfo.PropertyType == typeof(int))
+                {
+                    dict.Add(hash, new DecodeSetter(propertyInfo, TextObjectParser.PropertyType.Scalar, new ConverterInt32()));
+                }
+                else
+                {
+                    if (propertyInfo.PropertyType.IsGenericType &&
+                        propertyInfo.PropertyType.GetGenericTypeDefinition() == typeof(List<>))
                     {
-                        dict.Add(hash, new DecodeSetter(propertyInfo, TextObjectParser.PropertyType.Scalar, new ConverterString()));
-                    }
-                    else if (propertyInfo.PropertyType == typeof(int))
-                    {
-                        dict.Add(hash, new DecodeSetter(propertyInfo, TextObjectParser.PropertyType.Scalar, new ConverterInt32()));
+                        var ty = propertyInfo.PropertyType.GetGenericArguments()[0];
+                        dict.Add(hash, new DecodeList(propertyInfo, GetConverter(ty)));
                     }
                     else
                     {
-                        if (propertyInfo.PropertyType.IsGenericType &&
-                            propertyInfo.PropertyType.GetGenericTypeDefinition() == typeof(List<>))
-                        {
-                            var ty = propertyInfo.PropertyType.GetGenericArguments()[0];
-                            dict.Add(hash, new DecodeList(propertyInfo, GetConverter(ty)));
-                        }
-                        else
-                        {
-                            dict.Add(hash, new DecodeObject(propertyInfo));
-                        }
+                        dict.Add(hash, new DecodeObject(propertyInfo));
                     }
                 }
             }
