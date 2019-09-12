@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Pdoxcl2Sharp.Tests
 {
-    public class ScratchTest
+    public class ParadoxSerializerTest
     {
         class MyData
         {
@@ -24,7 +24,7 @@ namespace Pdoxcl2Sharp.Tests
         public async void TestOneProperty(string input)
         {
             var mem = new MemoryStream(Encoding.ASCII.GetBytes(input));
-            var res = await Scratch.DeserializeAsync<MyData>(mem);
+            var res = await ParadoxSerializer.DeserializeAsync<MyData>(mem);
             Assert.Equal("world", res.Hello);
         }
 
@@ -34,7 +34,7 @@ namespace Pdoxcl2Sharp.Tests
             var options = new ParadoxSerializerOptions {DefaultBufferSize = 10};
             var input = @"hello=""Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt""";
             var mem = new MemoryStream(Encoding.ASCII.GetBytes(input));
-            var res = await Scratch.DeserializeAsync<MyData>(mem, options);
+            var res = await ParadoxSerializer.DeserializeAsync<MyData>(mem, options);
             Assert.Equal("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt", res.Hello);
         }
 
@@ -45,7 +45,7 @@ namespace Pdoxcl2Sharp.Tests
         public async void TestOneIgnoreProperty(string input)
         {
             var mem = new MemoryStream(Encoding.ASCII.GetBytes(input));
-            var res = await Scratch.DeserializeAsync<MyData>(mem);
+            var res = await ParadoxSerializer.DeserializeAsync<MyData>(mem);
             Assert.Equal("world", res.Hello);
         }
 
@@ -59,8 +59,17 @@ namespace Pdoxcl2Sharp.Tests
         public async void TestList(string input)
         {
             var mem = new MemoryStream(Encoding.ASCII.GetBytes(input));
-            var res = await Scratch.DeserializeAsync<MyList>(mem);
+            var res = await ParadoxSerializer.DeserializeAsync<MyList>(mem);
             Assert.Equal(new List<int> { 1, 2, 3 }, res.Numbers);
+        }
+
+        [Theory]
+        [InlineData("numbers=1\r\nnumbers=2")]
+        public async void TestConsecutiveList(string input)
+        {
+            var mem = new MemoryStream(Encoding.ASCII.GetBytes(input));
+            var res = await ParadoxSerializer.DeserializeAsync<MyList>(mem);
+            Assert.Equal(new List<int> { 1, 2 }, res.Numbers);
         }
 
         class MyStringList
@@ -84,7 +93,7 @@ namespace Pdoxcl2Sharp.Tests
             }
             var input = "entries = { hello goodbye sincere hooks code go rust see sharp }";
             var mem = new MemoryStream(Encoding.ASCII.GetBytes(input));
-            var res = await Scratch.DeserializeAsync<MyStringList>(mem, options);
+            var res = await ParadoxSerializer.DeserializeAsync<MyStringList>(mem, options);
             Assert.Equal(new List<string> { "hello", "goodbye", "sincere", "hooks", "code", "go", "rust", "see", "sharp" }, res.Entries);
         }
 
@@ -102,7 +111,7 @@ hello=world
 my_int = 13
 ";
             var mem = new MemoryStream(Encoding.ASCII.GetBytes(input));
-            var res = await Scratch.DeserializeAsync<MyTypes>(mem);
+            var res = await ParadoxSerializer.DeserializeAsync<MyTypes>(mem);
             Assert.Equal("world", res.Hello);
             Assert.Equal(13, res.MyInt);
         }
@@ -142,7 +151,7 @@ b = {
             }
 
             var mem = new MemoryStream(Encoding.ASCII.GetBytes(input));
-            var res = await Scratch.DeserializeAsync<MyTypes>(mem, options);
+            var res = await ParadoxSerializer.DeserializeAsync<MyTypes>(mem, options);
             Assert.Equal("world", res.Hello);
             Assert.Equal(13, res.MyInt);
         }
@@ -168,7 +177,7 @@ types = {
 ";
 
             var mem = new MemoryStream(Encoding.ASCII.GetBytes(input));
-            var res = await Scratch.DeserializeAsync<MyNestedObject>(mem);
+            var res = await ParadoxSerializer.DeserializeAsync<MyNestedObject>(mem);
             Assert.Equal("world", res.Hello);
             Assert.Equal("mars", res.Data.Hello);
             Assert.Equal("venus", res.Types.Hello);
@@ -188,7 +197,7 @@ types {
 ";
 
             var mem = new MemoryStream(Encoding.ASCII.GetBytes(input));
-            var res = await Scratch.DeserializeAsync<MyNestedObject>(mem);
+            var res = await ParadoxSerializer.DeserializeAsync<MyNestedObject>(mem);
             Assert.Equal("world", res.Hello);
             Assert.Equal("mars", res.Data.Hello);
             Assert.Equal("venus", res.Types.Hello);
@@ -208,7 +217,7 @@ hello=world
 ";
 
             var mem = new MemoryStream(Encoding.ASCII.GetBytes(input));
-            var res = await Scratch.DeserializeAsync<MyNestedObject>(mem);
+            var res = await ParadoxSerializer.DeserializeAsync<MyNestedObject>(mem);
             Assert.Equal("world", res.Hello);
             Assert.Equal("mars", res.Data.Hello);
             Assert.Equal("venus", res.Types.Hello);

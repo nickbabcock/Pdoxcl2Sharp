@@ -1,4 +1,6 @@
-﻿namespace Pdoxcl2Sharp.Parsers
+﻿using System.Runtime.InteropServices;
+
+namespace Pdoxcl2Sharp.Parsers
 {
     internal class TextObjectParser : IParse<object>
     {
@@ -20,7 +22,9 @@
         private readonly ReadStack _stack;
         private PropertyType _found = PropertyType.None;
         private ObjectState _state = ObjectState.Property;
-        private int skipDepth = 0;
+        private int skipDepth;
+        private int pushDepth;
+        private int depth;
 
         internal TextObjectParser(ReadStack stack)
         {
@@ -51,9 +55,16 @@
                     case TextTokenType.Scalar when _state == ObjectState.Property:
                     {
                         _found = _stack.FoundProperty(reader.ValueSpan);
-                        if (_found != PropertyType.None)
+                        switch (_found)
                         {
-                            _state = ObjectState.Operator;
+                            case PropertyType.Object:
+                            case PropertyType.Array:
+                                depth++;
+                                _state = ObjectState.Operator;
+                                break;
+                            case PropertyType.Scalar:
+                                _state = ObjectState.Operator;
+                                break;
                         }
                         break;
                     }
@@ -66,9 +77,15 @@
                                 _state = ObjectState.Property;
                                 _stack.FoundValue(ref reader);
                                 break;
-                            case PropertyType.Array:
-                                _state = ObjectState.Value;
+                            case PropertyType.Array when depth == pushDepth:
                                 _stack.FoundValue(ref reader);
+                                _state = ObjectState.Value;
+                                break;
+                            case PropertyType.Array:
+                                _stack.FoundValue(ref reader);
+                                _state = ObjectState.Property;
+                                _stack.Pop();
+                                depth--;
                                 break;
                         }
 
@@ -86,10 +103,12 @@
                         switch (_found)
                         {
                             case PropertyType.Object:
+                                pushDepth++;
                                 _stack.Push();
                                 _state = ObjectState.Property;
                                 break;
                             case PropertyType.Array:
+                                pushDepth++;
                                 _stack.Push();
                                 _state = ObjectState.Value;
                                 break;
@@ -99,9 +118,9 @@
                         }
                         break;
                     case TextTokenType.End:
+                        depth--;  
+                        pushDepth--;
                         _stack.Pop();
-                        break;
-                    default:
                         break;
                 }
             }

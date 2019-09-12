@@ -12,7 +12,7 @@ using BindingFlags = System.Reflection.BindingFlags;
 
 namespace Pdoxcl2Sharp
 {
-    public class Scratch
+    public class ParadoxSerializer
     {
         public static async ValueTask<TValue> DeserializeAsync<TValue>(Stream input, ParadoxSerializerOptions options = null, CancellationToken token = default)
         {

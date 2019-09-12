@@ -18,7 +18,7 @@ namespace Pdoxcl2Sharp
             Frame = new ReadStackFrame
             {
                 ReturnValue = Activator.CreateInstance(root),
-                Properties = Scratch.GetOrAddClass(root, _options)
+                Properties = ParadoxSerializer.GetOrAddClass(root, _options)
             };
 
             Frames = new Stack<ReadStackFrame>();
@@ -28,9 +28,34 @@ namespace Pdoxcl2Sharp
         public TextObjectParser.PropertyType FoundProperty(in ReadOnlySpan<byte> property)
         {
             var hash = Farmhash.Sharp.Farmhash.Hash64(property);
-            return Frame.Properties.TryGetValue(hash, out Property)
-                ? Property.Type
-                : TextObjectParser.PropertyType.None;
+            var found = Frame.Properties.TryGetValue(hash, out Property);
+            if (!found)
+            {
+                return TextObjectParser.PropertyType.None;
+            }
+
+            switch (Property.Type)
+            {
+                case TextObjectParser.PropertyType.Object:
+                case TextObjectParser.PropertyType.Array:
+                    var current = Property.Property.GetValue(Frame.ReturnValue);
+                    if (current == null)
+                    {
+                        var newObj = Activator.CreateInstance(Property.Property.PropertyType);
+                        Property.Property.SetValue(Frame.ReturnValue, newObj);
+                        current = newObj;
+                    }
+
+                    Frame = new ReadStackFrame
+                    {
+                        ReturnValue = current,
+                        Properties = ParadoxSerializer.GetOrAddClass(Property.Property.PropertyType, _options)
+                    };
+                    Frames.Push(Frame);
+                    break;
+            }
+
+            return Property.Type;
         }
 
         public void FoundValue(ref ParadoxTextReader reader)
@@ -40,14 +65,6 @@ namespace Pdoxcl2Sharp
 
         public void Push()
         {
-            var newObj = Activator.CreateInstance(Property.Property.PropertyType);
-            Property.Property.SetValue(Frame.ReturnValue, newObj);
-            Frame = new ReadStackFrame
-            {
-                ReturnValue = newObj,
-                Properties = Scratch.GetOrAddClass(Property.Property.PropertyType, _options)
-            };
-            Frames.Push(Frame);
         }
 
         public void Pop()
