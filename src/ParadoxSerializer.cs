@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Pdoxcl2Sharp.Converters;
+using Pdoxcl2Sharp.Naming;
 using Pdoxcl2Sharp.Utils;
 using BindingFlags = System.Reflection.BindingFlags;
 
@@ -82,11 +83,11 @@ namespace Pdoxcl2Sharp
 
                 if (propertyInfo.PropertyType == typeof(string))
                 {
-                    dict.Add(hash, new DecodeSetter(propertyInfo, TextObjectParser.PropertyType.Scalar, new ConverterString()));
+                    dict.Add(hash, new DecodeSetter(propertyInfo, PropertyType.Scalar, new ConverterString()));
                 }
                 else if (propertyInfo.PropertyType == typeof(int))
                 {
-                    dict.Add(hash, new DecodeSetter(propertyInfo, TextObjectParser.PropertyType.Scalar, new ConverterInt32()));
+                    dict.Add(hash, new DecodeSetter(propertyInfo, PropertyType.Scalar, new ConverterInt32()));
                 }
                 else
                 {
@@ -94,7 +95,7 @@ namespace Pdoxcl2Sharp
                         propertyInfo.PropertyType.GetGenericTypeDefinition() == typeof(List<>))
                     {
                         var ty = propertyInfo.PropertyType.GetGenericArguments()[0];
-                        dict.Add(hash, new DecodeList(propertyInfo, GetConverter(ty)));
+                        dict.Add(hash, new DecodeList(propertyInfo, GetConverter(ty), ty, GetPropertyType(ty)));
                     }
                     else
                     {
@@ -112,14 +113,28 @@ namespace Pdoxcl2Sharp
             {
                 return new ConverterString();
             }
-            else if (type == typeof(int))
+
+            if (type == typeof(int))
             {
                 return new ConverterInt32();
             }
-            else
+
+            return new NullConvert();
+        }
+
+        private static PropertyType GetPropertyType(Type type)
+        {
+            if (type.IsValueType || type.IsPrimitive || type == typeof(string))
             {
-                throw new ArgumentException($"Unexpected type: {type}", nameof(type));
+                return PropertyType.Scalar;
             }
+
+            if (type.IsGenericType)
+            {
+                return PropertyType.Array;
+            }
+
+            return PropertyType.Object;
         }
 
         private static IParse<object> CreateObjectParser(Type type, ParadoxSerializerOptions options)

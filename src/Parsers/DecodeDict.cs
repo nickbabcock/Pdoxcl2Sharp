@@ -9,7 +9,7 @@ namespace Pdoxcl2Sharp.Parsers
         private readonly MethodInfo _addFn;
         private readonly TextConvert _children;
 
-        public DecodeDict(PropertyInfo property, TextConvert children) : base(property, TextObjectParser.PropertyType.Object)
+        public DecodeDict(PropertyInfo property, TextConvert children) : base(property, PropertyType.Object)
         {
             _addFn = property.PropertyType.GetMethod("Add");
             _children = children;

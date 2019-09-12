@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Pdoxcl2Sharp
+namespace Pdoxcl2Sharp.Naming
 {
     /// <summary>
     /// Instructs the Deserializer to use a different field name for serialization.

@@ -10,6 +10,7 @@ namespace Pdoxcl2Sharp
         private readonly Stack<ReadStackFrame> Frames;
         private ReadStackFrame Frame;
         private DecodeProperty Property;
+        private bool popTwice;
 
         public ReadStack(ParadoxSerializerOptions options, Type root)
         {
@@ -25,19 +26,19 @@ namespace Pdoxcl2Sharp
             Frames.Push(Frame);
         }
 
-        public TextObjectParser.PropertyType FoundProperty(in ReadOnlySpan<byte> property)
+        public PropertyType FoundProperty(in ReadOnlySpan<byte> property)
         {
             var hash = Farmhash.Sharp.Farmhash.Hash64(property);
             var found = Frame.Properties.TryGetValue(hash, out Property);
             if (!found)
             {
-                return TextObjectParser.PropertyType.None;
+                return PropertyType.None;
             }
 
             switch (Property.Type)
             {
-                case TextObjectParser.PropertyType.Object:
-                case TextObjectParser.PropertyType.Array:
+                case PropertyType.Object:
+                case PropertyType.Array:
                     var current = Property.Property.GetValue(Frame.ReturnValue);
                     if (current == null)
                     {
@@ -51,7 +52,23 @@ namespace Pdoxcl2Sharp
                         ReturnValue = current,
                         Properties = ParadoxSerializer.GetOrAddClass(Property.Property.PropertyType, _options)
                     };
+
                     Frames.Push(Frame);
+
+                    if (Property.Type == PropertyType.Array && Property.ChildFormat != PropertyType.Scalar)
+                    {
+                        var nestedObj = Activator.CreateInstance(Property.ChildType);
+                        Property.AddChild(current, nestedObj);
+                        Frame = new ReadStackFrame
+                        {
+                            ReturnValue = nestedObj,
+                            Properties = ParadoxSerializer.GetOrAddClass(Property.ChildType, _options)
+                        };
+                        Frames.Push(Frame);
+                        popTwice = true;
+                        return PropertyType.Object;
+                    }
+
                     break;
             }
 
@@ -70,6 +87,10 @@ namespace Pdoxcl2Sharp
         public void Pop()
         {
             Frames.Pop();
+            if (popTwice)
+            {
+                Frames.Pop();
+            }
             Frame = Frames.Peek();
         }
 

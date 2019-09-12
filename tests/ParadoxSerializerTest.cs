@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using Pdoxcl2Sharp.Naming;
 using Xunit;
 
 namespace Pdoxcl2Sharp.Tests
@@ -230,13 +231,36 @@ hello=world
             public List<int> Numbers { get; set; }
         }
 
-        [Theory]
-        [InlineData("number=1\r\nnumber=2")]
-        public async void TestAliasList(string input)
+        [Fact]
+        public async void TestAliasList()
         {
-            var mem = new MemoryStream(Encoding.ASCII.GetBytes(input));
+            var mem = new MemoryStream(Encoding.ASCII.GetBytes("number=1\r\nnumber=2"));
             var res = await ParadoxSerializer.DeserializeAsync<MyAliasList>(mem);
             Assert.Equal(new List<int> { 1, 2 }, res.Numbers);
+        }
+
+        class MyDataList
+        {
+            public List<MyData> MyData { get; set; }
+        }
+
+        [Fact]
+        public async void TestMyDataList()
+        {
+            var input = @"
+my_data={
+    hello=world
+}
+
+my_data={
+    hello=jupiter
+}
+";
+            var mem = new MemoryStream(Encoding.ASCII.GetBytes(input));
+            var res = await ParadoxSerializer.DeserializeAsync<MyDataList>(mem);
+            Assert.Equal(2, res.MyData.Count);
+            Assert.Equal("world", res.MyData[0].Hello);
+            Assert.Equal("jupiter", res.MyData[1].Hello);
         }
     }
 }

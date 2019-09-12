@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
+﻿using System.Reflection;
 using Pdoxcl2Sharp.Converters;
 
 namespace Pdoxcl2Sharp.Parsers
@@ -10,7 +7,7 @@ namespace Pdoxcl2Sharp.Parsers
     {
         private readonly TextConvert _convert;
 
-        public DecodeSetter(PropertyInfo property, TextObjectParser.PropertyType type, TextConvert convert) : base(property, type)
+        public DecodeSetter(PropertyInfo property, PropertyType type, TextConvert convert) : base(property, type)
         {
             _convert = convert;
         }

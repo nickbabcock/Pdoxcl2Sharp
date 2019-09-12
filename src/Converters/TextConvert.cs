@@ -5,6 +5,7 @@ namespace Pdoxcl2Sharp.Converters
     public abstract class TextConvert
     {
         public abstract object BaseRead(ref ParadoxTextReader reader, Type typeToConvert, ParadoxSerializerOptions options);
+        public abstract Type TypeToConvert();
     }
 
     public abstract class TextConvert<T> : TextConvert
@@ -16,5 +17,6 @@ namespace Pdoxcl2Sharp.Converters
         }
 
         public abstract T Read(ref ParadoxTextReader reader, Type typeToConvert, ParadoxSerializerOptions options);
+        public override Type TypeToConvert() => typeof(T);
     }
 }

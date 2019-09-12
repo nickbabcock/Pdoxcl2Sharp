@@ -2,7 +2,6 @@
 {
     public enum TextTokenType : byte
     {
-        None,
         Open,
         End,
         Comment,

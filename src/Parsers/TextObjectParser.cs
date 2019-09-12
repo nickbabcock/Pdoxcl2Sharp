@@ -11,14 +11,6 @@ namespace Pdoxcl2Sharp.Parsers
             Value
         }
 
-        public enum PropertyType
-        {
-            None,
-            Scalar,
-            Object,
-            Array
-        }
-
         private readonly ReadStack _stack;
         private PropertyType _found = PropertyType.None;
         private ObjectState _state = ObjectState.Property;

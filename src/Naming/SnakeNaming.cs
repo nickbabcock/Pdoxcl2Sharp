@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace Pdoxcl2Sharp.Parsers
+namespace Pdoxcl2Sharp.Naming
 {
     public class SnakeNaming : INamingConvention
     {

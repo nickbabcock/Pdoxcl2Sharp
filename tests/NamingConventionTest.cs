@@ -1,4 +1,5 @@
-﻿using Pdoxcl2Sharp.Parsers;
+﻿using Pdoxcl2Sharp.Naming;
+using Pdoxcl2Sharp.Parsers;
 using Xunit;
 
 namespace Pdoxcl2Sharp.Tests
