@@ -1,8 +1,8 @@
 # Auto detect text files
 * text=auto 
 
-tests/Pdoxcl2Sharp.Test/FileTest.txt text eol=crlf
-tests/Pdoxcl2Sharp.Test/FileParseTemplate.txt text eol=crlf
+tests/Pdoxcl2Sharp.Test/FileTest.txt text eol=lf
+tests/Pdoxcl2Sharp.Test/FileParseTemplate.txt text eol=lf
 tests/Pdoxcl2Sharp.Test/FileTextCompressed.txt text eol=lf
 
 # Custom for Visual Studio
