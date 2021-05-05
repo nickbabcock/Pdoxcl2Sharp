@@ -14,7 +14,7 @@
     <RepositoryUrl>https://github.com/nickbabcock/Pdoxcl2Sharp</RepositoryUrl>
     <Major>0</Major>
     <Minor>6</Minor>
-    <Revision>0</Revision>
+    <Revision>1</Revision>
     <AssemblyVersion>$(Major).$(Minor).$(Revision)</AssemblyVersion>
     <AssemblyFileVersion>$(Major).$(Minor).$(Revision)</AssemblyFileVersion>
     <InformationalVersion>$(Major).$(Minor).$(Revision)</InformationalVersion>

@@ -1,3 +1,6 @@
+### 0.6.1 - May 5 2021
+* When writing, output only newlines instead of carriage return + newlines
+
 ### 0.6.0 - September 25 2017
 * Cross platform build with .Net standard 2.0
 
