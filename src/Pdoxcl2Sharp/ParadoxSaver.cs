@@ -15,7 +15,7 @@ namespace Pdoxcl2Sharp
         public ParadoxSaver(Stream output) 
             : base(output)
         {
-            Writer.NewLine = "\r\n";
+            Writer.NewLine = "\n";
         }
 
         public override void Write(string key, string value, ValueWrite valuetype)
