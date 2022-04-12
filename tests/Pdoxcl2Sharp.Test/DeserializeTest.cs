@@ -21,7 +21,7 @@ namespace Pdoxcl2Sharp.Test
         [InlineData("yes", true)]
         [InlineData("no", false)]
         [InlineData("you=me", "you")]
-        public void DeserializeTest<T>(string data, T expected)
+        public void Deserialize<T>(string data, T expected)
         {
             T actual = ParadoxParser.Deserialize<T>(data.ToStream());
             Assert.Equal(expected, actual);
