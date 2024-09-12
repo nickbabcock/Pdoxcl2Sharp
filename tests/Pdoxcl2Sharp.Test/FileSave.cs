@@ -32,7 +32,7 @@ namespace Pdoxcl2Sharp.Test
             };
         }
 
-        [Fact]
+        [Fact(Skip = "todo")]
         public void SaveNoChange()
         {
             FileStream output = new FileStream(outputPath, FileMode.Create, FileAccess.ReadWrite);

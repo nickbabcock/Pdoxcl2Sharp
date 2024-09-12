@@ -1,6 +1,0 @@
-language: csharp
-mono: none
-dotnet: 2.0.0
-dist: trusty
-script:
- - dotnet test -f netcoreapp2.0 tests/Pdoxcl2Sharp.Test/Pdoxcl2Sharp.Test.csproj

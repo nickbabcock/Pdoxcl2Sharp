@@ -7,7 +7,7 @@ using Pdoxcl2Sharp;
 using System.IO;
 namespace Pdoxcl2Sharp.Test
 {
-    class ListRead
+    public class ListRead
     {
         IEnumerable<int> actual = null;
         IEnumerable<double> actualFloat = null;

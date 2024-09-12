@@ -6,7 +6,7 @@ using Pdoxcl2Sharp;
 using Xunit;
 namespace Pdoxcl2Sharp.Test
 {
-    class Building : IParadoxRead
+    public class Building : IParadoxRead
     {
         string onCompletion;
         float completionSize;
