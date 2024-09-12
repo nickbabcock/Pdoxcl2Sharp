@@ -45,7 +45,7 @@ namespace Pdoxcl2Sharp.Test
                 {
                     saver.WriteComment("This is a comment");
                 }
-                Assert.Equal("#This is a comment\r\n", Globals.ParadoxEncoding.GetString(ms.ToArray()));
+                Assert.Equal("#This is a comment\n", Globals.ParadoxEncoding.GetString(ms.ToArray()));
             }
         }
 
@@ -58,7 +58,7 @@ namespace Pdoxcl2Sharp.Test
                 {
                     saver.WriteLine("date", new DateTime(1, 1, 1));
                 }
-                Assert.Equal("date=\"1.1.1\"\r\n", Globals.ParadoxEncoding.GetString(ms.ToArray()));
+                Assert.Equal("date=\"1.1.1\"\n", Globals.ParadoxEncoding.GetString(ms.ToArray()));
             }
         }
 
@@ -137,7 +137,7 @@ namespace Pdoxcl2Sharp.Test
                         });
                 }
                 string actual = Globals.ParadoxEncoding.GetString(ms.ToArray());
-                Assert.Equal("{\r\n\tHey there!\r\n}\r\n", actual);
+                Assert.Equal("{\n\tHey there!\n}\n", actual);
             }
         }
     }
