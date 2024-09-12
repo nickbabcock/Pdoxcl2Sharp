@@ -1,3 +1,6 @@
+### 0.6.2 - September 12 2024
+* Increase max token size to 512
+
 ### 0.6.1 - May 5 2021
 * When writing, output only newlines instead of carriage return + newlines
 
