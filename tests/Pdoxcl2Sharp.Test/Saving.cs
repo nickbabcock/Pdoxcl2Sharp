@@ -8,7 +8,7 @@ using System.IO;
 
 namespace Pdoxcl2Sharp.Test
 {
-    class Saving
+    public class Saving
     {
         [Fact]
         public void SingleSaveNewLine()

@@ -7,7 +7,7 @@ using System.IO;
 
 namespace Pdoxcl2Sharp.Test
 {
-    class MultipleListRead
+    public class MultipleListRead
     {
         [Fact]
         public void SimpleMultiple()

@@ -6,7 +6,7 @@ using Xunit;
 using System.IO;
 namespace Pdoxcl2Sharp.Test
 {
-    class Bracket
+    public class Bracket
     {
         [Fact]
         public void BracketTest()
