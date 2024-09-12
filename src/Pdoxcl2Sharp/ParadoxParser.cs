@@ -22,7 +22,7 @@ namespace Pdoxcl2Sharp
 
     public class ParadoxParser
     {
-        private const int MaxTokenSize = 256;
+        private const int MaxTokenSize = 512;
 
         private const NumberStyles SignedFloatingStyle = NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign;
 
