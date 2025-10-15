@@ -183,37 +183,37 @@ namespace Pdoxcl2Sharp.Test
             Assert.Equal(2.500, actual.PapalInfluence);
         }
 
-/*        [Fact]
-        public void DeserializeParseTemplate()
-        {
-            var actual = ParadoxParser.Parse(
-                File.OpenRead("FileParseTemplate.txt"), new Province());
-            Assert.Equal("My Prov", actual.Name);
-            Assert.Equal(1.000, actual.Tax);
-            Assert.Equal(new[] { "MEE", "YOU", "THM" }, actual.Cores);
-            Assert.Equal(new[] { "BNG", "ORI", "PEG" }, actual.TopProvinces);
-            Assert.Equal(1, actual.Armies.Count);
-            var army = actual.Armies[0];
-            Assert.Equal("My first army", army.Name);
-            Assert.Equal(5, army.Leader.Id);
-            Assert.Equal(2, army.Units.Count);
-            Assert.Equal("First infantry of Awesomeness", army.Units[0].Name);
-            Assert.Equal("ninjas", army.Units[0].Type);
-            Assert.Equal(5.445, army.Units[0].Morale);
-            Assert.Equal(0.998, army.Units[0].Strength);
+        /*        [Fact]
+                public void DeserializeParseTemplate()
+                {
+                    var actual = ParadoxParser.Parse(
+                        File.OpenRead("FileParseTemplate.txt"), new Province());
+                    Assert.Equal("My Prov", actual.Name);
+                    Assert.Equal(1.000, actual.Tax);
+                    Assert.Equal(new[] { "MEE", "YOU", "THM" }, actual.Cores);
+                    Assert.Equal(new[] { "BNG", "ORI", "PEG" }, actual.TopProvinces);
+                    Assert.Equal(1, actual.Armies.Count);
+                    var army = actual.Armies[0];
+                    Assert.Equal("My first army", army.Name);
+                    Assert.Equal(5, army.Leader.Id);
+                    Assert.Equal(2, army.Units.Count);
+                    Assert.Equal("First infantry of Awesomeness", army.Units[0].Name);
+                    Assert.Equal("ninjas", army.Units[0].Type);
+                    Assert.Equal(5.445, army.Units[0].Morale);
+                    Assert.Equal(0.998, army.Units[0].Strength);
 
-            Assert.Equal("Second infantry of awesomeness", army.Units[1].Name);
-            Assert.Equal("ninjas", army.Units[1].Type);
-            Assert.Equal(6.000, army.Units[1].Morale);
-            Assert.Equal(1.000, army.Units[1].Strength);
+                    Assert.Equal("Second infantry of awesomeness", army.Units[1].Name);
+                    Assert.Equal("ninjas", army.Units[1].Type);
+                    Assert.Equal(6.000, army.Units[1].Morale);
+                    Assert.Equal(1.000, army.Units[1].Strength);
 
-            var act = actual.Armies[0].Attachments;
-            Assert.IsNotNull(act);
-            Assert.Equal(2, act.Count);
-            Assert.Equal(2296, act[0].Id);
-            Assert.Equal(54, act[0].Type);
-            Assert.Equal(61768, act[1].Id);
-            Assert.Equal(4713, act[1].Type);
-        }*/
+                    var act = actual.Armies[0].Attachments;
+                    Assert.IsNotNull(act);
+                    Assert.Equal(2, act.Count);
+                    Assert.Equal(2296, act[0].Id);
+                    Assert.Equal(54, act[0].Type);
+                    Assert.Equal(61768, act[1].Id);
+                    Assert.Equal(4713, act[1].Type);
+                }*/
     }
 }

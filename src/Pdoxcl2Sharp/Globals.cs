@@ -8,7 +8,7 @@ namespace Pdoxcl2Sharp
 {
     public static class Globals
     {
-        public static readonly Encoding ParadoxEncoding = CodePagesEncodingProvider.Instance.GetEncoding(1252);
+        public static readonly Encoding ParadoxEncoding = Encoding.UTF8;
 
         /// <summary>
         /// Converts a <see cref="DateTime"/> to a string that adheres to

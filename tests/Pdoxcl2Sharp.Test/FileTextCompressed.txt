@@ -1,4 +1,4 @@
-date="1641.6.11"player="ALG"1={name="Stocšžolm"citysize=12.000
+date="1641.6.11"player="ALG"1={name="StocÅ¡Å¾olm"citysize=12.000
 discovered_by={REB SWE }
 generic_infantry = {
 infantry_brigade
