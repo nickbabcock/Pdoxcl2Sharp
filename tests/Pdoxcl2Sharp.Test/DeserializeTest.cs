@@ -131,6 +131,28 @@ namespace Pdoxcl2Sharp.Test
         }
 
         [Fact]
+        public void DeserializeDictionaryOfObjectsWithoutInitialCurly()
+        {
+            string data = "me={id=1} you={id=2}";
+            var expected = new Dictionary<string, Bar> { { "me", new Bar { id = 1 } }, { "you", new Bar { id = 2 } } };
+            var actual = ParadoxParser.Deserialize<IDictionary<string, Bar>>(data.ToStream());
+            Assert.Equal(2, actual.Count);
+            Assert.True(actual.TryGetValue("you", out Bar bar));
+            Assert.Equal(2, bar?.id);
+        }
+
+        [Fact]
+        public void DeserializeDictionaryOfObjectsWithInitialCurly()
+        {
+            string data = "{me={id=1} you={id=2}}";
+            var expected = new Dictionary<string, Bar> { { "me", new Bar { id = 1 } }, { "you", new Bar { id = 2 } } };
+            var actual = ParadoxParser.Deserialize<IDictionary<string, Bar>>(data.ToStream());
+            Assert.Equal(2, actual.Count);
+            Assert.True(actual.TryGetValue("you", out Bar bar));
+            Assert.Equal(2, bar?.id);
+        }
+
+        [Fact]
         public void DeserializeObjects()
         {
             string data = "{value=\"Hey\" bar={id=4}}";
