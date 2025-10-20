@@ -150,10 +150,22 @@ namespace Pdoxcl2Sharp
         /// <returns>The object deserialized from the stream</returns>
         public static T Deserialize<T>(Stream data)
         {
+            return Deserialize<T>(data, Globals.ParadoxEncoding);
+        }
+
+        /// <summary>
+        /// Given a stream, the function will deserialize it into a
+        /// specific type. 
+        /// </summary>
+        /// <typeparam name="T">The type to deserialize</typeparam>
+        /// <param name="data">The stream to extract the object</param>
+        /// <returns>The object deserialized from the stream</returns>
+        public static T Deserialize<T>(Stream data, Encoding encoding)
+        {
             if (data == null)
                 throw new ArgumentNullException("data");
 
-            using (var reader = new StreamReader(data, Globals.ParadoxEncoding, false, MaxByteBuffer))
+            using (var reader = new StreamReader(data, encoding, false, MaxByteBuffer))
             {
                 FnPtr ptr = Deserializer.Parse(typeof(T));
                 ParadoxParser parser = new ParadoxParser(reader);
@@ -168,10 +180,20 @@ namespace Pdoxcl2Sharp
         /// <param name="parseStrategy">Action to be performed on found tokens</param>
         public static void Parse(Stream data, Action<ParadoxParser, string> parseStrategy)
         {
+            Parse(data, parseStrategy, Globals.ParadoxEncoding);
+        }
+
+        /// <summary>
+        /// Parses a given stream and applies an action to each token found
+        /// </summary>
+        /// <param name="data">Stream to parse</param>
+        /// <param name="parseStrategy">Action to be performed on found tokens</param>
+        public static void Parse(Stream data, Action<ParadoxParser, string> parseStrategy, Encoding encoding)
+        {
             if (data == null)
                 throw new ArgumentNullException("data");
 
-            using (var reader = new StreamReader(data, Globals.ParadoxEncoding, false, MaxByteBuffer))
+            using (var reader = new StreamReader(data, encoding, false, MaxByteBuffer))
             {
                 ParadoxParser parser = new ParadoxParser(reader);
                 while (!parser.EndOfStream)

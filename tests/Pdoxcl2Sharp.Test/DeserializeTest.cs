@@ -205,6 +205,23 @@ namespace Pdoxcl2Sharp.Test
             Assert.Equal(2.500, actual.PapalInfluence);
         }
 
+        [Fact]
+        public void DeserializeCodepage1252()
+        {
+            FileStream fs = File.OpenRead("FileTestCodepage1252.txt");
+            var actual = ParadoxParser.Deserialize<List<string>>(fs, CodePagesEncodingProvider.Instance.GetEncoding(1252));
+
+            Assert.Equal(8, actual.Count);
+            Assert.Equal("€‚ƒ„…†‡ˆ‰Š‹ŒŽ", actual[0]);
+            Assert.Equal("‘’“”•–—˜™š›œžŸ", actual[1]);
+            Assert.Equal("¡¢£¤¥¦§¨©ª«¬®¯", actual[2]);
+            Assert.Equal("°±²³´µ¶·¸¹º»¼½¾¿", actual[3]);
+            Assert.Equal("ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏ", actual[4]);
+            Assert.Equal("ÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß", actual[5]);
+            Assert.Equal("àáâãäåæçèéêëìíîï", actual[6]);
+            Assert.Equal("ðñòóôõö÷øùúûüýþÿ", actual[7]);
+        }
+
         /*        [Fact]
                 public void DeserializeParseTemplate()
                 {
