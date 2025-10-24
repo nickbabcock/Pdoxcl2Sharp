@@ -10,7 +10,6 @@ namespace Pdoxcl2Sharp.Test
 {
     public class Saving
     {
-        string BOM = "\uFEFF";
         [Fact]
         public void SingleSaveNewLine()
         {
@@ -20,7 +19,7 @@ namespace Pdoxcl2Sharp.Test
                 {
                     saver.Write("culture", "michigan");
                 }
-                Assert.Equal(BOM+"culture=michigan", Globals.ParadoxEncoding.GetString(ms.ToArray()));
+                Assert.Equal("culture=michigan", Globals.ParadoxEncoding.GetString(ms.ToArray()));
             }
         }
 
@@ -33,7 +32,7 @@ namespace Pdoxcl2Sharp.Test
                 {
                     saver.Write("culture", "michigan", ValueWrite.Quoted);
                 }
-                Assert.Equal(BOM + "culture=\"michigan\"", Globals.ParadoxEncoding.GetString(ms.ToArray()));
+                Assert.Equal("culture=\"michigan\"", Globals.ParadoxEncoding.GetString(ms.ToArray()));
             }
         }
 
@@ -46,7 +45,7 @@ namespace Pdoxcl2Sharp.Test
                 {
                     saver.WriteComment("This is a comment");
                 }
-                Assert.Equal(BOM + "#This is a comment\n", Globals.ParadoxEncoding.GetString(ms.ToArray()));
+                Assert.Equal("#This is a comment\n", Globals.ParadoxEncoding.GetString(ms.ToArray()));
             }
         }
 
@@ -59,7 +58,7 @@ namespace Pdoxcl2Sharp.Test
                 {
                     saver.WriteLine("date", new DateTime(1, 1, 1));
                 }
-                Assert.Equal(BOM + "date=\"1.1.1\"\n", Globals.ParadoxEncoding.GetString(ms.ToArray()));
+                Assert.Equal("date=\"1.1.1\"\n", Globals.ParadoxEncoding.GetString(ms.ToArray()));
             }
         }
 
@@ -74,7 +73,7 @@ namespace Pdoxcl2Sharp.Test
                     saver.Write("name", "šžŸ", ValueWrite.None);
                 }
                 actual = Globals.ParadoxEncoding.GetString(ms.ToArray());
-                Assert.Equal(BOM + "name=šžŸ", actual);
+                Assert.Equal("name=šžŸ", actual);
             }
         }
 
@@ -89,7 +88,7 @@ namespace Pdoxcl2Sharp.Test
                     saver.Write(0.23456);
                 }
                 actual = Globals.ParadoxEncoding.GetString(ms.ToArray());
-                Assert.Equal(BOM + "0.235", actual);
+                Assert.Equal("0.235", actual);
             }
         }
 
@@ -105,7 +104,7 @@ namespace Pdoxcl2Sharp.Test
                     saver.Write(val);
                 }
                 actual = Globals.ParadoxEncoding.GetString(ms.ToArray());
-                Assert.Equal(BOM + "-1235346", actual);
+                Assert.Equal("-1235346", actual);
             }
         }
 
@@ -121,7 +120,7 @@ namespace Pdoxcl2Sharp.Test
                     saver.Write(value);
                 }
                 actual = Globals.ParadoxEncoding.GetString(ms.ToArray());
-                Assert.Equal(BOM + "1402.1.1", actual);
+                Assert.Equal("1402.1.1", actual);
             }
         }
 
@@ -138,7 +137,7 @@ namespace Pdoxcl2Sharp.Test
                         });
                 }
                 string actual = Globals.ParadoxEncoding.GetString(ms.ToArray());
-                Assert.Equal(BOM + "{\n\tHey there!\n}\n", actual);
+                Assert.Equal("{\n\tHey there!\n}\n", actual);
             }
         }
     }

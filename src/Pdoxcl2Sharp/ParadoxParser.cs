@@ -159,6 +159,7 @@ namespace Pdoxcl2Sharp
         /// </summary>
         /// <typeparam name="T">The type to deserialize</typeparam>
         /// <param name="data">The stream to extract the object</param>
+        /// <param name="encoding">The encoding of the stream</param>
         /// <returns>The object deserialized from the stream</returns>
         public static T Deserialize<T>(Stream data, Encoding encoding)
         {
@@ -188,6 +189,7 @@ namespace Pdoxcl2Sharp
         /// </summary>
         /// <param name="data">Stream to parse</param>
         /// <param name="parseStrategy">Action to be performed on found tokens</param>
+        /// <param name="encoding">The encoding of the stream</param>
         public static void Parse(Stream data, Action<ParadoxParser, string> parseStrategy, Encoding encoding)
         {
             if (data == null)
