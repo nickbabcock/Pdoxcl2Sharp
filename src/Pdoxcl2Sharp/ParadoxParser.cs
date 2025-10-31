@@ -123,7 +123,7 @@ namespace Pdoxcl2Sharp
 
             int y = date[0] ?? 1, m = date[1] ?? 1, d = date[2] ?? 1,
                 hh = date[3] ?? 0, mm = date[4] ?? 0, s = date[5] ?? 0;
-            if ((y < 1 || y > 9999) || (m < 1 || m > 12) || 
+            if ((y < 1 || y > 9999) || (m < 1 || m > 12) ||
                 (d < 1 || d > DateTime.DaysInMonth(y, m)) || (hh < 0 || hh > 23) ||
                 (mm < 0 || mm > 59) || (s < 0 || s > 59))
                 return false;
@@ -150,10 +150,23 @@ namespace Pdoxcl2Sharp
         /// <returns>The object deserialized from the stream</returns>
         public static T Deserialize<T>(Stream data)
         {
+            return Deserialize<T>(data, Globals.ParadoxEncoding);
+        }
+
+        /// <summary>
+        /// Given a stream, the function will deserialize it into a
+        /// specific type. 
+        /// </summary>
+        /// <typeparam name="T">The type to deserialize</typeparam>
+        /// <param name="data">The stream to extract the object</param>
+        /// <param name="encoding">The encoding of the stream</param>
+        /// <returns>The object deserialized from the stream</returns>
+        public static T Deserialize<T>(Stream data, Encoding encoding)
+        {
             if (data == null)
                 throw new ArgumentNullException("data");
-            
-            using (var reader = new StreamReader(data, Globals.ParadoxEncoding, false, MaxByteBuffer))
+
+            using (var reader = new StreamReader(data, encoding, false, MaxByteBuffer))
             {
                 FnPtr ptr = Deserializer.Parse(typeof(T));
                 ParadoxParser parser = new ParadoxParser(reader);
@@ -168,10 +181,21 @@ namespace Pdoxcl2Sharp
         /// <param name="parseStrategy">Action to be performed on found tokens</param>
         public static void Parse(Stream data, Action<ParadoxParser, string> parseStrategy)
         {
+            Parse(data, parseStrategy, Globals.ParadoxEncoding);
+        }
+
+        /// <summary>
+        /// Parses a given stream and applies an action to each token found
+        /// </summary>
+        /// <param name="data">Stream to parse</param>
+        /// <param name="parseStrategy">Action to be performed on found tokens</param>
+        /// <param name="encoding">The encoding of the stream</param>
+        public static void Parse(Stream data, Action<ParadoxParser, string> parseStrategy, Encoding encoding)
+        {
             if (data == null)
                 throw new ArgumentNullException("data");
 
-            using (var reader = new StreamReader(data, Globals.ParadoxEncoding, false, MaxByteBuffer))
+            using (var reader = new StreamReader(data, encoding, false, MaxByteBuffer))
             {
                 ParadoxParser parser = new ParadoxParser(reader);
                 while (!parser.EndOfStream)
@@ -308,18 +332,18 @@ namespace Pdoxcl2Sharp
         /// of the stream a variable amount depending on the string representation of the number
         /// </summary>
         /// <returns>A 2-byte signed integer read from the current stream</returns>
-        public short ReadInt16() 
-        { 
+        public short ReadInt16()
+        {
             return (short)ReadInt32();
         }
-        
+
         /// <summary>
         /// Reads a signed byte from the current stream and advances the current position
         /// of the stream a variable amount depending on the string representation of the number
         /// </summary>
         /// <returns>A signed byte read from the current stream</returns>
-        public sbyte ReadSByte() 
-        { 
+        public sbyte ReadSByte()
+        {
             return (sbyte)ReadInt32();
         }
 
@@ -351,8 +375,8 @@ namespace Pdoxcl2Sharp
         /// of the stream a variable amount depending on the string representation of the number
         /// </summary>
         /// <returns>A 2-byte unsigned integer read from the current stream</returns>
-        public ushort ReadUInt16() 
-        { 
+        public ushort ReadUInt16()
+        {
             return (ushort)ReadUInt32();
         }
 
@@ -361,8 +385,8 @@ namespace Pdoxcl2Sharp
         /// of the stream a variable amount depending on the string representation of the number
         /// </summary>
         /// <returns>A byte read from the current stream</returns>
-        public byte ReadByte() 
-        { 
+        public byte ReadByte()
+        {
             return (byte)ReadUInt32();
         }
 
@@ -425,8 +449,8 @@ namespace Pdoxcl2Sharp
         /// Reads the data between brackets as integers
         /// </summary>
         /// <returns>A list of the data interpreted as integers</returns>
-        public IList<int> ReadIntList() 
-        { 
+        public IList<int> ReadIntList()
+        {
             return ReadList(ReadInt32);
         }
 
@@ -434,8 +458,8 @@ namespace Pdoxcl2Sharp
         /// Reads the data between brackets as doubles
         /// </summary>
         /// <returns>A list of the data interpreted as doubles</returns>
-        public IList<double> ReadDoubleList() 
-        { 
+        public IList<double> ReadDoubleList()
+        {
             return ReadList(ReadDouble);
         }
 
@@ -444,7 +468,7 @@ namespace Pdoxcl2Sharp
         /// </summary>
         /// <returns>A list of the data interpreted as strings</returns>
         public IList<string> ReadStringList()
-        { 
+        {
             return ReadList(ReadString);
         }
 
@@ -452,8 +476,8 @@ namespace Pdoxcl2Sharp
         /// Reads the data between brackets as DateTimes
         /// </summary>
         /// <returns>A list of the data interpreted as DateTimes</returns>
-        public IList<DateTime> ReadDateTimeList() 
-        { 
+        public IList<DateTime> ReadDateTimeList()
+        {
             return ReadList(ReadDateTime);
         }
 
@@ -482,7 +506,7 @@ namespace Pdoxcl2Sharp
                 throw new ArgumentNullException("keyFunc", "Function for extracting keys must not be null");
             if (valueFunc == null)
                 throw new ArgumentNullException("valueFunc", "Function for extracting values must not be null");
-            
+
             IDictionary<TKey, TValue> result = new Dictionary<TKey, TValue>();
             DoWhileBracket(() => result.Add(keyFunc(this), valueFunc(this)));
             return result;
@@ -569,7 +593,8 @@ namespace Pdoxcl2Sharp
         /// Executes an action while the matching closing right curly '}' is not met.
         /// If the action does not consume all the data inside the bracket content,
         /// the action is repeated.  Before the action is executed, the parser
-        /// ensures parsing at the beginning of the data
+        /// ensures parsing at the beginning of the data. Because a data can be a dictionary without brackets,
+        /// we increase the current ident to read until the end of the file when we think we start a data.
         /// </summary>
         /// <remarks>
         /// Even if the action is blank, the function will protect against an infinite
@@ -594,6 +619,8 @@ namespace Pdoxcl2Sharp
 
             if (currentString != null)
                 EnsureLeftCurly();
+            else if (startingIndent == 0)
+                currentIndent++;
 
             do
             {
@@ -649,7 +676,7 @@ namespace Pdoxcl2Sharp
         private LexerToken GetNextToken()
         {
             tagIsBracketed = null;
-            
+
             if (nextToken != null)
             {
                 LexerToken temp = nextToken.Value;
@@ -661,11 +688,11 @@ namespace Pdoxcl2Sharp
             // to skip the next tag if the comment is preceeded by a space.
             if (currentChar == '#')
             {
-                while((currentChar = ReadNext()) != '\n' && !eof)
+                while ((currentChar = ReadNext()) != '\n' && !eof)
                     ;
                 SetCurrentToken(currentChar);
             }
-            
+
             while (IsSpace(currentChar = ReadNext()) && !eof)
                 ;
 
@@ -744,7 +771,7 @@ namespace Pdoxcl2Sharp
 
                     if (tempToken == LexerToken.LeftCurly)
                     {
-                        isBracketed = true;    
+                        isBracketed = true;
                         break;
                     }
                 } while ((tempToken == LexerToken.Equals || IsSpace(tempChar)) && !eof);

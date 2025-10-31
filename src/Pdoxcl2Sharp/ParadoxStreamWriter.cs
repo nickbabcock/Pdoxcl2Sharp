@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -142,7 +143,7 @@ namespace Pdoxcl2Sharp
         /// <param name="value">Double to be written</param>
         public virtual void Write(double value)
         {
-            Write(value.ToString(DoubleFmt));
+            Write(value.ToString(DoubleFmt, CultureInfo.InvariantCulture));
         }
 
         /// <summary>
@@ -230,7 +231,7 @@ namespace Pdoxcl2Sharp
         /// <param name="val">Double to be written</param>
         public virtual void WriteLine(string key, double val)
         {
-            WriteLine(key, val.ToString(DoubleFmt));
+            WriteLine(key, val.ToString(DoubleFmt, CultureInfo.InvariantCulture));
         }
 
         /// <summary>

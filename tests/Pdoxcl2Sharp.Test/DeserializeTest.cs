@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 
 namespace Pdoxcl2Sharp.Test
@@ -131,6 +130,28 @@ namespace Pdoxcl2Sharp.Test
         }
 
         [Fact]
+        public void DeserializeDictionaryOfObjectsWithoutInitialCurly()
+        {
+            string data = "me={id=1} you={id=2}";
+            var expected = new Dictionary<string, Bar> { { "me", new Bar { id = 1 } }, { "you", new Bar { id = 2 } } };
+            var actual = ParadoxParser.Deserialize<IDictionary<string, Bar>>(data.ToStream());
+            Assert.Equal(2, actual.Count);
+            Assert.True(actual.TryGetValue("you", out Bar bar));
+            Assert.Equal(2, bar?.id);
+        }
+
+        [Fact]
+        public void DeserializeDictionaryOfObjectsWithInitialCurly()
+        {
+            string data = "{me={id=1} you={id=2}}";
+            var expected = new Dictionary<string, Bar> { { "me", new Bar { id = 1 } }, { "you", new Bar { id = 2 } } };
+            var actual = ParadoxParser.Deserialize<IDictionary<string, Bar>>(data.ToStream());
+            Assert.Equal(2, actual.Count);
+            Assert.True(actual.TryGetValue("you", out Bar bar));
+            Assert.Equal(2, bar?.id);
+        }
+
+        [Fact]
         public void DeserializeObjects()
         {
             string data = "{value=\"Hey\" bar={id=4}}";
@@ -183,37 +204,71 @@ namespace Pdoxcl2Sharp.Test
             Assert.Equal(2.500, actual.PapalInfluence);
         }
 
-/*        [Fact]
-        public void DeserializeParseTemplate()
+        [Fact]
+        public void DeserializeCodepage1252()
         {
-            var actual = ParadoxParser.Parse(
-                File.OpenRead("FileParseTemplate.txt"), new Province());
-            Assert.Equal("My Prov", actual.Name);
-            Assert.Equal(1.000, actual.Tax);
-            Assert.Equal(new[] { "MEE", "YOU", "THM" }, actual.Cores);
-            Assert.Equal(new[] { "BNG", "ORI", "PEG" }, actual.TopProvinces);
-            Assert.Equal(1, actual.Armies.Count);
-            var army = actual.Armies[0];
-            Assert.Equal("My first army", army.Name);
-            Assert.Equal(5, army.Leader.Id);
-            Assert.Equal(2, army.Units.Count);
-            Assert.Equal("First infantry of Awesomeness", army.Units[0].Name);
-            Assert.Equal("ninjas", army.Units[0].Type);
-            Assert.Equal(5.445, army.Units[0].Morale);
-            Assert.Equal(0.998, army.Units[0].Strength);
+            FileStream fs = File.OpenRead("FileTestCodepage1252.txt");
+            var actual = ParadoxParser.Deserialize<List<string>>(fs);
 
-            Assert.Equal("Second infantry of awesomeness", army.Units[1].Name);
-            Assert.Equal("ninjas", army.Units[1].Type);
-            Assert.Equal(6.000, army.Units[1].Morale);
-            Assert.Equal(1.000, army.Units[1].Strength);
+            Assert.Equal(8, actual.Count);
+            Assert.Equal("€‚ƒ„…†‡ˆ‰Š‹ŒŽ", actual[0]);
+            Assert.Equal("‘’“”•–—˜™š›œžŸ", actual[1]);
+            Assert.Equal("¡¢£¤¥¦§¨©ª«¬®¯", actual[2]);
+            Assert.Equal("°±²³´µ¶·¸¹º»¼½¾¿", actual[3]);
+            Assert.Equal("ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏ", actual[4]);
+            Assert.Equal("ÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß", actual[5]);
+            Assert.Equal("àáâãäåæçèéêëìíîï", actual[6]);
+            Assert.Equal("ðñòóôõö÷øùúûüýþÿ", actual[7]);
+        }
 
-            var act = actual.Armies[0].Attachments;
-            Assert.IsNotNull(act);
-            Assert.Equal(2, act.Count);
-            Assert.Equal(2296, act[0].Id);
-            Assert.Equal(54, act[0].Type);
-            Assert.Equal(61768, act[1].Id);
-            Assert.Equal(4713, act[1].Type);
-        }*/
+        [Fact]
+        public void DeserializeUTF8()
+        {
+            FileStream fs = File.OpenRead("FileTestUTF8.txt");
+            var actual = ParadoxParser.Deserialize<List<string>>(fs, Encoding.UTF8);
+
+            Assert.Equal(8, actual.Count);
+            Assert.Equal("€‚ƒ„…†‡ˆ‰Š‹ŒŽ", actual[0]);
+            Assert.Equal("‘’“”•–—˜™š›œžŸ", actual[1]);
+            Assert.Equal("¡¢£¤¥¦§¨©ª«¬®¯", actual[2]);
+            Assert.Equal("°±²³´µ¶·¸¹º»¼½¾¿", actual[3]);
+            Assert.Equal("ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏ", actual[4]);
+            Assert.Equal("ÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß", actual[5]);
+            Assert.Equal("àáâãäåæçèéêëìíîï", actual[6]);
+            Assert.Equal("ðñòóôõö÷øùúûüýþÿ", actual[7]);
+        }
+
+        /*        [Fact]
+                public void DeserializeParseTemplate()
+                {
+                    var actual = ParadoxParser.Parse(
+                        File.OpenRead("FileParseTemplate.txt"), new Province());
+                    Assert.Equal("My Prov", actual.Name);
+                    Assert.Equal(1.000, actual.Tax);
+                    Assert.Equal(new[] { "MEE", "YOU", "THM" }, actual.Cores);
+                    Assert.Equal(new[] { "BNG", "ORI", "PEG" }, actual.TopProvinces);
+                    Assert.Equal(1, actual.Armies.Count);
+                    var army = actual.Armies[0];
+                    Assert.Equal("My first army", army.Name);
+                    Assert.Equal(5, army.Leader.Id);
+                    Assert.Equal(2, army.Units.Count);
+                    Assert.Equal("First infantry of Awesomeness", army.Units[0].Name);
+                    Assert.Equal("ninjas", army.Units[0].Type);
+                    Assert.Equal(5.445, army.Units[0].Morale);
+                    Assert.Equal(0.998, army.Units[0].Strength);
+
+                    Assert.Equal("Second infantry of awesomeness", army.Units[1].Name);
+                    Assert.Equal("ninjas", army.Units[1].Type);
+                    Assert.Equal(6.000, army.Units[1].Morale);
+                    Assert.Equal(1.000, army.Units[1].Strength);
+
+                    var act = actual.Armies[0].Attachments;
+                    Assert.IsNotNull(act);
+                    Assert.Equal(2, act.Count);
+                    Assert.Equal(2296, act[0].Id);
+                    Assert.Equal(54, act[0].Type);
+                    Assert.Equal(61768, act[1].Id);
+                    Assert.Equal(4713, act[1].Type);
+                }*/
     }
 }

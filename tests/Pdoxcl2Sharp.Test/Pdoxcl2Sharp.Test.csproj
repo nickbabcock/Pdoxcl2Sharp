@@ -13,9 +13,18 @@
 
   <ItemGroup>
     <ProjectReference Include="../../src/Pdoxcl2Sharp/Pdoxcl2Sharp.csproj" />
-    <None CopyToOutputDirectory="Always" Include="FileTest.txt"/>
-    <None CopyToOutputDirectory="Always" Include="FileTextCompressed.txt"/>
-    <None CopyToOutputDirectory="Always" Include="FileParseTemplate.txt"/>
+    <None CopyToOutputDirectory="Always" Include="FileTest.txt" />
+    <None CopyToOutputDirectory="Always" Include="FileTextCompressed.txt" />
+    <None CopyToOutputDirectory="Always" Include="FileParseTemplate.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="FileTestUTF8.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="FileTestCodepage1252.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
